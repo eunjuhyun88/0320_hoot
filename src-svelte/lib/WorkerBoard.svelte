@@ -61,6 +61,10 @@
 
         <div class="card-info">
           <span class="info-gpu">{worker.gpuLabel}</span>
+          {#if worker.vramGb}
+            <span class="info-sep"></span>
+            <span class="info-vram">{worker.vramGb}GB</span>
+          {/if}
           <span class="info-sep"></span>
           <span class="info-detail">{worker.experimentId}</span>
         </div>
@@ -148,8 +152,8 @@
     position: relative;
     padding: 14px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--text-primary, #2D2D2D) 2%, transparent);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.05));
     color: inherit;
     cursor: pointer;
     overflow: hidden;
@@ -157,8 +161,8 @@
   }
 
   .card:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: color-mix(in srgb, var(--text-primary, #2D2D2D) 4%, transparent);
+    border-color: var(--border-subtle, rgba(255, 255, 255, 0.08));
     transform: translateY(-1px);
   }
 
@@ -192,14 +196,16 @@
   }
 
   .card-id {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-weight: 600;
     font-size: 0.84rem;
-    color: #ffffff;
+    color: var(--text-primary, #2D2D2D);
   }
 
   .card-region {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted, #9a9590);
     letter-spacing: 0.02em;
   }
 
@@ -208,11 +214,12 @@
     align-items: center;
     gap: 6px;
     font-size: 0.72rem;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted, #9a9590);
   }
 
   .info-gpu {
-    color: rgba(255, 255, 255, 0.5);
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    color: var(--text-secondary, #6b6560);
     font-weight: 500;
   }
 
@@ -220,13 +227,24 @@
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--border, rgba(255, 255, 255, 0.12));
+  }
+
+  .info-vram {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.68rem;
+    color: var(--text-muted, #9a9590);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .info-detail {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
   }
 
   .progress-track {
     height: 3px;
     border-radius: 100px;
-    background: rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-primary, #2D2D2D) 6%, transparent);
     overflow: hidden;
     position: relative;
   }
@@ -263,26 +281,28 @@
     gap: 6px;
     padding: 6px 8px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.02);
+    background: color-mix(in srgb, var(--text-primary, #2D2D2D) 3%, transparent);
   }
 
   .metric-label {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.64rem;
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--text-muted, #9a9590);
   }
 
   .metric-value {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.78rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-primary, #2D2D2D);
   }
 
-  .metric-value.positive { color: #2ad47d; }
-  .metric-value.negative { color: #ff5d73; }
+  .metric-value.positive { color: var(--green, #27864a); }
+  .metric-value.negative { color: var(--red, #c0392b); }
 
   /* ─── Partitions ─── */
   .partitions {
@@ -299,16 +319,18 @@
   }
 
   .partitions-title {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-muted, #9a9590);
   }
 
   .partitions-free {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.68rem;
-    color: rgba(255, 255, 255, 0.2);
+    color: var(--text-muted, #9a9590);
   }
 
   .partition-list {
@@ -320,13 +342,13 @@
   .partition {
     padding: 12px 14px;
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: color-mix(in srgb, var(--text-primary, #2D2D2D) 2%, transparent);
+    border: 1px solid var(--border-subtle, #EDEAE5);
     transition: background 200ms ease;
   }
 
   .partition:hover {
-    background: rgba(255, 255, 255, 0.035);
+    background: color-mix(in srgb, var(--text-primary, #2D2D2D) 4%, transparent);
   }
 
   .partition-top {
@@ -338,17 +360,19 @@
   }
 
   .partition-id {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-weight: 600;
     font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-primary, #2D2D2D);
   }
 
   .partition-stats {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--text-muted, #9a9590);
     margin-bottom: 8px;
   }
 
@@ -356,7 +380,7 @@
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--border, rgba(255, 255, 255, 0.1));
   }
 
   .stage-meter {
@@ -368,7 +392,7 @@
   .seg {
     height: 3px;
     border-radius: 100px;
-    background: rgba(255, 255, 255, 0.05);
+    background: color-mix(in srgb, var(--text-primary, #2D2D2D) 6%, transparent);
     transition: background 300ms ease, box-shadow 300ms ease;
   }
 

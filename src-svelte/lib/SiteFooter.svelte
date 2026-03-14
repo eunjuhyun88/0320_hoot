@@ -1,0 +1,276 @@
+<script lang="ts">
+  type FooterLink = {
+    label: string;
+    href: string;
+    external?: boolean;
+  };
+
+  const productLinks: FooterLink[] = [
+    { label: "Dashboard", href: "#/" },
+    { label: "Research", href: "#/research" },
+    { label: "Models", href: "#/models" },
+    { label: "Network", href: "#/network" },
+  ];
+
+  const resourceLinks: FooterLink[] = [
+    { label: "HOOT Whitepaper", href: "https://hoot.holostudio.io", external: true },
+  ];
+
+  const followLinks: FooterLink[] = [
+    { label: "Hoot Browser on X", href: "https://x.com/HootBrowser", external: true },
+  ];
+
+  const currentYear = new Date().getFullYear();
+</script>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="footer-brand-block">
+      <a class="footer-brand" href="#/">
+        <span class="footer-brand-mark">HOOT</span>
+        <span class="footer-brand-name">PROTOCOL</span>
+      </a>
+      <p class="footer-copy">
+        Autonomous research mesh for live experiment orchestration, model benchmarking, and network-native compute workflows.
+      </p>
+    </div>
+
+    <div class="footer-links-grid">
+      <div class="footer-group">
+        <h2 class="footer-group-title">Product</h2>
+        <div class="footer-link-list">
+          {#each productLinks as link}
+            <a class="footer-link" href={link.href}>{link.label}</a>
+          {/each}
+        </div>
+      </div>
+
+      <div class="footer-group">
+        <h2 class="footer-group-title">Resources</h2>
+        <div class="footer-link-list">
+          {#each resourceLinks as link}
+            <a
+              class="footer-link"
+              href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noopener noreferrer" : undefined}
+            >
+              {link.label}
+            </a>
+          {/each}
+        </div>
+      </div>
+
+      <div class="footer-group">
+        <h2 class="footer-group-title">Follow</h2>
+        <div class="footer-link-list">
+          {#each followLinks as link}
+            <a
+              class="footer-link"
+              href={link.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label}
+            </a>
+          {/each}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="site-footer-meta">
+    <span>&copy; {currentYear} Holo Studio Co., Ltd.</span>
+    <span>HOOT Protocol</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    border-top: 1px solid rgba(217, 119, 87, 0.15);
+    background:
+      radial-gradient(circle at top left, rgba(217, 119, 87, 0.1), transparent 40%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 249, 247, 0.98));
+    color: var(--text-primary, #2D2D2D);
+  }
+
+  .site-footer-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 24px 20px;
+    display: grid;
+    grid-template-columns: minmax(220px, 1.2fr) 2fr;
+    gap: 28px;
+  }
+
+  .footer-brand-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .footer-brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    text-decoration: none;
+    width: fit-content;
+  }
+
+  .footer-brand-mark {
+    font-family: var(--font-display, "Playfair Display", serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary, #2D2D2D);
+    letter-spacing: 0.04em;
+  }
+
+  .footer-brand-name {
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--accent, #D97757);
+    letter-spacing: 0.16em;
+  }
+
+  .footer-copy {
+    margin: 0;
+    max-width: 420px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--text-secondary, #6b6560);
+  }
+
+  .footer-links-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(100px, 1fr));
+    gap: 20px;
+  }
+
+  .footer-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .footer-group-title {
+    margin: 0;
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent, #D97757);
+  }
+
+  .footer-link-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer-link {
+    color: var(--text-secondary, #6b6560);
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 160ms ease, transform 160ms ease;
+    width: fit-content;
+  }
+
+  .footer-link:hover {
+    color: var(--accent, #D97757);
+    transform: translateX(2px);
+  }
+
+  .site-footer-meta {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    border-top: 1px solid rgba(217, 119, 87, 0.12);
+    padding-top: 12px;
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 0.62rem;
+    color: var(--accent, #D97757);
+    letter-spacing: 0.06em;
+  }
+
+  /* ── Tablet ── */
+  @media (max-width: 960px) {
+    .site-footer-inner {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .footer-links-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 600px) {
+    .site-footer-inner {
+      padding: 20px 16px 16px;
+      gap: 20px;
+    }
+
+    .footer-brand {
+      gap: 6px;
+    }
+    .footer-brand-mark {
+      font-size: 1.1rem;
+    }
+    .footer-brand-name {
+      font-size: 0.65rem;
+    }
+
+    .footer-copy {
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
+
+    .footer-links-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .footer-group-title {
+      font-size: 0.52rem;
+    }
+
+    .footer-link {
+      font-size: 0.74rem;
+      padding: 2px 0;
+    }
+
+    .site-footer-meta {
+      padding: 10px 16px 14px;
+      padding-top: 10px;
+      flex-direction: row;
+      justify-content: space-between;
+      font-size: 0.52rem;
+    }
+  }
+
+  /* ── Very small screens ── */
+  @media (max-width: 380px) {
+    .site-footer-inner {
+      padding: 16px 12px 12px;
+    }
+    .footer-links-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .footer-link-list {
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+    }
+    .site-footer-meta {
+      padding: 8px 12px 12px;
+    }
+  }
+</style>

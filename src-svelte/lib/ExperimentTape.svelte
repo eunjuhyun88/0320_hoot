@@ -80,7 +80,7 @@
     height: 8px;
     border-radius: 50%;
     background: var(--entry-tone);
-    box-shadow: 0 0 8px color-mix(in srgb, var(--entry-tone) 40%, transparent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--entry-tone) 50%, transparent);
     flex-shrink: 0;
   }
 
@@ -126,12 +126,14 @@
   }
 
   .experiment-id {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-weight: 600;
     font-size: 0.82rem;
     color: rgba(255, 255, 255, 0.8);
   }
 
   .worker-id {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.72rem;
     color: rgba(255, 255, 255, 0.3);
   }
@@ -144,6 +146,7 @@
   }
 
   .metric-delta {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.75rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -154,6 +157,7 @@
   .metric-delta.negative { color: #ff5d73; }
 
   .row-ts {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
     font-size: 0.66rem;
     color: rgba(255, 255, 255, 0.18);
     font-variant-numeric: tabular-nums;

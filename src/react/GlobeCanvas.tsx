@@ -62,12 +62,20 @@ type GlobeInteractionState = {
   targetYaw: number;
   currentPitch: number;
   targetPitch: number;
+  currentZoom: number;
+  targetZoom: number;
   isDragging: boolean;
   pointerId: number | null;
   lastClientX: number;
   lastClientY: number;
   lastInteractionAt: number;
 };
+
+const ZOOM_MIN = 3.5;
+const ZOOM_MAX = 12.0;
+const ZOOM_DEFAULT = 6.9;
+const ZOOM_SPEED = 0.003;
+const ZOOM_SMOOTH = 0.08;
 
 type GlobeDebugWindow = Window & {
   __meshGlobeDebug?: {
@@ -118,6 +126,8 @@ export default function GlobeCanvas({
     targetYaw: lngToRotation(72),
     currentPitch: latToPitch(24),
     targetPitch: latToPitch(24),
+    currentZoom: ZOOM_DEFAULT,
+    targetZoom: ZOOM_DEFAULT,
     isDragging: false,
     pointerId: null,
     lastClientX: 0,
@@ -371,10 +381,13 @@ export default function GlobeCanvas({
       event.preventDefault();
 
       const interaction = interactionRef.current;
-      const dominantDelta =
-        Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
 
-      interaction.targetYaw += dominantDelta * 0.0026;
+      // Mouse wheel controls zoom (camera distance)
+      interaction.targetZoom = THREE.MathUtils.clamp(
+        interaction.targetZoom + event.deltaY * ZOOM_SPEED,
+        ZOOM_MIN,
+        ZOOM_MAX,
+      );
       interaction.lastInteractionAt = performance.now();
     }
 
@@ -396,9 +409,14 @@ export default function GlobeCanvas({
 
       interaction.currentYaw += (interaction.targetYaw - interaction.currentYaw) * 0.065;
       interaction.currentPitch += (interaction.targetPitch - interaction.currentPitch) * 0.075;
+      interaction.currentZoom += (interaction.targetZoom - interaction.currentZoom) * ZOOM_SMOOTH;
 
       globeGroupInstance.rotation.y = interaction.currentYaw;
       globeGroupInstance.rotation.x = interaction.currentPitch;
+
+      // Apply zoom to camera position
+      cameraInstance.position.z = interaction.currentZoom;
+      cameraInstance.position.y = 0.06 * (interaction.currentZoom / ZOOM_DEFAULT);
 
       const time = now * 0.001;
       const breathingScale = 1 + Math.sin(time * 0.52) * 0.008;

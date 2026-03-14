@@ -14,33 +14,33 @@
 <style>
   .btn {
     appearance: none;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    background: rgba(255, 255, 255, 0.04);
-    color: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--border, #E5E0DA);
+    background: transparent;
+    color: var(--text-muted, #9a9590);
     border-radius: 100px;
-    padding: 6px 14px;
+    padding: 5px 12px;
     font: inherit;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 500;
     letter-spacing: 0.02em;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: all 180ms ease;
+    gap: 5px;
+    transition: all 150ms ease;
     -webkit-user-select: none;
     user-select: none;
   }
 
   .btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.6);
+    border-color: var(--text-secondary, #6b6560);
+    color: var(--text-secondary, #6b6560);
   }
 
   .btn.active {
-    background: rgba(51, 209, 255, 0.1);
-    border-color: rgba(51, 209, 255, 0.25);
-    color: #8deaff;
+    background: rgba(217, 119, 87, 0.08);
+    border-color: rgba(217, 119, 87, 0.3);
+    color: var(--accent, #D97757);
   }
 
   .btn:disabled {
@@ -52,7 +52,30 @@
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #33d1ff;
-    box-shadow: 0 0 8px rgba(51, 209, 255, 0.5);
+    background: var(--accent, #D97757);
+    box-shadow: 0 0 6px rgba(217, 119, 87, 0.4);
+  }
+
+  /* Dark theme override (for Globe view) */
+  :global([data-theme="dark"]) .btn {
+    border-color: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.4);
+  }
+
+  :global([data-theme="dark"]) .btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  :global([data-theme="dark"]) .btn.active {
+    background: rgba(217, 119, 87, 0.12);
+    border-color: rgba(217, 119, 87, 0.3);
+    color: #E8D5C4;
+  }
+
+  :global([data-theme="dark"]) .active-dot {
+    background: var(--accent, #D97757);
+    box-shadow: 0 0 8px rgba(217, 119, 87, 0.5);
   }
 </style>
