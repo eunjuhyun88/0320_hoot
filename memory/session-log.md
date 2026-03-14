@@ -167,6 +167,61 @@ runtime-api가 실제 runtime summary를 읽게 된 뒤, 다음 단계로 `Autor
 - 5개 차트 모두 정상 렌더링 ✓
 - Chrome MCP 비주얼 QA 완료 ✓
 
+---
+
+## 2026-03-15 (cont): Runtime command path + agent branching guide
+
+### Context
+사용자 요청: 계속 완성하고, 다른 에이전트가 작업한 것과 작업 중인 것도 브랜치를 나눠서 진행하도록 가이드를 적용
+
+### Completed
+- **Controller command path added**:
+  - `scripts/autoresearch_loop_controller.ts`
+  - `POST /commands` added for simulate mode
+  - `/healthz` and `/state` now expose:
+    - `supportsCommands`
+    - `paused`
+    - `boostedCategories`
+    - `pausedCategories`
+    - `lastCommandAt`
+  - simulate loop now respects controller pause state and category weighting for new experiment ideas
+
+- **Runtime API control proxy added**:
+  - `apps/runtime-api/src/server.ts`
+  - `POST /api/runtime/control` proxies commands to the controller and returns refreshed controller state
+  - `packages/contracts/src/runtime.ts` and `packages/autoresearch-adapter/src/runtime-root.ts` expanded to carry controller control summaries
+
+- **Frontend runtime control re-enabled**:
+  - `src-svelte/lib/stores/jobStore.ts`
+  - runtime mode now maps controller control state into `paused`, boosted/paused categories, `controlsAvailable`
+  - runtime mode now issues `pause`, `resume`, `boost_category`, `pause_category`, and `stop`
+  - `AutoresearchPage.svelte` stop action now routes through store command handling
+  - `RunningDashboard.svelte` stop button now follows runtime read-only gating
+
+- **Canonical branch/worktree guide added**:
+  - `docs/AGENT_BRANCHING.md`
+  - `README.md`, `AGENTS.md`, `CLAUDE.md`, `docs/ENGINEERING.md`, `docs/MULTI_AGENT_COORDINATION.md`, `docs/GIT_WORKFLOW.md`, and `docs/exec-plans/active/continuous-autoresearch-refactor.md` updated to require branch/worktree separation for parallel agents
+  - `apps/runtime-api/README.md` updated with the new control endpoint
+
+### Verification
+- `npm run build` ✓
+- `npm run docs:refresh` ✓
+- `npm run docs:check` ✓
+- end-to-end local verification on 2026-03-15:
+  - controller on `8788`
+  - runtime-api on `8790`
+  - `GET /api/runtime/mesh?runtimeRoot=runtime/autoresearch-loop-pin-test` returned controller control fields
+  - `POST /api/runtime/control ... {"type":"pause"}` updated controller and mesh to `paused: true`
+  - `POST /api/runtime/control ... {"type":"boost_category","category":"architecture"}` updated boosted categories
+  - `POST /api/runtime/control ... {"type":"stop"}` set `stopReason: "stopped by command"`
+  - follow-up `GET /healthz` confirmed iterations stopped at `5`
+  - verification processes were stopped after checks
+
+### Pending
+- persist runtime command ownership in `runtime-api` instead of controller-local memory
+- normalize controller `/events` into the shared runtime SSE contract
+- move the remaining page/runtime hybrids fully onto runtime snapshots + streams
+
 ### Current File State
 
 #### Modified Files (2)

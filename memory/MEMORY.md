@@ -87,6 +87,14 @@
   - `jobStore` can mirror `/api/runtime/mesh`
   - `AutoresearchPage` prefers runtime mesh over browser simulation
   - local simulation remains as fallback only
+- **Runtime control path now works end-to-end for simulate mode**:
+  - controller exposes `/commands`
+  - runtime-api exposes `POST /api/runtime/control`
+  - runtime mesh includes controller control state (`supportsCommands`, `paused`, boosted/paused categories, `lastCommandAt`)
+  - `jobStore` runtime mode can issue pause/boost/pause-category/stop commands
+- **Canonical multi-agent branching guide added**:
+  - `docs/AGENT_BRANCHING.md`
+  - root routers (`README.md`, `AGENTS.md`, `CLAUDE.md`) now require it for parallel agent work or handoffs
 
 ## Topic Files
 - [session-log.md](session-log.md) — what was done, pending tasks
