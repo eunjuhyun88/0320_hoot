@@ -343,6 +343,61 @@ runtime-api가 실제 runtime summary를 읽게 된 뒤, 다음 단계로 `Autor
 
 ---
 
+## 2026-03-15 (cont): Main-merge readiness cleanup
+
+### Context
+사용자 요청: `main`으로 머지할 수 있게 전체 상태를 정리
+
+### Completed
+- **Local-only artifacts removed from tracked history**:
+  - `.claude/launch.json`
+  - `.claude/worktrees/*`
+  - `runtime/autoresearch-loop*` generated manifests, telemetry, agent logs, and workspace gitlinks
+  - `.gitignore` updated so those paths stay out of future merge diffs
+  - commit: `cd847a3 chore: stop tracking local runtime artifacts`
+
+- **Current dashboard/runtime refactor lane finalized into commits**:
+  - committed the pending `src-svelte/*` refactor, dashboard/widget stores, runtime adapters, and replacement components
+  - committed missing `lint/eslint-architecture.js`
+  - commit: `e4ac3d7 refactor: consolidate dashboard runtime ui state`
+
+- **Generated docs refreshed and committed**:
+  - commit: `4a19153 chore: refresh generated context artifacts`
+
+- **Approved integration branch fast-forwarded**:
+  - `feat/next-iteration` now points to `4a19153`
+  - `main` remains `26982c1`
+  - `git merge-base --is-ancestor main feat/next-iteration` now returns success, so local `main -> feat/next-iteration` is fast-forward ready
+
+### Verification
+- `git status --short --branch` ✓
+  - current branch clean on `codex/dashboard-widget-lane`
+- `npm run agent:guard` ✓
+- `npm run build` ✓
+  - warnings only:
+    - `src-svelte/lib/components/ConvergenceChart.svelte`
+    - `src-svelte/lib/components/ContextPanel.svelte`
+    - `src-svelte/lib/components/ExperimentTreemap.svelte`
+    - `src-svelte/lib/components/AppDock.svelte`
+- `npm run docs:refresh` ✓
+- `npm run docs:check` ✓
+
+### Remaining Risk
+- `.claude/worktrees/crazy-lumiere` is still a dirty non-canonical lane with uncommitted work in:
+  - `src-svelte/lib/components/PixelIcon.svelte`
+  - `src-svelte/lib/layout/NavBar.svelte`
+  - `src-svelte/lib/pages/OntologyPage.svelte`
+  - `src-svelte/lib/stores/stageStore.ts`
+  - new widget-related files
+- it is outside the approved merge path and should be either migrated into a claimed `codex/*` lane or explicitly quarantined before any claim that "all agent work" is merged
+
+### Pending
+- push `feat/next-iteration` to origin when ready
+- if desired, fast-forward `main` from `feat/next-iteration`
+- decide the fate of the stale `claude/crazy-lumiere` WIP
+
+---
+
 ## 2026-03-15 (cont): split remaining dirty UI/widget work into a dedicated lane
 
 ### Context

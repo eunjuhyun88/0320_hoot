@@ -20,8 +20,8 @@
 - **Don't reduce info, only add** — user explicitly rejected removing visualizations
 
 ## Project State
-- Branch: `codex/dashboard-widget-lane` (uncommitted UI/widget changes)
-- `feat/next-iteration` is fast-forwarded to `898fd1d` and now matches `codex/multi-agent-enforcement`
+- Branch: `codex/dashboard-widget-lane` (clean after dashboard/runtime UI refactor + local artifact cleanup)
+- `feat/next-iteration` is fast-forwarded to `4a19153` and now matches `codex/dashboard-widget-lane`
 - All builds pass (`npm run build`)
 - No test runner configured — verify via build
 - `memento-kit` core repo layer integrated
@@ -123,9 +123,15 @@
   - this rule is also surfaced by `scripts/dev/agent-guard.mjs`, `.claude/hooks/session-start.sh`, and `scripts/dev/start-agent-run.mjs`
 - **Current branch audit snapshot (2026-03-15)**:
   - `main` still matches `origin/main` at `26982c1`
-  - local `feat/next-iteration` is `898fd1d`, ahead of `origin/feat/next-iteration` (`d7b73a6`) by 10 commits
-  - current implementation lane is `codex/dashboard-widget-lane` at `cd40130` with active web WIP
-  - `.claude/worktrees/crazy-lumiere` remains a dirty non-canonical lane on `claude/crazy-lumiere`
+  - local `feat/next-iteration` is `4a19153`, ahead of `origin/feat/next-iteration` (`d7b73a6`) by 17 commits
+  - current implementation lane is `codex/dashboard-widget-lane` at `4a19153`
+  - `main -> feat/next-iteration` is now fast-forward ready locally
+  - `.claude/worktrees/crazy-lumiere` remains the only dirty non-canonical lane on `claude/crazy-lumiere`
+- **Main-merge cleanup landed on the dashboard lane**:
+  - `cd847a3 chore: stop tracking local runtime artifacts`
+  - `e4ac3d7 refactor: consolidate dashboard runtime ui state`
+  - `4a19153 chore: refresh generated context artifacts`
+  - local runtime/worktree artifacts are no longer tracked under `.claude/worktrees/*`, `.claude/launch.json`, or `runtime/autoresearch-loop*`
 - **Stale Claude worktree was synced to latest enforcement commit**:
   - `.claude/worktrees/kind-leavitt` fast-forwarded from `546a59f` to `d0d1338`
   - worktree is now clean, but still intentionally blocked by `agent:guard` because branch is `claude/kind-leavitt`
