@@ -7,7 +7,15 @@ results.tsv
 .env
 .env.*
 runtime/*/workspaces/
+runtime/autoresearch-loop/
+runtime/autoresearch-loop-live/
+runtime/autoresearch-loop-pin-test/
+runtime/autoresearch-loop-test/
+runtime/autoresearch-loop-test2/
 runtime/upstreams/
 .agent-context/
 context-kit.local.json
 .codex/
+.claude/launch.json
+.claude/worktrees/
+.playwright-cli/
