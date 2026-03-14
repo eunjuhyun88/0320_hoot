@@ -40,6 +40,20 @@ npm run ctx:checkpoint -- --work-id "W-20260315-runtime-control" --surface "runt
 npm run coord:claim -- --work-id "W-20260315-runtime-control" --agent "claude" --surface "runtime-api" --summary "runtime control path" --path "apps/runtime-api" --path "scripts" --path "packages"
 ```
 
+## Automatic Enforcement
+
+The repo now blocks non-compliant agent lanes automatically:
+
+- `.claude/hooks/session-start.sh` runs `npm run agent:guard`
+- `scripts/dev/start-agent-run.mjs` runs `npm run agent:guard`
+- `.githooks/pre-push` runs `npm run agent:guard`
+
+Manual check:
+
+```bash
+npm run agent:guard
+```
+
 ## Scope Rules
 
 - Split work by path prefix first, then by surface.

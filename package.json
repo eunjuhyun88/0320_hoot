@@ -47,6 +47,7 @@
     "coord:list": "node scripts/dev/list-work-claims.mjs",
     "coord:check": "node scripts/dev/check-agent-coordination.mjs",
     "coord:release": "node scripts/dev/release-work.mjs",
+    "agent:guard": "node scripts/dev/agent-guard.mjs",
     "agent:refresh": "node scripts/dev/refresh-agent-catalog.mjs && node scripts/dev/refresh-context-registry.mjs",
     "agent:new": "node scripts/dev/scaffold-agent.mjs",
     "agent:start": "node scripts/dev/start-agent-run.mjs",

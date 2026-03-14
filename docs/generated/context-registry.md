@@ -52,6 +52,7 @@ This generated manifest is the portable index for open-source discovery, local A
 | --- | --- | --- |
 | `agent:event` | agent | `node scripts/dev/log-agent-event.mjs` |
 | `agent:finish` | agent | `node scripts/dev/finish-agent-run.mjs` |
+| `agent:guard` | agent | `node scripts/dev/agent-guard.mjs` |
 | `agent:new` | agent | `node scripts/dev/scaffold-agent.mjs` |
 | `agent:refresh` | agent | `node scripts/dev/refresh-agent-catalog.mjs && node scripts/dev/refresh-context-registry.mjs` |
 | `agent:report` | agent | `node scripts/dev/refresh-agent-usage-report.mjs` |
@@ -116,7 +117,7 @@ This generated manifest is the portable index for open-source discovery, local A
 
 - Retrieval enabled: `yes`
 - Indexed sources: `34`
-- Indexed chunks: `278`
+- Indexed chunks: `281`
 
 ## Telemetry
 

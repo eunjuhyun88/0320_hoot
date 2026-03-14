@@ -6,25 +6,25 @@ This report estimates how much context the routing system saves before the agent
 
 | Bundle | Files | Lines | Approx Tokens | Reduction vs canonical | Reduction vs all docs |
 | --- | --- | --- | --- | --- | --- |
-| small map | 10 | 1088 | 8866 | 44.8% | 80.1% |
-| canonical | 29 | 2076 | 16073 | 0.0% | 63.9% |
-| all docs | 97 | 5672 | 44548 | -177.2% | 0.0% |
+| small map | 10 | 1090 | 8897 | 44.8% | 80.1% |
+| canonical | 29 | 2078 | 16104 | 0.0% | 64.0% |
+| all docs | 97 | 5690 | 44690 | -177.5% | 0.0% |
 
 ## Estimated Savings
 
 - Small map saves approximately `7207` tokens vs the canonical bundle.
-- Small map saves approximately `35682` tokens vs the all-doc bundle.
-- Surface `web` saves approximately `34845` tokens vs the all-doc bundle.
-- Surface `runtime-api` saves approximately `34840` tokens vs the all-doc bundle.
-- Surface `protocol` saves approximately `34860` tokens vs the all-doc bundle.
+- Small map saves approximately `35793` tokens vs the all-doc bundle.
+- Surface `web` saves approximately `34956` tokens vs the all-doc bundle.
+- Surface `runtime-api` saves approximately `34951` tokens vs the all-doc bundle.
+- Surface `protocol` saves approximately `34971` tokens vs the all-doc bundle.
 
 ## Surface Bundles
 
 | Bundle | Files | Lines | Approx Tokens | Reduction vs canonical | Reduction vs all docs |
 | --- | --- | --- | --- | --- | --- |
-| web | 14 | 1202 | 9703 | 39.6% | 78.2% |
-| runtime-api | 14 | 1202 | 9708 | 39.6% | 78.2% |
-| protocol | 14 | 1196 | 9688 | 39.7% | 78.3% |
+| web | 14 | 1204 | 9734 | 39.6% | 78.2% |
+| runtime-api | 14 | 1204 | 9739 | 39.5% | 78.2% |
+| protocol | 14 | 1198 | 9719 | 39.6% | 78.3% |
 
 ## Structural Scorecard
 
@@ -33,9 +33,9 @@ This report estimates how much context the routing system saves before the agent
 | Small-map reduction vs canonical | 44.8% | >= 40% | PASS |
 | Small-map reduction vs all docs | 80.1% | >= 55% | PASS |
 | Worst surface reduction vs all docs | 78.2% | >= 50% | PASS |
-| Small-map approx tokens | 8866 | <= 3800 | FAIL |
+| Small-map approx tokens | 8897 | <= 3800 | FAIL |
 | Small-map file count | 10 | <= 6 | FAIL |
-| Canonical approx tokens | 16073 | <= 12000 | FAIL |
+| Canonical approx tokens | 16104 | <= 12000 | FAIL |
 
 ## Structural Readiness
 

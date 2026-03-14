@@ -222,6 +222,26 @@ runtime-api가 실제 runtime summary를 읽게 된 뒤, 다음 단계로 `Autor
 - normalize controller `/events` into the shared runtime SSE contract
 - move the remaining page/runtime hybrids fully onto runtime snapshots + streams
 
+### Additional Completed
+- **Agent enforcement added**:
+  - `scripts/dev/agent-guard.mjs`
+  - `package.json` → `agent:guard`
+  - `.claude/hooks/session-start.sh` now hard-fails on non-compliant branches
+  - `.githooks/pre-push` now runs the same guard before autopilot/gates
+  - `scripts/dev/start-agent-run.mjs` now refuses to start telemetry runs on non-compliant branches
+
+### Additional Verification
+- `npm run agent:guard` intentionally failed on current branch `feat/next-iteration` with:
+  - `agent work must run on a codex/ branch`
+- `npm run docs:refresh` ✓
+- `npm run docs:check` ✓
+- `npm run build` ✓
+- current lane migrated:
+  - `git checkout -b codex/multi-agent-enforcement`
+  - `npm run coord:claim -- --work-id "W-20260315-agent-lane-enforcement" ...`
+  - `npm run agent:guard` ✓
+  - `npm run coord:check` ✓
+
 ### Current File State
 
 #### Modified Files (2)

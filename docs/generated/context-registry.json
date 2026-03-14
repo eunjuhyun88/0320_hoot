@@ -231,6 +231,11 @@
       "category": "agent"
     },
     {
+      "name": "agent:guard",
+      "script": "node scripts/dev/agent-guard.mjs",
+      "category": "agent"
+    },
+    {
       "name": "agent:new",
       "script": "node scripts/dev/scaffold-agent.mjs",
       "category": "agent"
@@ -658,7 +663,7 @@
   "retrieval": {
     "enabled": true,
     "indexPath": "docs/generated/contextual-retrieval-index.json",
-    "chunkCount": 278,
+    "chunkCount": 281,
     "sourceCount": 34,
     "sources": [
       {

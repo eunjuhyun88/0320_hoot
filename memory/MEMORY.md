@@ -17,7 +17,7 @@
 - **Don't reduce info, only add** — user explicitly rejected removing visualizations
 
 ## Project State
-- Branch: `feat/next-iteration` (uncommitted changes)
+- Branch: `codex/multi-agent-enforcement` (uncommitted changes)
 - All builds pass (`npm run build`)
 - No test runner configured — verify via build
 - `memento-kit` core repo layer integrated
@@ -95,6 +95,14 @@
 - **Canonical multi-agent branching guide added**:
   - `docs/AGENT_BRANCHING.md`
   - root routers (`README.md`, `AGENTS.md`, `CLAUDE.md`) now require it for parallel agent work or handoffs
+- **Agent lane enforcement is now active**:
+  - `npm run agent:guard`
+  - `.claude/hooks/session-start.sh` runs the guard
+  - `scripts/dev/start-agent-run.mjs` runs the guard
+  - `.githooks/pre-push` runs the guard
+  - non-`codex/` agent branches are now intentionally blocked
+  - current lane was migrated to `codex/multi-agent-enforcement`
+  - active claim: `W-20260315-agent-lane-enforcement`
 
 ## Topic Files
 - [session-log.md](session-log.md) — what was done, pending tasks

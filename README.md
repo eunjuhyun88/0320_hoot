@@ -111,6 +111,7 @@ When more than one agent is active:
 Use:
 
 ```bash
+npm run agent:guard
 npm run safe:worktree -- <task-slug> main
 npm run ctx:checkpoint -- --work-id "W-..." --surface "<surface>" --objective "<objective>"
 npm run coord:claim -- --work-id "W-..." --agent "<agent>" --surface "<surface>" --summary "<summary>" --path "<prefix>"

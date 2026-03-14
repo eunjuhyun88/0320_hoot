@@ -61,3 +61,4 @@ npm run ctx:restore -- --mode brief
 - Continuous autoresearch must be orchestrated outside the browser.
 - Frontend / backend separation and API-first boundaries are mandatory.
 - Branch/worktree split is mandatory when multiple agents are active.
+- Session start now hard-fails if `npm run agent:guard` does not pass.

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { agentManifest } from './agent-telemetry-lib.mjs';
 import { currentBranch, saveRun, setActiveRun, telemetryConfig, withTelemetryLock } from './agent-telemetry-lib.mjs';
+import { run as runCoordinationCommand } from './coordination-lib.mjs';
 
 const rootDir = process.cwd();
 const { telemetry } = telemetryConfig(rootDir);
@@ -69,6 +70,11 @@ if (!options.agent) {
 }
 
 const manifest = agentManifest(rootDir, options.agent);
+const guard = runCoordinationCommand('node', ['scripts/dev/agent-guard.mjs'], { cwd: rootDir });
+if (guard.status !== 0) {
+  throw new Error(guard.stderr || guard.stdout || '[agent:start] agent guard failed');
+}
+
 const runId = options.runId || `R-${new Date().toISOString().replace(/[-:TZ.]/g, '').slice(0, 14)}-${options.agent}`;
 const surface = options.surface || manifest?.surfaces?.[0] || '';
 if (!surface) {

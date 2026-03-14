@@ -4,6 +4,10 @@ set -euo pipefail
 ROOT_DIR="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$ROOT_DIR"
 
+if [ -f "scripts/dev/agent-guard.mjs" ]; then
+	node scripts/dev/agent-guard.mjs
+fi
+
 echo "[memento] Start order: README.md -> AGENTS.md -> docs/README.md -> ARCHITECTURE.md -> relevant canonical docs."
 
 if [ -f "scripts/dev/context-restore.sh" ]; then
