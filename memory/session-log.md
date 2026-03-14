@@ -73,6 +73,51 @@
 - runtime-api가 controller/supervisor 상태를 직접 흡수하도록 합치기
 - `jobStore`를 runtime snapshot/SSE client로 축소
 - 실제 evaluator(build/perf/API gates)와 autoresearch keep/discard 판정 연결
+
+---
+
+## 2026-03-15 (cont): Runtime API filesystem-backed mesh summary
+
+### Context
+이전 단계에서 pinned upstream bootstrap까지 붙였고, 다음으로 runtime-api가 placeholder가 아니라 실제 runtime artifacts를 읽도록 연결
+
+### Completed
+- **Contracts expanded**:
+  - `RuntimeWorkspaceSummary`
+  - `RuntimeControllerSummary`
+  - `RuntimeSupervisorSummary`
+  - `RuntimeMeshSummary`
+
+- **Adapter inspection added**:
+  - `packages/autoresearch-adapter/src/runtime-root.ts`
+  - reads `manifest.json`, `supervisor-state.json`, `telemetry.ndjson`
+  - inspects each workspace `results.tsv`, `run.log`, `agent_status.md`
+  - resolves git branch/head for each worktree
+
+- **Runtime API endpoints upgraded**:
+  - `GET /api/runtime/workspaces`
+  - `GET /api/runtime/mesh`
+  - optional `runtimeRoot` query string to inspect parallel runtime packs
+  - `AUTORESEARCH_RUNTIME_ROOT` env default support
+
+### Verification
+- `npm run build` ✓
+- `AUTORESEARCH_RUNTIME_ROOT=runtime/autoresearch-loop-pin-test npm run dev:runtime-api` ✓
+- `GET /api/runtime/mesh?runtimeRoot=runtime/autoresearch-loop-pin-test` ✓
+  - workspace branch/head returned
+  - discard counts, best metric, telemetry event count returned
+- `GET /api/runtime/workspaces?runtimeRoot=runtime/autoresearch-loop-pin-test` ✓
+- controller running on `8788` while querying mesh ✓
+  - controller summary switches to `reachable: true`
+
+### Key Findings
+- runtime-api가 이제 단순 job scaffold를 넘어서 “현재 runtime이 어떤 상태인지”를 외부에서 읽을 수 있는 관측 경계가 됨
+- 아직 control plane 단일화는 아니고, controller/supervisor가 쓰는 파일들을 runtime-api가 읽어 summary를 만드는 단계
+
+### Pending
+- `AutoresearchPage`가 `/api/runtime/mesh` + job SSE를 소비하도록 전환
+- controller event stream을 runtime-api event model로 정규화
+- in-memory job API를 persisted runtime ownership으로 교체
 - 4 phase 전환 (idle → setup → running → complete) ✓
 - Pause/Resume 토글 → 실험 생성 중지/재개 ✓
 - Branch Boost → 골드 보더 + "Boosted" 텍스트 ✓

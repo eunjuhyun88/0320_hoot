@@ -60,6 +60,13 @@ Turn the current repo into a continuously running autoresearch product surface w
 - controller and supervisor now default to the pinned stack without requiring `--repo`
 - runtime-api now exposes `GET /api/runtime/upstream` for stack visibility
 
+### Runtime-root inspection
+- runtime-api now exposes real runtime summaries instead of placeholder workspace responses
+- `GET /api/runtime/workspaces` returns controller + supervisor + workspace summaries
+- `GET /api/runtime/mesh` returns runtime totals (blocked/ready/running, result counts, best metric, telemetry event count)
+- summaries are built from `manifest.json`, `supervisor-state.json`, `results.tsv`, `run.log`, and `agent_status.md`
+- `runtimeRoot` can be selected via query string for parallel runtime packs
+
 ## Current Problems
 
 1. `src-svelte/lib/stores/jobStore.ts` still owns state, timers, and simulation.

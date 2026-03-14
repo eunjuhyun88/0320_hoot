@@ -118,6 +118,7 @@ Reference repo reviewed: [karpathy/autoresearch](https://github.com/karpathy/aut
 - `npm run autoresearch:bootstrap` clones the pinned repos into `runtime/upstreams/`
 - controller worktrees now default to the pinned `karpathy/autoresearch` checkout
 - supervisor prompts now reference `karpathy/nanochat@6ed7d1d` round-1 files for concrete baseline ideas
+- runtime-api now reads controller/supervisor filesystem artifacts to expose real workspace and mesh summaries
 
 ### Runtime persistence
 - Start with SQLite for local durability and restart recovery.
@@ -175,6 +176,8 @@ Reference repo reviewed: [karpathy/autoresearch](https://github.com/karpathy/aut
   - workspace and worker status
 - `GET /api/runtime/upstream`
   - pinned upstream stack status and resolved commits
+- `GET /api/runtime/mesh`
+  - runtime root summary derived from manifest + supervisor state + workspace artifacts
 
 ### Event model rule
 - Backend is the single writer of domain events.

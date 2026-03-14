@@ -79,6 +79,10 @@
   - controller/supervisor default to pinned upstream repos
   - runtime-api exposes `/api/runtime/upstream`
   - supervisor prompt references nanochat round-1 files (`nanochat/gpt.py`, `nanochat/optim.py`, `scripts/base_train.py`)
+- **Runtime API now reads filesystem-backed runtime summaries**:
+  - `/api/runtime/workspaces`
+  - `/api/runtime/mesh`
+  - `runtimeRoot` query parameter supported for parallel runtime packs
 
 ## Topic Files
 - [session-log.md](session-log.md) — what was done, pending tasks

@@ -54,6 +54,12 @@ Start the parallel runtime-api scaffold:
 npm run dev:runtime-api
 ```
 
+Inspect a specific runtime root while developing:
+
+```text
+http://localhost:8790/api/runtime/mesh?runtimeRoot=runtime/autoresearch-loop-pin-test
+```
+
 Bootstrap the pinned Karpathy upstream stack used by the controller and supervisor:
 
 ```bash
@@ -221,6 +227,20 @@ Useful flags:
 Current machine status matters:
 
 - if `nvidia-smi` is missing or `~/.cache/autoresearch` has not been prepared, the supervisor will stop at preflight and write the exact blockers into each worker status file instead of launching broken runs.
+
+## Runtime API inspection
+
+The runtime-api scaffold can already expose real filesystem-backed runtime summaries from controller/supervisor artifacts:
+
+- `GET /api/runtime/upstream`
+- `GET /api/runtime/workspaces`
+- `GET /api/runtime/mesh`
+
+Both `workspaces` and `mesh` accept an optional `runtimeRoot` query string, for example:
+
+```text
+http://localhost:8790/api/runtime/workspaces?runtimeRoot=runtime/autoresearch-loop-pin-test
+```
 
 ## Current Architecture
 
