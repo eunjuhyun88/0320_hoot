@@ -9,6 +9,7 @@ This document is the canonical operating guide for concurrent agents in this rep
 3. One active branch = one coordination claim.
 4. One active claim must declare one surface and explicit path boundaries.
 5. No agent may continue work on another agent's dirty branch or uncommitted worktree.
+6. When a scoped task is complete, validate it, merge it, and push it immediately.
 
 If any of those are false, parallel work is not safe.
 
@@ -87,6 +88,8 @@ npm run coord:release -- --work-id "W-20260315-runtime-control" --status handoff
 
 - Integration happens by commit, not by shared dirty state.
 - Merge or cherry-pick only validated commits.
+- Do not leave completed work parked on a local-only agent branch.
+- After a scoped task is done, merge it into the approved integration branch immediately and push the result immediately.
 - Run these before push or merge:
 
 ```bash

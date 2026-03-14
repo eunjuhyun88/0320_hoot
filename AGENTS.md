@@ -36,6 +36,7 @@ Before ending a meaningful session:
 - When parallel agents are active, branch/worktree split is mandatory.
 - Never continue another agent's dirty WIP on the same branch.
 - `npm run agent:guard` is the enforced lane check used by session-start, `agent:start`, and pre-push.
+- Completed scoped work must be merged to the approved integration branch and pushed immediately after validation.
 
 ## Project Map
 

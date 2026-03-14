@@ -42,7 +42,7 @@ The goal is:
 - Pass `npm run docs:check` and `npm run ctx:check -- --strict` before push.
 - Pass project-specific `check`, `build`, or `gate` commands when configured.
 - Push only from a branch with an active checkpoint or brief.
-- Merge only with explicit human approval.
+- Completed scoped work must not sit locally. Once validated, merge to the approved integration branch immediately and push immediately.
 - Prefer squash merge or a short clean history over long accidental merge chains.
 - Do not create periodic merge commits just to "save progress."
 - Mirror local merge expectations in `docs/CI_PIPELINE.md` and `.github/workflows/ci.yml`.
