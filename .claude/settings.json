@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "TodoWrite",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '⚠️ Memory sync reminder: update memory/session-log.md when task completes'"
+          }
+        ]
+      }
+    ]
+  }
+}

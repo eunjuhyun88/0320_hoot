@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import type { Node, Worker } from "../../src/fixed/types.ts";
+  import type { Node, Worker } from "../utils/types.ts";
   import StatePipeline from "./StatePipeline.svelte";
   import StatePill from "./StatePill.svelte";
 

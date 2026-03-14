@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PixelOwl from "./PixelOwl.svelte";
+  import PixelOwl from "../components/PixelOwl.svelte";
 
   type FooterLink = {
     label: string;

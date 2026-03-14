@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import type { Job, Node, Worker } from "../../src/fixed/types.ts";
-  import { isWorkerActiveState } from "../../src/core/meshSim.ts";
-  import { isLandAt } from "./landMask.ts";
+  import type { Job, Node, Worker } from "../utils/types.ts";
+  import { isWorkerActiveState } from "../utils/meshSim.ts";
+  import { isLandAt } from "../utils/landMask.ts";
+  import { CITIES } from "../data/cities.ts";
+  import { ARC_PAIRS } from "../data/arcPairs.ts";
 
   // ── Mini Pixel Owl for "My GPU" node ──
   const OWL_COLORS: Record<string, string> = {
@@ -94,51 +96,6 @@
   }
 
   // ─── Compute node locations ───
-  const CITIES = [
-    { lat: 37.77, lng: -122.42, name: 'San Francisco', region: 'US-West' },
-    { lat: 47.61, lng: -122.33, name: 'Seattle', region: 'US-West' },
-    { lat: 34.05, lng: -118.24, name: 'Los Angeles', region: 'US-West' },
-    { lat: 40.71, lng: -74.01, name: 'New York', region: 'US-East' },
-    { lat: 41.88, lng: -87.63, name: 'Chicago', region: 'US-Central' },
-    { lat: 32.78, lng: -96.80, name: 'Dallas', region: 'US-Central' },
-    { lat: 25.76, lng: -80.19, name: 'Miami', region: 'US-East' },
-    { lat: 33.75, lng: -84.39, name: 'Atlanta', region: 'US-East' },
-    { lat: 43.65, lng: -79.38, name: 'Toronto', region: 'CA-East' },
-    { lat: 49.28, lng: -123.12, name: 'Vancouver', region: 'CA-West' },
-    { lat: 19.43, lng: -99.13, name: 'Mexico City', region: 'MX' },
-    { lat: -23.55, lng: -46.63, name: 'São Paulo', region: 'BR' },
-    { lat: -34.60, lng: -58.38, name: 'Buenos Aires', region: 'AR' },
-    { lat: -33.45, lng: -70.67, name: 'Santiago', region: 'CL' },
-    { lat: 4.71, lng: -74.07, name: 'Bogotá', region: 'CO' },
-    { lat: 51.51, lng: -0.13, name: 'London', region: 'UK' },
-    { lat: 48.86, lng: 2.35, name: 'Paris', region: 'FR' },
-    { lat: 50.11, lng: 8.68, name: 'Frankfurt', region: 'DE' },
-    { lat: 52.52, lng: 13.41, name: 'Berlin', region: 'DE' },
-    { lat: 59.33, lng: 18.07, name: 'Stockholm', region: 'SE' },
-    { lat: 52.37, lng: 4.90, name: 'Amsterdam', region: 'NL' },
-    { lat: 41.39, lng: 2.17, name: 'Barcelona', region: 'ES' },
-    { lat: 45.46, lng: 9.19, name: 'Milan', region: 'IT' },
-    { lat: 50.08, lng: 14.44, name: 'Prague', region: 'CZ' },
-    { lat: 47.50, lng: 19.04, name: 'Budapest', region: 'HU' },
-    { lat: 30.04, lng: 31.24, name: 'Cairo', region: 'EG' },
-    { lat: -1.29, lng: 36.82, name: 'Nairobi', region: 'KE' },
-    { lat: -33.92, lng: 18.42, name: 'Cape Town', region: 'ZA' },
-    { lat: 6.52, lng: 3.38, name: 'Lagos', region: 'NG' },
-    { lat: 25.20, lng: 55.27, name: 'Dubai', region: 'AE' },
-    { lat: 32.09, lng: 34.78, name: 'Tel Aviv', region: 'IL' },
-    { lat: 35.68, lng: 139.69, name: 'Tokyo', region: 'JP' },
-    { lat: 37.57, lng: 126.98, name: 'Seoul', region: 'KR' },
-    { lat: 39.90, lng: 116.40, name: 'Beijing', region: 'CN' },
-    { lat: 31.23, lng: 121.47, name: 'Shanghai', region: 'CN' },
-    { lat: 22.32, lng: 114.17, name: 'Hong Kong', region: 'HK' },
-    { lat: 1.35, lng: 103.82, name: 'Singapore', region: 'SG' },
-    { lat: 19.08, lng: 72.88, name: 'Mumbai', region: 'IN' },
-    { lat: 12.97, lng: 77.59, name: 'Bangalore', region: 'IN' },
-    { lat: 13.76, lng: 100.50, name: 'Bangkok', region: 'TH' },
-    { lat: -6.21, lng: 106.85, name: 'Jakarta', region: 'ID' },
-    { lat: -33.87, lng: 151.21, name: 'Sydney', region: 'AU' },
-    { lat: -36.85, lng: 174.76, name: 'Auckland', region: 'NZ' },
-  ];
 
   // ─── Types ───
   type Dot = { x: number; y: number; z: number };
@@ -236,17 +193,7 @@
     arcs = [];
     const ap = pinList.filter(p => p.active);
     if (ap.length >= 2) {
-      const arcPairs: [string, string][] = [
-        ['San Francisco', 'Tokyo'],
-        ['New York', 'London'],
-        ['London', 'Singapore'],
-        ['São Paulo', 'Frankfurt'],
-        ['Sydney', 'Seoul'],
-        ['Mumbai', 'Dubai'],
-        ['Cairo', 'Berlin'],
-        ['Toronto', 'Stockholm'],
-      ];
-      for (const [fromName, toName] of arcPairs) {
+      for (const [fromName, toName] of ARC_PAIRS) {
         const from = ap.find(p => p.name === fromName);
         const to = ap.find(p => p.name === toName);
         if (from && to) {

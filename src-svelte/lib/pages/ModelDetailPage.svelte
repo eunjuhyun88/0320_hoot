@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { router } from "./router.ts";
+  import { router } from "../stores/router.ts";
   import { onMount } from "svelte";
 
   let activeTab: 'card' | 'playground' | 'api' | 'experiments' | 'benchmark' = 'card';

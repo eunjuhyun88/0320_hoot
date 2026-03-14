@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Branch } from "./jobStore.ts";
+  import type { Branch } from "../stores/jobStore.ts";
 
   export let branches: Branch[] = [];
 </script>

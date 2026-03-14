@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { router, type AppView } from "./router.ts";
-  import { jobStore, completedCount } from "./jobStore.ts";
-  import { wallet } from "./walletStore.ts";
-  import PixelOwl from "./PixelOwl.svelte";
+  import { router, type AppView } from "../stores/router.ts";
+  import { jobStore, completedCount } from "../stores/jobStore.ts";
+  import { wallet } from "../stores/walletStore.ts";
+  import PixelOwl from "../components/PixelOwl.svelte";
 
   const navItems: { view: AppView; label: string; icon: string }[] = [
     { view: "dashboard", label: "Dashboard", icon: "sparkle" },

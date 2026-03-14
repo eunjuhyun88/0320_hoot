@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Experiment, ExperimentStatus } from "./jobStore.ts";
+  import type { Experiment, ExperimentStatus } from "../stores/jobStore.ts";
 
   export let experiment: Experiment;
   export let index: number = 0;

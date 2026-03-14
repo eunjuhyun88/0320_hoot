@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { router } from "./router.ts";
+  import { router } from "../stores/router.ts";
 
   let searchQuery = "";
   let activeFilter = "all";

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { wallet } from './walletStore.ts';
+  import { wallet } from '../stores/walletStore.ts';
 
   let visible = false;
 

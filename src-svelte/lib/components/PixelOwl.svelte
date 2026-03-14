@@ -15,7 +15,7 @@
 
   // ── Frames ──
   const idle: string[] = [
-    '________KK__KK________',
+    '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
     '______KtTTTTTTtK______',
@@ -38,7 +38,7 @@
   ];
 
   const blink: string[] = [
-    '________KK__KK________',
+    '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
     '______KtTTTTTTtK______',
@@ -61,7 +61,7 @@
   ];
 
   const lookL: string[] = [
-    '________KK__KK________',
+    '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
     '______KtTTTTTTtK______',
@@ -84,7 +84,7 @@
   ];
 
   const lookR: string[] = [
-    '________KK__KK________',
+    '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
     '______KtTTTTTTtK______',
@@ -107,7 +107,7 @@
   ];
 
   const wingUp: string[] = [
-    '_KS_____KK__KK_____SK_',
+    '_KS____KKK__KKK____SK_',
     '_KSK___KtTKKTtK___KSK_',
     '__KS___KtTTTTtK___SK__',
     '______KtTTTTTTtK______',
@@ -131,7 +131,7 @@
 
   // Sleep frame: eyes are ーー lines
   const sleep: string[] = [
-    '________KK__KK________',
+    '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
     '______KtTTTTTTtK______',

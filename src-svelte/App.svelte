@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { router } from "./lib/router.ts";
+  import { router } from "./lib/stores/router.ts";
   import { fade } from "svelte/transition";
-  import NavBar from "./lib/NavBar.svelte";
-  import DashboardPage from "./lib/DashboardPage.svelte";
-  import ModelsPage from "./lib/ModelsPage.svelte";
-  import AutoresearchPage from "./lib/AutoresearchPage.svelte";
-  import NetworkView from "./lib/NetworkView.svelte";
-  import ModelDetailPage from "./lib/ModelDetailPage.svelte";
-  import EconomicsPage from "./lib/EconomicsPage.svelte";
-  import OntologyPage from "./lib/OntologyPage.svelte";
-  import SiteFooter from "./lib/SiteFooter.svelte";
-  import SplashScreen from "./lib/SplashScreen.svelte";
+  import NavBar from "./lib/layout/NavBar.svelte";
+  import DashboardPage from "./lib/pages/DashboardPage.svelte";
+  import ModelsPage from "./lib/pages/ModelsPage.svelte";
+  import AutoresearchPage from "./lib/pages/AutoresearchPage.svelte";
+  import NetworkView from "./lib/pages/NetworkView.svelte";
+  import ModelDetailPage from "./lib/pages/ModelDetailPage.svelte";
+  import EconomicsPage from "./lib/pages/EconomicsPage.svelte";
+  import OntologyPage from "./lib/pages/OntologyPage.svelte";
+  import SiteFooter from "./lib/layout/SiteFooter.svelte";
+  import SplashScreen from "./lib/components/SplashScreen.svelte";
   import "./lib/tokens.css";
 
   let showSplash = true;

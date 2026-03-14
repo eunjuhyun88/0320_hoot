@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { router } from "./router.ts";
-  import { jobStore } from "./jobStore.ts";
+  import { router } from "../stores/router.ts";
+  import { jobStore } from "../stores/jobStore.ts";
 
   let researchName = "";
   let description = "";

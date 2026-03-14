@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { TapeEntry } from "../../src/fixed/types.ts";
+  import type { TapeEntry } from "../utils/types.ts";
   import StatePill from "./StatePill.svelte";
 
   export let tape: TapeEntry[] = [];

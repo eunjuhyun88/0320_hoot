@@ -9,23 +9,23 @@
     isWorkerActiveState,
     oscillate01,
     smoothPulse,
-  } from "../../src/core/meshSim.ts";
+  } from "../utils/meshSim.ts";
   import {
     createFixturePlayback,
     demoFixtureText,
     parseNdjson,
-  } from "../../src/fixed/fixturePlayer.ts";
-  import { connectTelemetryStream, resolveTelemetryUrl } from "../../src/fixed/liveTelemetry.ts";
-  import type { TelemetryEvent, VisualizerModel, Worker } from "../../src/fixed/types.ts";
-  import ExperimentTape from "./ExperimentTape.svelte";
-  import MeshCanvas from "./MeshCanvas.svelte";
-  import ModeButton from "./ModeButton.svelte";
-  import NodeCard from "./NodeCard.svelte";
-  import StatePipeline from "./StatePipeline.svelte";
-  import WorkerBoard from "./WorkerBoard.svelte";
-  import { router } from "./router.ts";
-  import { wallet } from './walletStore.ts';
-  import { jobStore } from './jobStore.ts';
+  } from "../utils/fixturePlayer.ts";
+  import { connectTelemetryStream, resolveTelemetryUrl } from "../utils/liveTelemetry.ts";
+  import type { TelemetryEvent, VisualizerModel, Worker } from "../utils/types.ts";
+  import ExperimentTape from "../components/ExperimentTape.svelte";
+  import MeshCanvas from "../components/MeshCanvas.svelte";
+  import ModeButton from "../components/ModeButton.svelte";
+  import NodeCard from "../components/NodeCard.svelte";
+  import StatePipeline from "../components/StatePipeline.svelte";
+  import WorkerBoard from "../components/WorkerBoard.svelte";
+  import { router } from "../stores/router.ts";
+  import { wallet } from '../stores/walletStore.ts';
+  import { jobStore } from '../stores/jobStore.ts';
   import type { Job } from '../../src/fixed/types.ts';
 
   // ── Wallet reactivity ──

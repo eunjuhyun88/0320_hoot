@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { jobStore, completedCount, keepCount, discardCount, metricHistory } from './jobStore.ts';
+  import { jobStore, completedCount, keepCount, discardCount, metricHistory } from '../stores/jobStore.ts';
   import MetricChart from './MetricChart.svelte';
   import PixelOwl from './PixelOwl.svelte';
 

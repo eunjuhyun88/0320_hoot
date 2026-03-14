@@ -7,8 +7,8 @@
     buildJobStageMetrics,
     buildJobSwarmGroups,
     workerTone,
-  } from "../../src/core/meshSim.ts";
-  import type { Job, Node, TapeEntry, Worker } from "../../src/fixed/types.ts";
+  } from "../utils/meshSim.ts";
+  import type { Job, Node, TapeEntry, Worker } from "../utils/types.ts";
   import StatePill from "./StatePill.svelte";
 
   export let workers: Worker[] = [];

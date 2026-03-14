@@ -1,0 +1,62 @@
+/** Experiment modification strings used by the job simulator */
+export const MODIFICATIONS = [
+  'lr: 3e-4 → 1e-4',
+  'added dropout 0.1',
+  'batch_size: 64 → 128',
+  'added layer norm',
+  'widened hidden dim 256 → 512',
+  'added residual connection',
+  'lr: 1e-4 → 5e-5, warmup 100',
+  'replaced ReLU with GELU',
+  'added weight decay 0.01',
+  'increased depth 4 → 6 layers',
+  'added attention head',
+  'reduced lr to 3e-5',
+  'added gradient clipping 1.0',
+  'doubled context window',
+  'switched to AdamW',
+  'added cosine lr schedule',
+  'embedding dim 128 → 256',
+  'added skip connection',
+  'removed dropout, added mixup',
+  'sequence length 256 → 512',
+];
+
+/** Human-readable translations of experiment modifications */
+export const HUMAN_READABLE: Record<string, string> = {
+  'lr: 3e-4 → 1e-4': 'Slowing down learning speed for better precision',
+  'added dropout 0.1': 'Adding noise resilience to prevent overfitting',
+  'batch_size: 64 → 128': 'Processing more data at once for stability',
+  'added layer norm': 'Normalizing layer outputs for smoother training',
+  'widened hidden dim 256 → 512': 'Expanding model capacity to capture more patterns',
+  'added residual connection': 'Adding shortcut paths for better gradient flow',
+  'lr: 1e-4 → 5e-5, warmup 100': 'Fine-tuning with gradual learning warmup',
+  'replaced ReLU with GELU': 'Switching to smoother activation for better learning',
+  'added weight decay 0.01': 'Adding regularization to prevent memorization',
+  'increased depth 4 → 6 layers': 'Making the model deeper for complex patterns',
+  'added attention head': 'Adding attention mechanism to focus on key signals',
+  'reduced lr to 3e-5': 'Reducing learning speed for final refinement',
+  'added gradient clipping 1.0': 'Preventing training instability from large updates',
+  'doubled context window': 'Looking at more historical data for predictions',
+  'switched to AdamW': 'Using advanced optimizer with better convergence',
+  'added cosine lr schedule': 'Gradually reducing learning rate like a cooling process',
+  'embedding dim 128 → 256': 'Enriching data representation for nuanced features',
+  'added skip connection': 'Adding information highway for faster learning',
+  'removed dropout, added mixup': 'Switching regularization strategy for better generalization',
+  'sequence length 256 → 512': 'Extending analysis window for longer-range patterns',
+  'baseline model (initial run)': 'Starting with baseline configuration',
+};
+
+/** AI agent reasoning thoughts shown during research */
+export const AI_THOUGHTS = [
+  'Analyzing loss convergence patterns across branches...',
+  'Evaluating hyperparameter sensitivity for learning rate...',
+  'Cross-referencing architecture variations with metric deltas...',
+  'Pruning underperforming configuration subspace...',
+  'Generating next-round experiment candidates...',
+  'Comparing gradient flow statistics across layers...',
+  'Optimizing batch scheduling for GPU utilization...',
+  'Correlating dropout rates with validation improvements...',
+  'Adjusting search distribution based on promising regions...',
+  'Running statistical significance tests on top results...',
+];

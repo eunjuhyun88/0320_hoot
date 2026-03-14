@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { router } from "./router.ts";
+  import { router } from "../stores/router.ts";
   import {
     jobStore,
     completedCount,
@@ -11,10 +11,11 @@
     statusMessage,
     latestFinding,
     humanizeModification,
-  } from "./jobStore.ts";
-  import ModelSummaryCard from "./ModelSummaryCard.svelte";
-  import MetricChart from "./MetricChart.svelte";
-  import PixelOwl from "./PixelOwl.svelte";
+  } from "../stores/jobStore.ts";
+  import ModelSummaryCard from "../components/ModelSummaryCard.svelte";
+  import MetricChart from "../components/MetricChart.svelte";
+  import PixelOwl from "../components/PixelOwl.svelte";
+  import { AI_THOUGHTS } from "../data/modifications.ts";
 
   // Quick-start topic input
   let quickTopic = "";
@@ -77,18 +78,6 @@
   }
 
   // AI Agent reasoning thoughts
-  const AI_THOUGHTS = [
-    'Analyzing loss convergence patterns across branches...',
-    'Evaluating hyperparameter sensitivity for learning rate...',
-    'Cross-referencing architecture variations with metric deltas...',
-    'Pruning underperforming configuration subspace...',
-    'Generating next-round experiment candidates...',
-    'Comparing gradient flow statistics across layers...',
-    'Optimizing batch scheduling for GPU utilization...',
-    'Correlating dropout rates with validation improvements...',
-    'Adjusting search distribution based on promising regions...',
-    'Running statistical significance tests on top results...',
-  ];
   let aiThoughtIdx = 0;
   let aiThought = AI_THOUGHTS[0];
 
