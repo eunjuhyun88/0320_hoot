@@ -295,6 +295,42 @@ runtime-api가 실제 runtime summary를 읽게 된 뒤, 다음 단계로 `Autor
 ### Pending
 - Optional browser visual QA for focus-mode spacing and mobile overlay behavior
 
+---
+
+## 2026-03-15 (cont): Research semantic zoom lab page
+
+### Context
+사용자 요청: 참고 영상 패턴을 별도 페이지에서 먼저 검증할 수 있게 새 테스트 페이지 생성
+
+### Completed
+- **New test route added**:
+  - `/#/research-lab`
+  - router/App/stage wiring updated so the page can load as an independent surface
+- **Reference-aligned prototype page added**:
+  - `src-svelte/lib/pages/ResearchZoomLabPage.svelte`
+  - implements:
+    - single-surface treemap exploration
+    - inline drill-down
+    - breadcrumb return path
+    - hover stat card with total/current-focus ratios
+    - persistent timeframe state
+    - right-side inspection rail for the active node
+- **Design docs linked**:
+  - `docs/design-docs/research-semantic-zoom.md`
+  - `docs/design-docs/index.md`
+  - `docs/product-specs/web.md`
+
+### Verification
+- `npm run build` ✓
+  - new chunk emitted:
+    - `ResearchZoomLabPage-*.js`
+    - `ResearchZoomLabPage-*.css`
+  - remaining warnings are the same pre-existing warnings outside the new page scope
+
+### Pending
+- Optional browser visual QA against the running dev server at `/#/research-lab`
+- If the prototype feels right, cut the main Research surface from modal-enlarge toward inline semantic zoom
+
 - **Other-agent lane audit completed**:
   - active coordination claim still only:
     - `W-20260315-agent-lane-enforcement`

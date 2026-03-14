@@ -16,6 +16,7 @@ Replace this placeholder with the real user-facing value and system role of `web
 ### Routes
 - `/#/`
 - `/#/research`
+- `/#/research-lab`
 - `/#/network`
 - `/#/models`
 - `/#/protocol`
@@ -31,4 +32,4 @@ Replace this placeholder with the real user-facing value and system role of `web
 ## Deep Links
 - `docs/DESIGN.md`
 - `docs/ENGINEERING.md`
-- Add design docs or active plans here as the surface evolves.
+- `docs/design-docs/research-semantic-zoom.md`

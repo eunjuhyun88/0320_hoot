@@ -108,6 +108,11 @@
   - `AutoresearchPage` cards can open a larger focus overlay
   - convergence / activity / treemap / context / lineage / mesh views can be re-rendered in an expanded modal
   - activity/detail panels get larger typography in expanded mode for chart/info inspection
+- **Reference-aligned semantic zoom lab added**:
+  - route: `/#/research-lab`
+  - page: `src-svelte/lib/pages/ResearchZoomLabPage.svelte`
+  - canonical design note: `docs/design-docs/research-semantic-zoom.md`
+  - purpose: validate inline drill-down + breadcrumb + hover ratios before cutting the main Research surface over
 - **Canonical multi-agent branching guide added**:
   - `docs/AGENT_BRANCHING.md`
   - root routers (`README.md`, `AGENTS.md`, `CLAUDE.md`) now require it for parallel agent work or handoffs
