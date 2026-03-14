@@ -12,6 +12,8 @@
     latestFinding,
     humanizeModification,
   } from "../stores/jobStore.ts";
+  import { fmtTime } from "../utils/format.ts";
+  import { findBestIndex } from "../utils/chart.ts";
   import ModelSummaryCard from "../components/ModelSummaryCard.svelte";
   import MetricChart from "../components/MetricChart.svelte";
   import PixelOwl from "../components/PixelOwl.svelte";
@@ -35,13 +37,7 @@
   $: finding = $latestFinding;
 
   // Chart best index
-  $: chartBestIdx = (() => {
-    if (!history.length) return -1;
-    let minVal = Infinity;
-    let minIdx = -1;
-    history.forEach((d, i) => { if (d.y < minVal) { minVal = d.y; minIdx = i; } });
-    return minIdx;
-  })();
+  $: chartBestIdx = findBestIndex(history);
 
   // Running-state computed
   $: trainingCount = experiments.filter(e => e.status === 'training').length;
@@ -105,15 +101,7 @@
     return evts;
   })();
 
-  // Elapsed time
-  function fmtTime(secs: number): string {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    const s = secs % 60;
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
-  }
+  // Elapsed time — fmtTime imported from utils/format.ts
 
   // ETA
   $: etaDisplay = (() => {

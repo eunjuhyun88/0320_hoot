@@ -1,6 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { wallet } from '../stores/walletStore.ts';
+  import { wallet, WALLET_OPTIONS } from '../stores/walletStore.ts';
+  import { animateCounter } from '../utils/animate.ts';
+  import { fmtDollar, fmtK, fmtInt } from '../utils/format.ts';
+  import {
+    BOND_TIERS, ACTIVE_BONDS, BURN_CONVERSIONS,
+    PPAP_STAGES, JOURNEY_ACTORS, FLOW_NODES,
+    EVENT_FEED, CONTRACT_MAP,
+    SIMULATED_BALANCE, MAU_TARGET, TRUST_SCORE_TARGET,
+    type ContractCall, type ProtocolEvent, type PpapStage, type JourneyActor,
+  } from '../data/protocolData.ts';
 
   let visible = false;
 
@@ -8,11 +17,7 @@
   $: walletConnected = $wallet.connected;
   $: walletAddress = $wallet.address;
   let walletDropdown = false;
-  const wallets = [
-    { name: 'Phantom', icon: '👻' },
-    { name: 'Solflare', icon: '☀️' },
-    { name: 'Backpack', icon: '🎒' },
-  ];
+  const wallets = WALLET_OPTIONS;
 
   function connectWallet(name: string) {
     wallet.connect(name);
@@ -24,17 +29,8 @@
     walletDropdown = false;
   }
 
-  // ── Animated counter ──
-  function animateValue(from: number, to: number, duration: number, cb: (v: number) => void) {
-    const start = performance.now();
-    function tick(now: number) {
-      const t = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      cb(from + (to - from) * eased);
-      if (t < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
+  // ── Destroyed guard for RAF cleanup ──
+  let destroyed = false;
 
   // ── Protocol Metrics (animated) ──
   let tvl = 0;
@@ -42,21 +38,23 @@
   let treasury = 0;
   let activeBonds = 0;
   let mau = 0;
-  const mauTarget = 1443;
+  const mauTarget = MAU_TARGET;
 
   onMount(() => {
     visible = true;
-    setTimeout(() => {
-      animateValue(0, 12_400_000, 1800, v => tvl = v);
-      animateValue(0, 847_000, 1600, v => burned = v);
-      animateValue(0, 3_200_000, 1700, v => treasury = v);
-      animateValue(0, 2341, 1400, v => activeBonds = v);
-      animateValue(0, 892, 1500, v => mau = v);
+    const isDestroyed = () => destroyed;
+
+    const delayMetrics = setTimeout(() => {
+      animateCounter(0, 12_400_000, 1800, v => tvl = v, isDestroyed);
+      animateCounter(0, 847_000, 1600, v => burned = v, isDestroyed);
+      animateCounter(0, 3_200_000, 1700, v => treasury = v, isDestroyed);
+      animateCounter(0, 2341, 1400, v => activeBonds = v, isDestroyed);
+      animateCounter(0, 892, 1500, v => mau = v, isDestroyed);
     }, 300);
 
     // Trust score animation
-    setTimeout(() => {
-      animateValue(0, trustScoreTarget, 2000, v => trustScore = v);
+    const delayTrust = setTimeout(() => {
+      animateCounter(0, trustScoreTarget, 2000, v => trustScore = v, isDestroyed);
     }, 600);
 
     // PPAP pipeline animation
@@ -65,38 +63,23 @@
     }, 2200);
 
     return () => {
+      destroyed = true;
+      clearTimeout(delayMetrics);
+      clearTimeout(delayTrust);
       if (ppapInterval) clearInterval(ppapInterval);
     };
   });
 
-  function fmtDollar(n: number): string {
-    if (n >= 1_000_000) return '$' + (n / 1_000_000).toFixed(1) + 'M';
-    if (n >= 1_000) return '$' + (n / 1_000).toFixed(0) + 'K';
-    return '$' + Math.round(n).toLocaleString();
-  }
-
-  function fmtK(n: number): string {
-    if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
-    if (n >= 1_000) return (n / 1_000).toFixed(0) + 'K';
-    return Math.round(n).toLocaleString();
-  }
-
-  function fmtInt(n: number): string {
-    return Math.round(n).toLocaleString();
-  }
+  // fmtDollar, fmtK, fmtInt imported from utils/format.ts
 
   // ── Bond Panel ──
   type TierKey = 0 | 1 | 2;
   let selectedBondTier: TierKey = 1;
 
-  const bondTiers = [
-    { name: 'Lite', tier: 1, bondNum: 500, bond: '500', gpu: '1 GPU', jobs: '5 concurrent', accent: 'var(--blue)' },
-    { name: 'Standard', tier: 2, bondNum: 2000, bond: '2,000', gpu: '4 GPUs', jobs: '20 concurrent', accent: 'var(--accent)' },
-    { name: 'Enterprise', tier: 3, bondNum: 10000, bond: '10,000', gpu: 'Unlimited', jobs: 'Unlimited', accent: 'var(--gold)' },
-  ] as const;
+  const bondTiers = BOND_TIERS;
 
   let bondInputValue = '2000';
-  const simulatedBalance = 12_450;
+  const simulatedBalance = SIMULATED_BALANCE;
 
   $: currentBondTier = bondTiers[selectedBondTier];
   $: {
@@ -114,10 +97,7 @@
   }
 
   // ── Simulated active bonds ──
-  const activeBondsList = [
-    { nodeId: 'seoul-4090', tier: 'Standard', amount: '2,000', status: 'active', unbondingDays: null as number | null },
-    { nodeId: 'berlin-a100', tier: 'Enterprise', amount: '10,000', status: 'unbonding', unbondingDays: 4 },
-  ];
+  const activeBondsList = ACTIVE_BONDS;
 
   // ── Burn Panel ──
   let burnAmount = '';
@@ -144,11 +124,7 @@
   $: burnBonus = burnAmountNum >= 10000 ? '+20%' : burnAmountNum >= 2500 ? '+12%' : '';
 
   // Conversion history (simulated)
-  const conversions = [
-    { amount: '2,500', credit: '$140.00', tier: 'Pro', time: '2h ago' },
-    { amount: '500', credit: '$25.00', tier: 'Basic', time: '1d ago' },
-    { amount: '10,000', credit: '$600.00', tier: 'Ultra', time: '3d ago' },
-  ];
+  const conversions = BURN_CONVERSIONS;
 
   // ── Job Creator Panel ──
   let jobBudget = '';
@@ -161,17 +137,6 @@
   $: jobTreasuryCost = (jobBudgetNum * 0.05).toFixed(1);
 
   // ── Contract Call Modal ──
-  interface ContractCall {
-    title: string;
-    contract: string;
-    fn: string;
-    params: { name: string; type: string; value: string }[];
-    fee: string;
-    gas: string;
-    note: string;
-    accentColor: string;
-    requiresApproval?: boolean;
-  }
 
   let modalOpen = false;
   let modalCall: ContractCall | null = null;
@@ -266,38 +231,12 @@
   }
 
   // ── Event Feed ──
-  interface ProtocolEvent {
-    text: string;
-    color: string;
-    time: string;
-    fn: string;
-  }
-
-  const eventFeed: ProtocolEvent[] = [
-    { text: 'Node seoul-4090 bonded 2,000 HOOT → Tier 2', color: 'var(--blue)', time: '2m ago', fn: 'registerNode' },
-    { text: 'Job job-0042 created → 150 HOOT escrowed', color: 'var(--green)', time: '5m ago', fn: 'createJob' },
-    { text: 'VTR registered for exp-441 → 1.0 HOOT burned', color: 'var(--red)', time: '8m ago', fn: 'registerVTR' },
-    { text: 'Batch #2891 submitted → 3.0 HOOT fee (2.1 treasury / 0.9 burn)', color: 'var(--gold)', time: '12m ago', fn: 'submitBatch' },
-    { text: '1,000 HOOT burned → $50 credit (Pro tier)', color: 'var(--red)', time: '15m ago', fn: 'burnToCredit' },
-    { text: 'Pool A settled → 450 HOOT (270 creator / 67.5 notary / 67.5 treasury / 45 burn)', color: 'var(--accent)', time: '18m ago', fn: 'settlePool' },
-    { text: 'Challenge resolved → valid, 50 HOOT reward', color: 'var(--green)', time: '22m ago', fn: 'resolveChallenge' },
-    { text: 'Node us-a100 unbonded 10,000 HOOT', color: 'var(--blue)', time: '25m ago', fn: 'unbondNode' },
-  ];
+  const eventFeed = EVENT_FEED;
 
   function openEventModal(evt: ProtocolEvent) {
-    const contractMap: Record<string, string> = {
-      registerNode: '0x4F0a...7E3d  HootStaking.sol',
-      createJob: '0x5E8c...2B7f  ResearchJobManager.sol',
-      registerVTR: '0x7F4b...3D6a  VTRRegistry.sol',
-      submitBatch: '0x3A1d...9C2e  PPAPRegistry.sol',
-      burnToCredit: '0x8B2c...1A9f  HootBurnCredit.sol',
-      settlePool: '0x6C9d...5B3a  PoolDistributor.sol',
-      resolveChallenge: '0x9D3f...4A1c  ChallengeArbitration.sol',
-      unbondNode: '0x4F0a...7E3d  HootStaking.sol',
-    };
     openContractModal({
       title: evt.fn + '()',
-      contract: contractMap[evt.fn] ?? '0x0000...0000',
+      contract: CONTRACT_MAP[evt.fn] ?? '0x0000...0000',
       fn: evt.fn,
       params: [{ name: 'txHash', type: 'bytes32', value: '0x' + Math.random().toString(16).slice(2, 10) + '...' + Math.random().toString(16).slice(2, 6) }],
       fee: '—',
@@ -308,20 +247,7 @@
   }
 
   // ── PPAP Pipeline ──
-  interface PpapStage {
-    id: string;
-    label: string;
-    sub: string;
-    icon: string;
-    color: string;
-  }
-
-  const ppapStages: PpapStage[] = [
-    { id: 'submit', label: 'Submit', sub: 'Contributor uploads data', icon: '📤', color: 'var(--blue)' },
-    { id: 'batch', label: 'Batch', sub: 'Aggregated into batch', icon: '📦', color: 'var(--accent)' },
-    { id: 'challenge', label: 'Challenge', sub: '24h verification window', icon: '⏱', color: 'var(--gold)' },
-    { id: 'confirmed', label: 'Confirmed', sub: 'PPAP immutable on-chain', icon: '✓', color: 'var(--green)' },
-  ];
+  const ppapStages = PPAP_STAGES;
 
   let ppapActiveStage = 0;
   let ppapAnimating = true;
@@ -329,7 +255,7 @@
 
   // ── Trust Score ──
   let trustScore = 0;
-  const trustScoreTarget = 847;
+  const trustScoreTarget = TRUST_SCORE_TARGET;
 
   // trust score animated in onMount below
 
@@ -340,61 +266,12 @@
   $: trustBondReq = trustTier === 3 ? '10,000' : trustTier === 2 ? '2,000' : '500';
 
   // ── Journey Actors ──
-  interface JourneyActor {
-    role: string;
-    desc: string;
-    icon: string;
-    color: string;
-    actions: string[];
-  }
-
-  const journeyActors: JourneyActor[] = [
-    {
-      role: 'Contributor',
-      desc: 'Provides data & annotations',
-      icon: '📊',
-      color: 'var(--accent)',
-      actions: ['Upload datasets', 'Earn Pool A rewards', 'Build PPAP provenance'],
-    },
-    {
-      role: 'Verifier',
-      desc: 'Validates data integrity',
-      icon: '🔍',
-      color: 'var(--blue)',
-      actions: ['Challenge batches', 'Earn notary fees', 'Maintain trust score'],
-    },
-    {
-      role: 'Compute',
-      desc: 'GPU nodes run experiments',
-      icon: '⚡',
-      color: 'var(--green)',
-      actions: ['Bond HOOT as stake', 'Execute research jobs', 'Earn Pool B rewards'],
-    },
-    {
-      role: 'Builder',
-      desc: 'Researchers & model creators',
-      icon: '🧪',
-      color: 'var(--gold)',
-      actions: ['Define ontologies', 'Launch Magnet jobs', 'Publish VTR results'],
-    },
-    {
-      role: 'Buyer',
-      desc: 'Consumes model outputs',
-      icon: '🔑',
-      color: 'var(--red)',
-      actions: ['Purchase model access', 'Burn HOOT for credits', 'Deploy agent bundles'],
-    },
-  ];
+  const journeyActors = JOURNEY_ACTORS;
 
   // ── Radial Flow hover state ──
   let hoveredNode: string | null = null;
 
-  const flowNodes = [
-    { id: 'poolA', label: 'Pool A', amount: '42%', angle: -45, color: 'var(--accent)', breakdown: 'Creator 60% / Notary 15% / Treasury 15% / Burn 10%' },
-    { id: 'poolB', label: 'Pool B', amount: '38%', angle: 45, color: 'var(--green)', breakdown: 'GPU Compute 95% / Treasury 5%' },
-    { id: 'burn', label: 'Burn', amount: '12%', angle: 135, color: 'var(--red)', breakdown: 'Permanently removed from supply' },
-    { id: 'treasury', label: 'Treasury', amount: '8%', angle: 225, color: 'var(--gold)', breakdown: 'Protocol reserve & insurance' },
-  ];
+  const flowNodes = FLOW_NODES;
 
   // ── Gauge ──
   $: gaugeRatio = Math.round(mau) / mauTarget;

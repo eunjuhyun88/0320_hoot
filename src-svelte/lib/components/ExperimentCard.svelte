@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Experiment, ExperimentStatus } from "../stores/jobStore.ts";
+  import { formatDuration } from "../utils/format.ts";
 
   export let experiment: Experiment;
   export let index: number = 0;
@@ -22,11 +23,7 @@
       ? `\u2191${Math.abs(experiment.delta).toFixed(3)}`
       : '';
 
-  function formatDuration(secs: number): string {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m}m ${s}s`;
-  }
+  // formatDuration imported from utils/format.ts
 </script>
 
 <div

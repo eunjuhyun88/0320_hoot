@@ -1,5 +1,7 @@
 <script lang="ts">
   import { jobStore, completedCount, keepCount, discardCount, metricHistory } from '../stores/jobStore.ts';
+  import { fmtTime } from '../utils/format.ts';
+  import { findBestIndex } from '../utils/chart.ts';
   import MetricChart from './MetricChart.svelte';
   import PixelOwl from './PixelOwl.svelte';
 
@@ -16,22 +18,7 @@
   $: history = $metricHistory;
 
   // Chart best index
-  $: chartBestIdx = (() => {
-    if (!history.length) return -1;
-    let minVal = Infinity;
-    let minIdx = -1;
-    history.forEach((d, i) => { if (d.y < minVal) { minVal = d.y; minIdx = i; } });
-    return minIdx;
-  })();
-
-  function fmtTime(secs: number): string {
-    const h = Math.floor(secs / 3600);
-    const m = Math.floor((secs % 3600) / 60);
-    const s = secs % 60;
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
-  }
+  $: chartBestIdx = findBestIndex(history);
 
   // Generate a model name from topic
   $: modelName = job.topic

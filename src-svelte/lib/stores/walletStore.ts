@@ -35,3 +35,10 @@ function createWalletStore() {
 }
 
 export const wallet = createWalletStore();
+
+/** Shared wallet provider options — used by NavBar + EconomicsPage */
+export const WALLET_OPTIONS = [
+  { name: 'Phantom', icon: '👻' },
+  { name: 'Solflare', icon: '☀️' },
+  { name: 'Backpack', icon: '🎒' },
+] as const;

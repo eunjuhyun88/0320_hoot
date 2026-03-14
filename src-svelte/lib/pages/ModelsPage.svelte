@@ -1,5 +1,6 @@
 <script lang="ts">
   import { router } from "../stores/router.ts";
+  import { fmtNumber } from "../utils/format.ts";
 
   let searchQuery = "";
   let activeFilter = "all";
@@ -149,10 +150,7 @@
     },
   ];
 
-  function fmtNumber(n: number): string {
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'k';
-    return n.toString();
-  }
+  // fmtNumber imported from utils/format.ts
 
   $: filteredModels = models.filter(m => {
     const matchSearch = !searchQuery || m.name.toLowerCase().includes(searchQuery.toLowerCase()) || m.topic.toLowerCase().includes(searchQuery.toLowerCase());

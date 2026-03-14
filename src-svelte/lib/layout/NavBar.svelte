@@ -1,12 +1,15 @@
 <script lang="ts">
   import { router, type AppView } from "../stores/router.ts";
   import { jobStore, completedCount } from "../stores/jobStore.ts";
-  import { wallet } from "../stores/walletStore.ts";
+  import { wallet, WALLET_OPTIONS } from "../stores/walletStore.ts";
   import PixelOwl from "../components/PixelOwl.svelte";
+  import PixelIcon from "../components/PixelIcon.svelte";
 
-  const navItems: { view: AppView; label: string; icon: string }[] = [
+  type PixelIconType = "sparkle" | "grid" | "chart" | "globe" | "protocol";
+
+  const navItems: { view: AppView; label: string; icon: PixelIconType }[] = [
     { view: "dashboard", label: "Dashboard", icon: "sparkle" },
-    { view: "research", label: "Magnet", icon: "brain" },
+    { view: "research", label: "Magnet", icon: "chart" },
     { view: "models", label: "Models", icon: "grid" },
     { view: "network", label: "Network", icon: "globe" },
     { view: "protocol", label: "Protocol", icon: "protocol" },
@@ -22,11 +25,7 @@
   let mobileMenuOpen = false;
   let walletDropdownOpen = false;
 
-  const wallets = [
-    { name: 'Phantom', icon: '👻' },
-    { name: 'Solflare', icon: '☀️' },
-    { name: 'Backpack', icon: '🎒' },
-  ];
+  const wallets = WALLET_OPTIONS;
 
   function navTo(view: AppView) {
     router.navigate(view);
@@ -77,87 +76,7 @@
           on:click={() => navTo(item.view)}
         >
           <span class="nav-icon">
-            {#if item.icon === "sparkle"}
-              <!-- Pixel sparkle -->
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-                <rect x="7" y="1" width="2" height="2" fill="currentColor"/>
-                <rect x="7" y="3" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="5" y="5" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="7" y="5" width="2" height="2" fill="currentColor"/>
-                <rect x="9" y="5" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="1" y="7" width="2" height="2" fill="currentColor"/>
-                <rect x="3" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="5" y="7" width="6" height="2" fill="currentColor"/>
-                <rect x="11" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="13" y="7" width="2" height="2" fill="currentColor"/>
-                <rect x="5" y="9" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="7" y="9" width="2" height="2" fill="currentColor"/>
-                <rect x="9" y="9" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="7" y="11" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="7" y="13" width="2" height="2" fill="currentColor"/>
-              </svg>
-            {:else if item.icon === "grid"}
-              <!-- Pixel grid (models) -->
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-                <rect x="1" y="1" width="6" height="6" fill="currentColor"/>
-                <rect x="9" y="1" width="6" height="6" fill="currentColor" opacity="0.7"/>
-                <rect x="1" y="9" width="6" height="6" fill="currentColor" opacity="0.7"/>
-                <rect x="9" y="9" width="6" height="6" fill="currentColor"/>
-              </svg>
-            {:else if item.icon === "brain"}
-              <!-- Pixel chart (research) -->
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-                <rect x="1" y="13" width="14" height="2" fill="currentColor" opacity="0.3"/>
-                <rect x="1" y="1" width="2" height="14" fill="currentColor" opacity="0.3"/>
-                <rect x="3" y="9" width="2" height="2" fill="currentColor"/>
-                <rect x="5" y="7" width="2" height="2" fill="currentColor"/>
-                <rect x="7" y="9" width="2" height="2" fill="currentColor"/>
-                <rect x="9" y="5" width="2" height="2" fill="currentColor"/>
-                <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
-                <rect x="13" y="1" width="2" height="2" fill="currentColor"/>
-                <rect x="4" y="8" width="2" height="2" fill="currentColor" opacity="0.4"/>
-                <rect x="6" y="8" width="2" height="2" fill="currentColor" opacity="0.4"/>
-                <rect x="8" y="6" width="2" height="2" fill="currentColor" opacity="0.4"/>
-                <rect x="10" y="4" width="2" height="2" fill="currentColor" opacity="0.4"/>
-                <rect x="12" y="2" width="2" height="2" fill="currentColor" opacity="0.4"/>
-              </svg>
-            {:else if item.icon === "globe"}
-              <!-- Pixel globe (network) -->
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-                <rect x="5" y="1" width="6" height="2" fill="currentColor"/>
-                <rect x="3" y="3" width="2" height="2" fill="currentColor"/>
-                <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
-                <rect x="1" y="5" width="2" height="6" fill="currentColor"/>
-                <rect x="13" y="5" width="2" height="6" fill="currentColor"/>
-                <rect x="3" y="11" width="2" height="2" fill="currentColor"/>
-                <rect x="11" y="11" width="2" height="2" fill="currentColor"/>
-                <rect x="5" y="13" width="6" height="2" fill="currentColor"/>
-                <rect x="1" y="7" width="14" height="2" fill="currentColor" opacity="0.35"/>
-                <rect x="7" y="1" width="2" height="14" fill="currentColor" opacity="0.35"/>
-                <rect x="5" y="3" width="2" height="2" fill="currentColor" opacity="0.25"/>
-                <rect x="9" y="3" width="2" height="2" fill="currentColor" opacity="0.25"/>
-                <rect x="5" y="11" width="2" height="2" fill="currentColor" opacity="0.25"/>
-                <rect x="9" y="11" width="2" height="2" fill="currentColor" opacity="0.25"/>
-              </svg>
-            {:else if item.icon === "protocol"}
-              <!-- Pixel chain/link (protocol) -->
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-                <rect x="3" y="1" width="4" height="2" fill="currentColor"/>
-                <rect x="1" y="3" width="2" height="4" fill="currentColor"/>
-                <rect x="7" y="3" width="2" height="2" fill="currentColor"/>
-                <rect x="3" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="5" y="5" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="7" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="9" y="9" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="11" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-                <rect x="9" y="5" width="4" height="2" fill="currentColor"/>
-                <rect x="13" y="7" width="2" height="4" fill="currentColor"/>
-                <rect x="9" y="11" width="4" height="2" fill="currentColor"/>
-                <rect x="7" y="11" width="2" height="2" fill="currentColor"/>
-                <rect x="1" y="5" width="2" height="2" fill="currentColor"/>
-                <rect x="3" y="5" width="2" height="2" fill="currentColor"/>
-              </svg>
-            {/if}
+            <PixelIcon type={item.icon} size={16} />
           </span>
           <span class="nav-label">{item.label}</span>
           {#if item.view === 'network'}
@@ -245,82 +164,7 @@
         on:click={() => navTo(item.view)}
       >
         <span class="nav-icon">
-          {#if item.icon === "sparkle"}
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-              <rect x="7" y="1" width="2" height="2" fill="currentColor"/>
-              <rect x="7" y="3" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="5" y="5" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="7" y="5" width="2" height="2" fill="currentColor"/>
-              <rect x="9" y="5" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="1" y="7" width="2" height="2" fill="currentColor"/>
-              <rect x="3" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="5" y="7" width="6" height="2" fill="currentColor"/>
-              <rect x="11" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="13" y="7" width="2" height="2" fill="currentColor"/>
-              <rect x="5" y="9" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="7" y="9" width="2" height="2" fill="currentColor"/>
-              <rect x="9" y="9" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="7" y="11" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="7" y="13" width="2" height="2" fill="currentColor"/>
-            </svg>
-          {:else if item.icon === "grid"}
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-              <rect x="1" y="1" width="6" height="6" fill="currentColor"/>
-              <rect x="9" y="1" width="6" height="6" fill="currentColor" opacity="0.7"/>
-              <rect x="1" y="9" width="6" height="6" fill="currentColor" opacity="0.7"/>
-              <rect x="9" y="9" width="6" height="6" fill="currentColor"/>
-            </svg>
-          {:else if item.icon === "brain"}
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-              <rect x="1" y="13" width="14" height="2" fill="currentColor" opacity="0.3"/>
-              <rect x="1" y="1" width="2" height="14" fill="currentColor" opacity="0.3"/>
-              <rect x="3" y="9" width="2" height="2" fill="currentColor"/>
-              <rect x="5" y="7" width="2" height="2" fill="currentColor"/>
-              <rect x="7" y="9" width="2" height="2" fill="currentColor"/>
-              <rect x="9" y="5" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
-              <rect x="13" y="1" width="2" height="2" fill="currentColor"/>
-              <rect x="4" y="8" width="2" height="2" fill="currentColor" opacity="0.4"/>
-              <rect x="6" y="8" width="2" height="2" fill="currentColor" opacity="0.4"/>
-              <rect x="8" y="6" width="2" height="2" fill="currentColor" opacity="0.4"/>
-              <rect x="10" y="4" width="2" height="2" fill="currentColor" opacity="0.4"/>
-              <rect x="12" y="2" width="2" height="2" fill="currentColor" opacity="0.4"/>
-            </svg>
-          {:else if item.icon === "globe"}
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-              <rect x="5" y="1" width="6" height="2" fill="currentColor"/>
-              <rect x="3" y="3" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
-              <rect x="1" y="5" width="2" height="6" fill="currentColor"/>
-              <rect x="13" y="5" width="2" height="6" fill="currentColor"/>
-              <rect x="3" y="11" width="2" height="2" fill="currentColor"/>
-              <rect x="11" y="11" width="2" height="2" fill="currentColor"/>
-              <rect x="5" y="13" width="6" height="2" fill="currentColor"/>
-              <rect x="1" y="7" width="14" height="2" fill="currentColor" opacity="0.35"/>
-              <rect x="7" y="1" width="2" height="14" fill="currentColor" opacity="0.35"/>
-              <rect x="5" y="3" width="2" height="2" fill="currentColor" opacity="0.25"/>
-              <rect x="9" y="3" width="2" height="2" fill="currentColor" opacity="0.25"/>
-              <rect x="5" y="11" width="2" height="2" fill="currentColor" opacity="0.25"/>
-              <rect x="9" y="11" width="2" height="2" fill="currentColor" opacity="0.25"/>
-            </svg>
-          {:else if item.icon === "protocol"}
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-              <rect x="3" y="1" width="4" height="2" fill="currentColor"/>
-              <rect x="1" y="3" width="2" height="4" fill="currentColor"/>
-              <rect x="7" y="3" width="2" height="2" fill="currentColor"/>
-              <rect x="3" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="5" y="5" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="7" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="9" y="9" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="11" y="7" width="2" height="2" fill="currentColor" opacity="0.5"/>
-              <rect x="9" y="5" width="4" height="2" fill="currentColor"/>
-              <rect x="13" y="7" width="2" height="4" fill="currentColor"/>
-              <rect x="9" y="11" width="4" height="2" fill="currentColor"/>
-              <rect x="7" y="11" width="2" height="2" fill="currentColor"/>
-              <rect x="1" y="5" width="2" height="2" fill="currentColor"/>
-              <rect x="3" y="5" width="2" height="2" fill="currentColor"/>
-            </svg>
-          {/if}
+          <PixelIcon type={item.icon} size={20} />
         </span>
         <span class="mobile-nav-label">{item.label}</span>
         {#if item.view === 'network'}

@@ -320,41 +320,43 @@ export function humanizeModification(mod: string): string {
 
 export const jobStore = createJobStore();
 
-export const completedCount = derived(jobStore, $j =>
-  $j.experiments.filter(e => e.status === 'keep' || e.status === 'discard' || e.status === 'crash').length
-);
+/** Single-pass counts — avoids 4 independent filters per update */
+const jobCounts = derived(jobStore, $j => {
+  let keeps = 0, discards = 0, crashes = 0;
+  for (const e of $j.experiments) {
+    if (e.status === 'keep') keeps++;
+    else if (e.status === 'discard') discards++;
+    else if (e.status === 'crash') crashes++;
+  }
+  return { completed: keeps + discards + crashes, keeps, discards, crashes };
+});
 
-export const keepCount = derived(jobStore, $j =>
-  $j.experiments.filter(e => e.status === 'keep').length
-);
-
-export const discardCount = derived(jobStore, $j =>
-  $j.experiments.filter(e => e.status === 'discard').length
-);
-
-export const crashCount = derived(jobStore, $j =>
-  $j.experiments.filter(e => e.status === 'crash').length
-);
+export const completedCount = derived(jobCounts, $c => $c.completed);
+export const keepCount = derived(jobCounts, $c => $c.keeps);
+export const discardCount = derived(jobCounts, $c => $c.discards);
+export const crashCount = derived(jobCounts, $c => $c.crashes);
 
 export const metricHistory = derived(jobStore, $j => {
-  return $j.experiments
-    .filter(e => e.status === 'keep' || e.status === 'discard')
-    .reverse()
-    .map((e, i) => ({ x: i + 1, y: e.metric, status: e.status }));
+  const filtered = $j.experiments.filter(e => e.status === 'keep' || e.status === 'discard');
+  const reversed = [];
+  for (let i = filtered.length - 1; i >= 0; i--) {
+    reversed.push({ x: reversed.length + 1, y: filtered[i].metric, status: filtered[i].status });
+  }
+  return reversed;
 });
 
 /** Quality score 0-100: ratio of kept experiments */
-export const qualityScore = derived([jobStore, keepCount, completedCount], ([$j, $keeps, $completed]) => {
-  if ($completed === 0) return 0;
-  return Math.round(($keeps / $completed) * 100);
+export const qualityScore = derived(jobCounts, $c => {
+  if ($c.completed === 0) return 0;
+  return Math.round(($c.keeps / $c.completed) * 100);
 });
 
 /** Human-readable status message based on current phase */
-export const statusMessage = derived([jobStore, completedCount], ([$j, $completed]) => {
+export const statusMessage = derived([jobStore, jobCounts], ([$j, $c]) => {
   switch ($j.phase) {
     case 'idle': return '';
     case 'setup': return $j.setupMessage || 'Setting up research pipeline...';
-    case 'running': return `Testing ${$completed} of ${$j.totalExperiments} approaches`;
+    case 'running': return `Testing ${$c.completed} of ${$j.totalExperiments} approaches`;
     case 'complete': return 'Your model is ready!';
     default: return '';
   }

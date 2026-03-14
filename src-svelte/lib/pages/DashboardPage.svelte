@@ -17,9 +17,11 @@
   import { TICKER_EVENTS } from "../data/tickerEvents.ts";
   import { TOPIC_SUGGESTIONS } from "../data/topicSuggestions.ts";
 
+  import { animateCounter } from "../utils/animate.ts";
   import HeroSection from "../components/HeroSection.svelte";
   import BenchmarkShowcase from "../components/BenchmarkShowcase.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
+  import PixelIcon from "../components/PixelIcon.svelte";
   import LiveNetworkStrip from "../components/LiveNetworkStrip.svelte";
 
   let searchQuery = "";
@@ -35,16 +37,7 @@
   let displayJobs = 0;
   let displayFindings = 0;
 
-  function animateCounter(from: number, to: number, duration: number, cb: (v: number) => void) {
-    const start = performance.now();
-    function tick(now: number) {
-      const t = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      cb(Math.round(from + (to - from) * eased));
-      if (t < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
+  let destroyed = false;
 
   let sectionsRevealed = new Set<string>();
   function revealSection(id: string) {
@@ -106,11 +99,12 @@
           if (id) revealSection(id);
           if (entry.target === statsEl && !statsVisible) {
             statsVisible = true;
-            animateCounter(0, totalNodes, 1200, v => displayNodes = v);
-            animateCounter(0, totalGpu, 800, v => displayGpu = v);
-            animateCounter(0, activeWorkers, 800, v => displayWorkers = v);
-            animateCounter(0, model.jobs.length, 600, v => displayJobs = v);
-            animateCounter(0, keepCount, 600, v => displayFindings = v);
+            const d = () => destroyed;
+            animateCounter(0, totalNodes, 1200, v => displayNodes = v, d);
+            animateCounter(0, totalGpu, 800, v => displayGpu = v, d);
+            animateCounter(0, activeWorkers, 800, v => displayWorkers = v, d);
+            animateCounter(0, model.jobs.length, 600, v => displayJobs = v, d);
+            animateCounter(0, keepCount, 600, v => displayFindings = v, d);
           }
           observer.unobserve(entry.target);
         }
@@ -147,6 +141,7 @@
     }, 500);
 
     return () => {
+      destroyed = true;
       window.removeEventListener('scroll', handleScroll);
       observer.disconnect();
       clearInterval(fixtureInterval);
@@ -198,16 +193,7 @@
     <div class="ex-grid">
       <button class="ex-card" on:click={() => router.navigate('research')}>
         <div class="ex-icon acc">
-          <svg width="22" height="22" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-            <rect x="1" y="13" width="14" height="2" fill="currentColor" opacity="0.3"/>
-            <rect x="1" y="1" width="2" height="14" fill="currentColor" opacity="0.3"/>
-            <rect x="3" y="9" width="2" height="2" fill="currentColor"/>
-            <rect x="5" y="7" width="2" height="2" fill="currentColor"/>
-            <rect x="7" y="9" width="2" height="2" fill="currentColor"/>
-            <rect x="9" y="5" width="2" height="2" fill="currentColor"/>
-            <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
-            <rect x="13" y="1" width="2" height="2" fill="currentColor"/>
-          </svg>
+          <PixelIcon type="chart" size={22} />
         </div>
         <h3>Autoresearch</h3>
         <p>Monitor experiments, metrics, and distributed training in real-time.</p>
@@ -215,12 +201,7 @@
       </button>
       <button class="ex-card" on:click={() => router.navigate('models')}>
         <div class="ex-icon">
-          <svg width="22" height="22" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-            <rect x="1" y="1" width="6" height="6" fill="currentColor"/>
-            <rect x="9" y="1" width="6" height="6" fill="currentColor" opacity="0.7"/>
-            <rect x="1" y="9" width="6" height="6" fill="currentColor" opacity="0.7"/>
-            <rect x="9" y="9" width="6" height="6" fill="currentColor"/>
-          </svg>
+          <PixelIcon type="grid" size={22} />
         </div>
         <h3>Model Hub</h3>
         <p>Browse trained models, benchmarks, and deployment options.</p>
@@ -228,18 +209,7 @@
       </button>
       <button class="ex-card" on:click={() => router.navigate('network')}>
         <div class="ex-icon">
-          <svg width="22" height="22" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-            <rect x="5" y="1" width="6" height="2" fill="currentColor"/>
-            <rect x="3" y="3" width="2" height="2" fill="currentColor"/>
-            <rect x="11" y="3" width="2" height="2" fill="currentColor"/>
-            <rect x="1" y="5" width="2" height="6" fill="currentColor"/>
-            <rect x="13" y="5" width="2" height="6" fill="currentColor"/>
-            <rect x="3" y="11" width="2" height="2" fill="currentColor"/>
-            <rect x="11" y="11" width="2" height="2" fill="currentColor"/>
-            <rect x="5" y="13" width="6" height="2" fill="currentColor"/>
-            <rect x="1" y="7" width="14" height="2" fill="currentColor" opacity="0.35"/>
-            <rect x="7" y="1" width="2" height="14" fill="currentColor" opacity="0.35"/>
-          </svg>
+          <PixelIcon type="globe" size={22} />
         </div>
         <h3>Live Network</h3>
         <p>Global compute mesh — nodes, jobs, and GPU utilization in real-time.</p>

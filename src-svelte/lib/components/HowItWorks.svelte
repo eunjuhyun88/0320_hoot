@@ -1,4 +1,5 @@
 <script lang="ts">
+  import PixelIcon from "./PixelIcon.svelte";
   export let revealed = false;
 </script>
 
@@ -12,12 +13,7 @@
       <p>Enter a research topic. An AI agent designs the ML pipeline, selects features, and configures the search space.</p>
     </div>
     <div class="step-arr">
-      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-        <rect x="1" y="7" width="10" height="2" fill="currentColor" opacity="0.4"/>
-        <rect x="9" y="5" width="2" height="2" fill="currentColor"/>
-        <rect x="11" y="7" width="2" height="2" fill="currentColor"/>
-        <rect x="9" y="9" width="2" height="2" fill="currentColor"/>
-      </svg>
+      <PixelIcon type="arrow" size={20} />
     </div>
     <div class="step">
       <div class="step-n">2</div>
@@ -25,12 +21,7 @@
       <p>A mesh of GPU nodes trains, evaluates, and evolves models in parallel — 12 experiments per hour per node.</p>
     </div>
     <div class="step-arr">
-      <svg width="20" height="20" viewBox="0 0 16 16" fill="none" class="px-icon" shape-rendering="crispEdges">
-        <rect x="1" y="7" width="10" height="2" fill="currentColor" opacity="0.4"/>
-        <rect x="9" y="5" width="2" height="2" fill="currentColor"/>
-        <rect x="11" y="7" width="2" height="2" fill="currentColor"/>
-        <rect x="9" y="9" width="2" height="2" fill="currentColor"/>
-      </svg>
+      <PixelIcon type="arrow" size={20} />
     </div>
     <div class="step">
       <div class="step-n">3</div>

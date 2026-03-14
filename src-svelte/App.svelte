@@ -1,22 +1,29 @@
 <script lang="ts">
-  import { router } from "./lib/stores/router.ts";
+  import { router, type AppView } from "./lib/stores/router.ts";
   import { fade } from "svelte/transition";
   import NavBar from "./lib/layout/NavBar.svelte";
   import DashboardPage from "./lib/pages/DashboardPage.svelte";
-  import ModelsPage from "./lib/pages/ModelsPage.svelte";
-  import AutoresearchPage from "./lib/pages/AutoresearchPage.svelte";
-  import NetworkView from "./lib/pages/NetworkView.svelte";
-  import ModelDetailPage from "./lib/pages/ModelDetailPage.svelte";
-  import EconomicsPage from "./lib/pages/EconomicsPage.svelte";
-  import OntologyPage from "./lib/pages/OntologyPage.svelte";
   import SiteFooter from "./lib/layout/SiteFooter.svelte";
   import SplashScreen from "./lib/components/SplashScreen.svelte";
   import "./lib/tokens.css";
 
   let showSplash = true;
 
+  // Lazy-loaded page components (everything except Dashboard which is the landing page)
+  const pageLoaders: Record<string, () => Promise<{ default: any }>> = {
+    models: () => import("./lib/pages/ModelsPage.svelte"),
+    research: () => import("./lib/pages/AutoresearchPage.svelte"),
+    network: () => import("./lib/pages/NetworkView.svelte"),
+    'model-detail': () => import("./lib/pages/ModelDetailPage.svelte"),
+    protocol: () => import("./lib/pages/EconomicsPage.svelte"),
+    ontology: () => import("./lib/pages/OntologyPage.svelte"),
+    pipeline: () => import("./lib/pages/PipelinePage.svelte"),
+  };
+
   // Page transition key — increments on route change
   $: routeKey = $router;
+  $: isDashboard = $router === 'dashboard';
+  $: pagePromise = !isDashboard ? pageLoaders[$router]?.() : null;
 </script>
 
 <svelte:head>
@@ -35,20 +42,14 @@
   <main class="app-main">
     {#key routeKey}
       <div class="page-transition" in:fade={{ duration: 200, delay: 80 }}>
-        {#if $router === 'dashboard'}
+        {#if isDashboard}
           <DashboardPage />
-        {:else if $router === 'models'}
-          <ModelsPage />
-        {:else if $router === 'research'}
-          <AutoresearchPage />
-        {:else if $router === 'network'}
-          <NetworkView />
-        {:else if $router === 'model-detail'}
-          <ModelDetailPage />
-        {:else if $router === 'protocol'}
-          <EconomicsPage />
-        {:else if $router === 'ontology'}
-          <OntologyPage />
+        {:else if pagePromise}
+          {#await pagePromise then mod}
+            <svelte:component this={mod.default} />
+          {:catch}
+            <div class="page-error">Failed to load page</div>
+          {/await}
         {/if}
       </div>
     {/key}
@@ -93,5 +94,12 @@
     flex: 1;
     display: flex;
     flex-direction: column;
+  }
+
+  .page-error {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted, #9a9590);
+    font-size: 0.9rem;
   }
 </style>

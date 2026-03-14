@@ -13,8 +13,18 @@
     'f': '#EDD8CB', 'C': '#E8D5C4', 'G': '#C8960F', 'g': '#A67A0A',
   };
 
+  // Normalize all rows to equal width within a frame (center-pad with _)
+  function padRows(rows: string[]): string[] {
+    const max = Math.max(...rows.map(r => r.length));
+    return rows.map(r => {
+      const d = max - r.length;
+      const l = Math.floor(d / 2);
+      return '_'.repeat(l) + r + '_'.repeat(d - l);
+    });
+  }
+
   // ── Frames ──
-  const idle: string[] = [
+  const idle: string[] = padRows([
     '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
@@ -22,7 +32,7 @@
     '_____KTTTTTTTTTtK_____',
     '____KTTTTTTTTTTTTK____',
     '___KTTTTTTTTTTTTTTK___',
-    '___KTFFFFFFFFFFFFFFK___',
+    '___KTFFFFFFFFFFFFFK___',
     '__KTFWWWWFFWWWWFTK__',
     '__KTFWHPPFFHPPWFTK__',
     '__KTFWPPPFFPPPWFTK__',
@@ -35,9 +45,9 @@
     '____KKTTTTTTTTKK_____',
     '_____KKgKKKKgKK______',
     '_____KggK__KggK______',
-  ];
+  ]);
 
-  const blink: string[] = [
+  const blink: string[] = padRows([
     '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
@@ -45,7 +55,7 @@
     '_____KTTTTTTTTTtK_____',
     '____KTTTTTTTTTTTTK____',
     '___KTTTTTTTTTTTTTTK___',
-    '___KTFFFFFFFFFFFFFFK___',
+    '___KTFFFFFFFFFFFFFK___',
     '__KTFFFFFFFFFFFFFFTK__',
     '__KTFFKKKFFKKKFFTK__',
     '__KTFFFFFFFFFFFFFFTK__',
@@ -58,9 +68,9 @@
     '____KKTTTTTTTTKK_____',
     '_____KKgKKKKgKK______',
     '_____KggK__KggK______',
-  ];
+  ]);
 
-  const lookL: string[] = [
+  const lookL: string[] = padRows([
     '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
@@ -68,7 +78,7 @@
     '_____KTTTTTTTTTtK_____',
     '____KTTTTTTTTTTTTK____',
     '___KTTTTTTTTTTTTTTK___',
-    '___KTFFFFFFFFFFFFFFK___',
+    '___KTFFFFFFFFFFFFFK___',
     '__KTFWWWWFFWWWWFTK__',
     '__KTFHPPWFFHPPWFTK__',
     '__KTFPPPWFFPPPWFTK__',
@@ -81,9 +91,9 @@
     '____KKTTTTTTTTKK_____',
     '_____KKgKKKKgKK______',
     '_____KggK__KggK______',
-  ];
+  ]);
 
-  const lookR: string[] = [
+  const lookR: string[] = padRows([
     '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
@@ -91,7 +101,7 @@
     '_____KTTTTTTTTTtK_____',
     '____KTTTTTTTTTTTTK____',
     '___KTTTTTTTTTTTTTTK___',
-    '___KTFFFFFFFFFFFFFFK___',
+    '___KTFFFFFFFFFFFFFK___',
     '__KTFWWWWFFWWWWFTK__',
     '__KTFWPHPFFWPHPFTK__',
     '__KTFWPPPFFWPPPFTK__',
@@ -104,9 +114,9 @@
     '____KKTTTTTTTTKK_____',
     '_____KKgKKKKgKK______',
     '_____KggK__KggK______',
-  ];
+  ]);
 
-  const wingUp: string[] = [
+  const wingUp: string[] = padRows([
     '_KS____KKK__KKK____SK_',
     '_KSK___KtTKKTtK___KSK_',
     '__KS___KtTTTTtK___SK__',
@@ -114,7 +124,7 @@
     '_____KTTTTTTTTTtK_____',
     '____KTTTTTTTTTTTTK____',
     '___KTTTTTTTTTTTTTTK___',
-    '___KTFFFFFFFFFFFFFFK___',
+    '___KTFFFFFFFFFFFFFK___',
     '__KTFWWWWFFWWWWFTK__',
     '__KTFWHPPFFHPPWFTK__',
     '__KTFWPPPFFPPPWFTK__',
@@ -127,10 +137,10 @@
     '____KKTTTTTTTTKK_____',
     '_____KKgKKKKgKK______',
     '_____KggK__KggK______',
-  ];
+  ]);
 
   // Sleep frame: eyes are ーー lines
-  const sleep: string[] = [
+  const sleep: string[] = padRows([
     '_______KKK__KKK_______',
     '_______KtTKKTtK_______',
     '_______KtTTTTtK_______',
@@ -138,7 +148,7 @@
     '_____KTTTTTTTTTtK_____',
     '____KTTTTTTTTTTTTK____',
     '___KTTTTTTTTTTTTTTK___',
-    '___KTFFFFFFFFFFFFFFK___',
+    '___KTFFFFFFFFFFFFFK___',
     '__KTFFFFFFFFFFFFFFTK__',
     '__KTFFFFFFFFFFFFFFTK__',
     '__KTFFKKKKFFKKKKFTK__',
@@ -151,7 +161,7 @@
     '____KKTTTTTTTTKK_____',
     '_____KKgKKKKgKK______',
     '_____KggK__KggK______',
-  ];
+  ]);
 
   type FrameName = 'idle' | 'blink' | 'lookL' | 'lookR' | 'wingUp' | 'sleep';
   const frames: Record<FrameName, string[]> = { idle, blink, lookL, lookR, wingUp, sleep };
@@ -212,15 +222,15 @@
       off.width = w;
       off.height = h;
       const ctx = off.getContext('2d')!;
-      const offX = Math.floor((maxW - grid[0].length) / 2);
       const offY = Math.floor((maxH - grid.length) / 2);
       for (let y = 0; y < grid.length; y++) {
         const row = grid[y];
+        const rowOffX = Math.floor((maxW - row.length) / 2);
         for (let x = 0; x < row.length; x++) {
           const fill = COLORS[row[x]];
           if (fill) {
             ctx.fillStyle = fill;
-            ctx.fillRect((x + offX) * PX * RENDER_SCALE, (y + offY) * PX * RENDER_SCALE, PX * RENDER_SCALE, PX * RENDER_SCALE);
+            ctx.fillRect((x + rowOffX) * PX * RENDER_SCALE, (y + offY) * PX * RENDER_SCALE, PX * RENDER_SCALE, PX * RENDER_SCALE);
           }
         }
       }

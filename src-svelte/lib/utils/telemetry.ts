@@ -16,8 +16,14 @@ export function createEmptyModel(): VisualizerModel {
   };
 }
 
+/** Shallow structured clone — much faster than JSON.parse(JSON.stringify()) */
 export function cloneModel(model: VisualizerModel): VisualizerModel {
-  return JSON.parse(JSON.stringify(model)) as VisualizerModel;
+  return {
+    workers: model.workers.map(w => ({ ...w })),
+    nodes: model.nodes.map(n => ({ ...n })),
+    jobs: model.jobs.map(j => ({ ...j, workerIds: [...j.workerIds], nodeIds: [...j.nodeIds] })),
+    tape: [...model.tape],
+  };
 }
 
 export function applyTelemetryEvent(
@@ -148,6 +154,13 @@ function upsertJob(model: VisualizerModel, nextJob: Job) {
   };
 }
 
+/** Set for O(1) tape duplicate detection */
+const tapeKeySet = new Set<string>();
+
+function tapeKey(e: { ts: number; experimentId: string; workerId: string; result: string; metricDelta: number }): string {
+  return `${e.ts}|${e.experimentId}|${e.workerId}|${e.result}|${e.metricDelta}`;
+}
+
 function recordTapeEntry(model: VisualizerModel, event: ExperimentResultEvent) {
   const nextEntry = {
     ts: event.ts,
@@ -156,20 +169,11 @@ function recordTapeEntry(model: VisualizerModel, event: ExperimentResultEvent) {
     result: event.result,
     metricDelta: event.metricDelta,
   };
-  const duplicate = model.tape.some((entry) => {
-    return (
-      entry.ts === nextEntry.ts &&
-      entry.experimentId === nextEntry.experimentId &&
-      entry.workerId === nextEntry.workerId &&
-      entry.result === nextEntry.result &&
-      entry.metricDelta === nextEntry.metricDelta
-    );
-  });
 
-  if (duplicate) {
-    return;
-  }
+  const key = tapeKey(nextEntry);
+  if (tapeKeySet.has(key)) return;
 
+  tapeKeySet.add(key);
   model.tape.unshift(nextEntry);
 }
 
