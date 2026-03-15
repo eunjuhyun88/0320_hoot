@@ -41,6 +41,7 @@
   import { isConnected } from '../stores/connectionStore.ts';
   import { nodeStore, hasGpuNode } from '../stores/nodeStore.ts';
   import GPUOnboardWizard from '../components/studio/GPUOnboardWizard.svelte';
+  import NotaryPanel from '../components/network/NotaryPanel.svelte';
 
   // ── Wallet ──
   $: walletConnected = $wallet.connected;
@@ -195,7 +196,7 @@
   let mounted = false;
   let dwellCount = 0;
 
-  let activeTab: "gpu" | "jobs" | "bond-trust" | "swarms" | "feed" = "gpu";
+  let activeTab: "gpu" | "jobs" | "bond-trust" | "notary" | "swarms" | "feed" = "gpu";
 
   // ── Bond & Trust animated counters ──
   const simulatedBalance = SIMULATED_BALANCE;
@@ -547,6 +548,9 @@
         <button class="ptab" class:active={activeTab === 'jobs'} on:click={() => activeTab = 'jobs'} role="tab" aria-selected={activeTab === 'jobs'}>
           Jobs <span class="tbadge" class:tbadge-green={liveJobs.length > 0}>{liveJobs.length}</span>
         </button>
+        <button class="ptab" class:active={activeTab === 'notary'} on:click={() => activeTab = 'notary'} role="tab" aria-selected={activeTab === 'notary'}>
+          Notary
+        </button>
         <button class="ptab" class:active={activeTab === 'swarms'} on:click={() => activeTab = 'swarms'} role="tab" aria-selected={activeTab === 'swarms'}>
           Swarms <span class="tbadge">{model.jobs.length}</span>
         </button>
@@ -659,6 +663,10 @@
                 <span class="bond-release-warn">⚠ 90일 잠금 기간 시작</span>
               </div>
             {/if}
+          </div>
+        {:else if activeTab === 'notary'}
+          <div class="psection">
+            <NotaryPanel on:openModal={e => openContractModal(e.detail)} />
           </div>
         {:else if activeTab === 'swarms'}
           <div class="psection">
