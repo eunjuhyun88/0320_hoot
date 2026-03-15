@@ -100,6 +100,17 @@ function createStudioStore() {
       update(s => ({ ...s, phase: 'running', lastActivePhase: s.phase }));
     },
 
+    /** Launch from dock terminal — bypasses STEP1/STEP2 entirely */
+    launchFromDock(topic: string, presetId?: string) {
+      update(s => ({
+        ...s,
+        phase: 'running',
+        createTopic: topic,
+        createPreset: presetId ?? null,
+        lastActivePhase: 'idle',
+      }));
+    },
+
     /** Transition: RUNNING → COMPLETE */
     completeResearch() {
       update(s => ({ ...s, phase: 'complete', lastActivePhase: s.phase }));
