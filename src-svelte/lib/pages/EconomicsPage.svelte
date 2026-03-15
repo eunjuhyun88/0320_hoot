@@ -21,6 +21,7 @@
   import ChallengePanel from '../components/protocol/ChallengePanel.svelte';
   import { rewardSummary } from '../stores/rewardStore.ts';
   import { router } from '../stores/router.ts';
+  import CrossLinkBar from '../components/CrossLinkBar.svelte';
 
   let visible = false;
   let isMobile = false;
@@ -135,6 +136,11 @@
 </script>
 
 <div class="econ" class:visible>
+  <CrossLinkBar links={[
+    { label: 'Studio', view: 'studio' },
+    { label: 'Models', view: 'models' },
+    { label: 'Network', view: 'network' },
+  ]} />
 
   <!-- 0. PAGE HEADER -->
   <div class="page-header">
