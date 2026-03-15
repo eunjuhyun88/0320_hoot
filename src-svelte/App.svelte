@@ -7,6 +7,7 @@
   import SiteFooter from "./lib/layout/SiteFooter.svelte";
   import SplashScreen from "./lib/components/SplashScreen.svelte";
   import PageSkeleton from "./lib/components/PageSkeleton.svelte";
+  import AgentDock from "./lib/components/agent/AgentDock.svelte";
   import "./lib/tokens.css";
 
   let showSplash = true;
@@ -23,15 +24,15 @@
     pipeline: () => import("./lib/pages/PipelinePage.svelte"),
   };
 
-  // Stage guard: redirect to dashboard if page is locked
-  $: if (!$unlockedPages.includes($router) && $router !== 'dashboard') {
-    router.navigate('dashboard');
+  // Stage guard: redirect to studio if page is locked
+  $: if (!$unlockedPages.includes($router) && $router !== 'studio' && $router !== 'dashboard') {
+    router.navigate('studio');
   }
 
   // Page transition key — increments on route change
   $: routeKey = $router;
-  $: isDashboard = $router === 'dashboard';
-  $: pagePromise = !isDashboard ? pageLoaders[$router]?.() : null;
+  $: isStudio = $router === 'studio' || $router === 'dashboard';
+  $: pagePromise = !isStudio ? pageLoaders[$router]?.() : null;
 </script>
 
 <svelte:head>
@@ -50,7 +51,7 @@
   <main class="app-main">
     {#key routeKey}
       <div class="page-transition" in:fly={{ y: 12, duration: 280, delay: 60 }} out:fade={{ duration: 150 }}>
-        {#if isDashboard}
+        {#if isStudio}
           <DashboardPage />
         {:else if pagePromise}
           {#await pagePromise}
@@ -64,9 +65,10 @@
       </div>
     {/key}
   </main>
-  {#if !isDashboard}
+  {#if !isStudio}
     <SiteFooter />
   {/if}
+  <AgentDock />
 </div>
 
 <style>
