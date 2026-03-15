@@ -131,7 +131,7 @@
   .dot.green { background: #28C840; }
   .term-title {
     margin-left: 8px; font-family: var(--font-mono, 'JetBrains Mono', monospace);
-    font-size: 0.6rem; color: rgba(255,255,255,0.3); letter-spacing: 0.04em;
+    font-size: 0.65rem; color: rgba(255,255,255,0.3); letter-spacing: 0.04em;
   }
 
   /* Filter bar */
@@ -146,7 +146,7 @@
     padding: 2px 6px; border-radius: 3px;
     border: 1px solid transparent;
     background: transparent; color: rgba(255,255,255,0.2);
-    font: 600 8px/1 var(--font-mono, 'JetBrains Mono', monospace);
+    font: 600 9px/1 var(--font-mono, 'JetBrains Mono', monospace);
     letter-spacing: 0.03em; cursor: pointer; transition: all 150ms;
     text-transform: uppercase;
   }
@@ -158,7 +158,7 @@
   .filter-btn.active.type-train { color: #fbbf24; border-color: rgba(251,191,36,0.2); }
   .filter-btn:hover { background: rgba(255,255,255,0.04); }
   .filter-count {
-    font: 500 7px/1 var(--font-mono, monospace);
+    font: 500 8px/1 var(--font-mono, monospace);
     color: rgba(255,255,255,0.25);
     padding: 1px 3px; border-radius: 2px;
     background: rgba(255,255,255,0.04);
@@ -169,7 +169,7 @@
     border: 1px solid rgba(255,255,255,0.06);
     background: rgba(255,255,255,0.03);
     color: rgba(255,255,255,0.5);
-    font: 400 8px/1 var(--font-mono, monospace);
+    font: 400 9px/1 var(--font-mono, monospace);
     outline: none; transition: border-color 200ms;
   }
   .filter-search:focus { border-color: rgba(137,180,250,0.4); }
@@ -196,10 +196,10 @@
   .term-log-line.crash { color: rgba(192,57,43,0.7); }
   .term-log-line.training { color: rgba(183,134,14,0.9); }
 
-  .tl-time { color: rgba(255,255,255,0.2); flex-shrink: 0; min-width: 44px; font-size: 0.58rem; }
+  .tl-time { color: rgba(255,255,255,0.2); flex-shrink: 0; min-width: 44px; font-size: 0.62rem; }
   .tl-type {
     flex-shrink: 0; min-width: 48px; font-weight: 700;
-    font-size: 0.55rem; letter-spacing: 0.04em;
+    font-size: 0.6rem; letter-spacing: 0.04em;
   }
   .tl-type.type-keep { color: #4ade80; }
   .tl-type.type-crash { color: #f87171; }

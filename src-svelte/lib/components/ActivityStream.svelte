@@ -104,19 +104,19 @@
     padding: 6px 8px 4px; flex-shrink: 0;
   }
   .stream-title {
-    font: 600 9px/1 'Inter', -apple-system, sans-serif;
+    font: 600 10px/1 'Inter', -apple-system, sans-serif;
     letter-spacing: 0.06em; color: #bbb;
     text-transform: uppercase;
   }
   .stream-count {
-    font: 600 9px/1 'Inter', -apple-system, sans-serif;
+    font: 600 10px/1 'Inter', -apple-system, sans-serif;
     color: #ccc;
     background: #f5f5f5; padding: 1px 4px; border-radius: 3px;
   }
   .stream-live {
     display: flex; align-items: center; gap: 3px;
     margin-left: auto;
-    font: 500 9px/1 'Inter', -apple-system, sans-serif;
+    font: 500 10px/1 'Inter', -apple-system, sans-serif;
     color: #D97757;
   }
   .stream-expand {
@@ -189,7 +189,7 @@
     width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0;
   }
   .st-cat {
-    font: 700 8px/1 'Inter', -apple-system, sans-serif;
+    font: 700 9px/1 'Inter', -apple-system, sans-serif;
     flex-shrink: 0; min-width: 28px;
     text-transform: uppercase; letter-spacing: 0.04em;
     color: #888;
@@ -206,7 +206,7 @@
   }
   .st-dur {
     color: #ccc; flex-shrink: 0;
-    font: 400 9px/1 'Inter', -apple-system, sans-serif;
+    font: 400 10px/1 'Inter', -apple-system, sans-serif;
   }
   .st-best {
     color: #d4a017; font-size: 10px; flex-shrink: 0;

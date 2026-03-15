@@ -252,7 +252,7 @@
     {#if job.experiments.length > 0}
       <ConvergenceChart experiments={job.experiments} bestMetric={job.bestMetric} baselineMetric={job.baselineMetric} width={960} height={120} />
     {:else}
-      <div class="empty-inner"><span class="empty-hint">Waiting for data…</span></div>
+      <div class="empty-inner"><div class="skeleton-bar" style="width: 60%"></div><div class="skeleton-bar" style="width: 40%"></div></div>
     {/if}
   </div>
 
@@ -365,7 +365,7 @@
     {#if $scatterData.length > 0}
       <ParamScatterChart data={$scatterData} />
     {:else}
-      <div class="empty-inner"><span class="empty-hint">Waiting for data…</span></div>
+      <div class="empty-inner"><div class="skeleton-bar" style="width: 60%"></div><div class="skeleton-bar" style="width: 40%"></div></div>
     {/if}
   </div>
 
@@ -381,7 +381,7 @@
     {#if Object.keys($heatmapData).length > 0}
       <ModificationHeatmap data={$heatmapData} />
     {:else}
-      <div class="empty-inner"><span class="empty-hint">Waiting for data…</span></div>
+      <div class="empty-inner"><div class="skeleton-bar" style="width: 60%"></div><div class="skeleton-bar" style="width: 40%"></div></div>
     {/if}
   </div>
 
@@ -397,7 +397,7 @@
     {#if job.experiments.length > 0}
       <ExperimentTreemap experiments={job.experiments} bestMetric={job.bestMetric} />
     {:else}
-      <div class="empty-inner"><span class="empty-hint">Waiting for data…</span></div>
+      <div class="empty-inner"><div class="skeleton-bar" style="width: 60%"></div><div class="skeleton-bar" style="width: 40%"></div></div>
     {/if}
   </div>
 
@@ -454,7 +454,7 @@
     {#if $experimentTree.length > 0}
       <ExperimentTree data={$experimentTree} bestMetric={job.bestMetric} />
     {:else}
-      <div class="empty-inner"><span class="empty-hint">Waiting for data…</span></div>
+      <div class="empty-inner"><div class="skeleton-bar" style="width: 60%"></div><div class="skeleton-bar" style="width: 40%"></div></div>
     {/if}
   </div>
 
@@ -478,7 +478,7 @@
     {#if job.experiments.length > 0}
       <DistributedView experiments={job.experiments} bestMetric={job.bestMetric} />
     {:else}
-      <div class="empty-inner"><span class="empty-hint">Waiting for data…</span></div>
+      <div class="empty-inner"><div class="skeleton-bar" style="width: 60%"></div><div class="skeleton-bar" style="width: 40%"></div></div>
     {/if}
   </div>
 
@@ -598,7 +598,7 @@
       "branches  stream    scatter   effect    context"
       "branches  treemap   lineage   mesh      terminal"
       "footer    footer    footer    footer    footer";
-    gap: 4px;
+    gap: 6px;
     overflow: hidden;
     background: var(--page-bg, #FAF9F7);
     transition: grid-template-columns 400ms ease, grid-template-rows 400ms ease;
@@ -702,15 +702,15 @@
     padding: 2px 6px; border-radius: 4px;
   }
   .hero-from {
-    font: 400 9px/1 'Inter', -apple-system, sans-serif;
+    font: 400 10px/1 'Inter', -apple-system, sans-serif;
     color: #bbb;
   }
   .hero-branch {
-    font: 600 8px/1 'Inter', -apple-system, sans-serif;
+    font: 600 9px/1 'Inter', -apple-system, sans-serif;
     letter-spacing: 0.06em; text-transform: uppercase;
   }
   .hero-sublabel {
-    font: 500 8px/1 'Inter', -apple-system, sans-serif;
+    font: 500 9px/1 'Inter', -apple-system, sans-serif;
     color: #ccc; text-transform: uppercase; letter-spacing: 0.08em;
   }
   .hero-spark {
@@ -801,12 +801,12 @@
     padding: 8px 12px 4px; flex-shrink: 0;
   }
   .tile-title {
-    font: 600 9px/1 'Inter', -apple-system, sans-serif;
+    font: 600 10px/1 'Inter', -apple-system, sans-serif;
     letter-spacing: 0.06em; color: #999;
     text-transform: uppercase;
   }
   .tile-hint {
-    font: 400 8px/1 'Inter', -apple-system, sans-serif;
+    font: 400 9px/1 'Inter', -apple-system, sans-serif;
     color: #ccc;
   }
   .tile-focus-btn {
@@ -890,11 +890,24 @@
     height: 100%; padding: 16px;
   }
   .empty-inner {
-    flex: 1; display: flex; align-items: center; justify-content: center;
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px;
   }
   .empty-hint {
     font: 400 10px/1 'Inter', -apple-system, sans-serif;
     color: #ddd;
+  }
+
+  /* Skeleton shimmer for empty states */
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  :global(.skeleton-bar) {
+    height: 8px; border-radius: 4px;
+    background: linear-gradient(90deg, #f0eeeb 25%, #e8e5e1 50%, #f0eeeb 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
   }
 
   /* ═══ FOOTER ═══ */
@@ -916,7 +929,7 @@
   }
   .fd-dim { color: #bbb; font-weight: 400; }
   .fd-lbl {
-    font: 400 8px/1 'Inter', -apple-system, sans-serif;
+    font: 400 9px/1 'Inter', -apple-system, sans-serif;
     color: #bbb;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -994,7 +1007,7 @@
   @media (max-width: 1024px) {
     .research-page {
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto auto auto auto auto auto auto;
+      grid-template-rows: auto auto auto auto auto auto auto auto auto;
       grid-template-areas:
         "prompt    prompt"
         "hero      stats"
@@ -1002,7 +1015,9 @@
         "branches  stream"
         "scatter   effect"
         "treemap   lineage"
-        "mesh      context"
+        "mesh      mesh"
+        "context   context"
+        "terminal  terminal"
         "footer    footer";
       height: auto; overflow-y: auto;
       gap: 6px;
@@ -1015,6 +1030,9 @@
         "prompt   prompt"
         "onboard  context"
         "footer   footer";
+    }
+    .terminal-tile {
+      min-height: 200px;
     }
   }
 
