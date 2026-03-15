@@ -6,9 +6,9 @@ export type DisclosureStage = 1 | 2 | 3 | 4 | 5;
 /** Which pages are visible at each stage */
 const STAGE_PAGES: Record<DisclosureStage, AppView[]> = {
   1: ['dashboard'],
-  2: ['dashboard', 'research'],
-  3: ['dashboard', 'research', 'models', 'model-detail'],
-  4: ['dashboard', 'research', 'models', 'model-detail', 'network'],
+  2: ['dashboard', 'research', 'ontology'],
+  3: ['dashboard', 'research', 'ontology', 'models', 'model-detail'],
+  4: ['dashboard', 'research', 'ontology', 'models', 'model-detail', 'network'],
   5: ['dashboard', 'research', 'models', 'model-detail', 'network', 'protocol', 'ontology', 'pipeline'],
 };
 
