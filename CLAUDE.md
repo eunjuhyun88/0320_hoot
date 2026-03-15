@@ -62,7 +62,7 @@ npm run ctx:restore -- --mode brief
 - Frontend / backend separation and API-first boundaries are mandatory.
 - Branch/worktree split is mandatory when multiple agents are active.
 - **Commit after every meaningful change.** Do not batch multiple modifications into one large commit. Each file change, feature addition, or fix should be committed individually before moving on.
-- **Worktree/브랜치 삭제 전 반드시 확인.** `git worktree remove --force` 또는 `git branch -D` 실행 전에 해당 worktree에 uncommitted 변경이 있는지, 다른 에이전트가 사용 중인지 반드시 확인한다. 확인 없이 강제 삭제 금지.
+- **워크트리/브랜치 수동 삭제 절대 금지.** `git worktree remove`, `git branch -D`, `rm -rf` 워크트리 경로 — 전부 `PreToolUse` 훅이 차단함. 모든 정리는 반드시 `npm run safe:cleanup`을 통해서만 수행. 이 스크립트는 dirty(🟢)/pending(🟡) 워크트리를 자동으로 보호하고, stale(🔴)만 삭제함.
 - Session start now hard-fails if `npm run agent:guard` does not pass.
 
 ## Git Merge Rules (Enforced)

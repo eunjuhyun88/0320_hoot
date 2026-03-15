@@ -134,8 +134,30 @@ Key principle: **split by scope first, then merge each independently**.
 
 ## Cleanup
 
-Periodically run `npm run safe:cleanup` to find and remove merged branches and stale worktrees.
-Use `npm run safe:cleanup -- --force` to execute the cleanup.
+### Mandatory Rule
+
+**NEVER manually run `git worktree remove`, `git branch -D`, or `rm -rf` on worktree directories.**
+These commands are blocked by `PreToolUse` hook. All cleanup MUST go through the safe cleanup script.
+
+### Required Process
+
+1. **Dry-run first**: `npm run safe:cleanup` — shows what would be deleted
+2. **Review the output**: verify 🟢 ACTIVE and 🟡 PENDING items are correct
+3. **Execute**: `npm run safe:cleanup -- --force` — deletes ONLY 🔴 STALE items
+
+### What the script protects
+
+- 🟢 **ACTIVE**: has dirty files → **never deleted**
+- 🟡 **PENDING**: has unmerged commits → **never deleted** (merge first)
+- 🔴 **STALE**: clean + fully merged → safe to delete
+
+### What is prohibited
+
+- `git worktree remove` / `git worktree remove --force` → use `safe:cleanup`
+- `git branch -d` / `git branch -D` → use `safe:cleanup`
+- `rm -rf` on any worktree path → use `safe:cleanup`
+- Deleting a dirty worktree without saving its patch first
+- Deleting a branch without verifying its commits are in main
 
 ## What To Reject
 

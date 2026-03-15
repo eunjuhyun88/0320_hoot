@@ -71,6 +71,13 @@ If the rebase has conflicts, the script stops and the agent must resolve them be
 Use `npm run safe:cleanup` to inspect merged branches and stale worktrees (dry-run).
 Use `npm run safe:cleanup -- --force` to delete them.
 
+**Manual deletion commands are BLOCKED by PreToolUse hook:**
+- `git worktree remove` → blocked
+- `git branch -d` / `git branch -D` → blocked
+- `rm -rf` on worktree paths → blocked
+
+All cleanup MUST go through `safe:cleanup` which automatically protects dirty and unmerged worktrees.
+
 ## Dirty Main Recovery
 
 When `main` has accumulated uncommitted or mixed-scope changes (staged files from multiple surfaces, untracked scaffolding, etc.):
