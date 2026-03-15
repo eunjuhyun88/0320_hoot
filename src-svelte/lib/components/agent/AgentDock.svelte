@@ -2,6 +2,7 @@
   import { router } from "../../stores/router.ts";
   import { agentStore, agentSheetOpen, agentLoading, agentInputFocused } from "../../stores/agentStore.ts";
   import { dashboardStore } from "../../stores/dashboardStore.ts";
+  import { wallet } from "../../stores/walletStore.ts";
   import { widgetStore, allWidgets } from "../../stores/widgetStore.ts";
   import { CATEGORY_COLORS, type WidgetId } from "../../data/widgetDefaults.ts";
   import PixelIcon from "../PixelIcon.svelte";
@@ -12,36 +13,33 @@
   let inputEl: HTMLInputElement;
   let widgetMenuOpen = false;
 
-  // ── Hide input row on Studio page (page already has its own primary input) ──
-  $: isStudioPage = $router === 'studio' || $router === 'dashboard';
-
-  // ── Status items derived from dashboardStore ──
+  // ── Status items with LABELS (matches spec wireframe) ──
   $: statusItems = [
     {
       icon: 'research' as const,
-      value: $dashboardStore.runningCount,
-      label: 'running',
+      value: `${$dashboardStore.runningCount} running`,
+      label: 'RESEARCH',
       color: 'var(--accent, #D97757)',
       view: 'studio' as AppView,
     },
     {
       icon: 'grid' as const,
-      value: $dashboardStore.modelsSummary?.count ?? 0,
-      label: 'models',
+      value: `${$dashboardStore.modelsSummary?.count ?? 0} models`,
+      label: 'MODELS',
       color: '#2980b9',
       view: 'models' as AppView,
     },
     {
       icon: 'globe' as const,
-      value: $dashboardStore.networkSummary?.nodes ?? 0,
-      label: 'nodes',
+      value: `${$dashboardStore.networkSummary?.nodes ?? 0} nodes`,
+      label: 'NETWORK',
       color: 'var(--green, #27864a)',
       view: 'network' as AppView,
     },
     {
       icon: 'protocol' as const,
       value: $dashboardStore.protocolSummary?.tvl ?? '$0',
-      label: '',
+      label: 'PROTOCOL',
       color: '#d4a017',
       view: 'protocol' as AppView,
     },
@@ -107,40 +105,38 @@
 <!-- Agent Sheet (slides up above dock) -->
 <AgentSheet />
 
-<!-- Agent Dock (always at bottom) -->
-<div class="agent-dock" class:sheet-open={$agentSheetOpen} class:focused={$agentInputFocused} class:compact={isStudioPage}>
-  <!-- Row 1: Input bar (hidden on Studio — page has its own primary input) -->
-  {#if !isStudioPage}
-    <div class="dock-input-row">
-      <span class="dock-owl">
-        <PixelIcon type="sparkle" size={16} />
-      </span>
-      <input
-        bind:this={inputEl}
-        bind:value={inputValue}
-        on:keydown={handleKeyDown}
-        on:focus={handleFocus}
-        on:blur={handleBlur}
-        type="text"
-        class="dock-input"
-        placeholder="무엇이든 물어보세요..."
-        autocomplete="off"
-      />
-      <button
-        class="dock-send"
-        class:dock-send-active={inputValue.trim().length > 0}
-        on:click={handleSubmit}
-        disabled={!inputValue.trim()}
-        title="Send"
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M2 14l12-6L2 2v4.8L10 8 2 9.2z" fill="currentColor"/>
-        </svg>
-      </button>
-    </div>
-  {/if}
+<!-- Agent Dock (always at bottom, always with input — spec §1.2) -->
+<div class="agent-dock" class:sheet-open={$agentSheetOpen} class:focused={$agentInputFocused}>
+  <!-- Row 1: Agent Input (always visible per spec D4) -->
+  <div class="dock-input-row">
+    <span class="dock-owl">
+      <PixelIcon type="sparkle" size={16} />
+    </span>
+    <input
+      bind:this={inputEl}
+      bind:value={inputValue}
+      on:keydown={handleKeyDown}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
+      type="text"
+      class="dock-input"
+      placeholder="무엇이든 물어보세요...  ⌘K"
+      autocomplete="off"
+    />
+    <button
+      class="dock-send"
+      class:dock-send-active={inputValue.trim().length > 0}
+      on:click={handleSubmit}
+      disabled={!inputValue.trim()}
+      title="Send"
+    >
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <path d="M2 14l12-6L2 2v4.8L10 8 2 9.2z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
 
-  <!-- Row 2: Status icons -->
+  <!-- Row 2: Labeled status icons (spec wireframe: RESEARCH 2 running · MODELS 3 models · ...) -->
   <div class="dock-status-row">
     {#each statusItems as item}
       <button
@@ -149,9 +145,12 @@
         title="{item.label} — click to navigate"
       >
         <span class="status-icon" style:color={item.color}>
-          <PixelIcon type={item.icon} size={12} />
+          <PixelIcon type={item.icon} size={14} />
         </span>
-        <span class="status-value" style:color={item.color}>{item.value}</span>
+        <div class="status-text">
+          <span class="status-label">{item.label}</span>
+          <span class="status-value" style:color={item.color}>{item.value}</span>
+        </div>
       </button>
     {/each}
 
@@ -165,7 +164,7 @@
         on:click|stopPropagation={toggleWidgetMenu}
         title="Toggle widgets"
       >
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
           <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.2"/>
           <path d="M6.7 1.5l-.4 1.3a5 5 0 00-1.5.9L3.5 3.2l-1.3 2.3 1 1a5 5 0 000 1.7l-1 1 1.3 2.3 1.3-.5a5 5 0 001.5.9l.4 1.3h2.6l.4-1.3a5 5 0 001.5-.9l1.3.5 1.3-2.3-1-1a5 5 0 000-1.7l1-1-1.3-2.3-1.3.5a5 5 0 00-1.5-.9L9.3 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
         </svg>
@@ -199,7 +198,7 @@
     bottom: 12px;
     left: 50%;
     transform: translateX(-50%);
-    width: min(640px, calc(100vw - 24px));
+    width: min(720px, calc(100vw - 24px));
     background: var(--glass-bg, rgba(255, 255, 255, 0.92));
     border: 1px solid var(--border, #E5E0DA);
     border-radius: 18px;
@@ -208,7 +207,7 @@
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.03);
     z-index: var(--z-splash, 9999);
     pointer-events: auto;
-    padding: 8px 12px 6px;
+    padding: 8px 14px 6px;
     transition: box-shadow 200ms ease, border-color 200ms ease;
   }
   .agent-dock.focused {
@@ -277,35 +276,24 @@
     opacity: 0.4;
   }
 
-  /* ═══ COMPACT MODE (Studio — status only, no input) ═══ */
-  .agent-dock.compact {
-    padding: 4px 12px;
-    border-radius: 14px;
-  }
-
-  /* ═══ STATUS ROW ═══ */
+  /* ═══ STATUS ROW (with labels) ═══ */
   .dock-status-row {
     display: flex;
     align-items: center;
     gap: 2px;
-    padding-top: 4px;
+    padding-top: 5px;
     border-top: 1px solid var(--border-subtle, #EDEAE5);
-    margin-top: 4px;
-  }
-  .compact .dock-status-row {
-    padding-top: 0;
-    border-top: none;
-    margin-top: 0;
+    margin-top: 5px;
   }
   .status-item {
     appearance: none;
     border: none;
     background: transparent;
     border-radius: 6px;
-    padding: 2px 8px;
+    padding: 3px 8px;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     cursor: pointer;
     transition: background 100ms ease;
   }
@@ -317,10 +305,24 @@
     align-items: center;
     line-height: 1;
   }
+  .status-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    line-height: 1.1;
+  }
+  .status-label {
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 0.44rem;
+    font-weight: 700;
+    color: var(--text-primary, #2D2D2D);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
   .status-value {
     font-family: var(--font-mono, "JetBrains Mono", monospace);
-    font-size: 0.52rem;
-    font-weight: 700;
+    font-size: 0.48rem;
+    font-weight: 500;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
@@ -328,7 +330,7 @@
   /* ═══ SEPARATOR + GEAR ═══ */
   .dock-sep {
     width: 1px;
-    height: 16px;
+    height: 20px;
     background: var(--border-subtle, #EDEAE5);
     margin: 0 4px;
     flex-shrink: 0;
@@ -395,73 +397,28 @@
     letter-spacing: 0.06em;
   }
   .wm-reset {
-    appearance: none;
-    border: none;
-    background: transparent;
-    font-family: var(--font-mono);
-    font-size: 0.44rem;
-    font-weight: 600;
-    color: var(--accent, #D97757);
-    cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: background 100ms;
+    appearance: none; border: none; background: transparent;
+    font-family: var(--font-mono); font-size: 0.44rem; font-weight: 600;
+    color: var(--accent, #D97757); cursor: pointer; padding: 2px 6px;
+    border-radius: 4px; transition: background 100ms;
   }
-  .wm-reset:hover {
-    background: rgba(217, 119, 87, 0.08);
-  }
-  .wm-list {
-    padding: 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
+  .wm-reset:hover { background: rgba(217, 119, 87, 0.08); }
+  .wm-list { padding: 4px; display: flex; flex-direction: column; gap: 1px; }
   .wm-item {
-    appearance: none;
-    border: none;
-    background: transparent;
-    border-radius: 6px;
-    padding: 6px 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-    transition: background 100ms;
-    width: 100%;
-    text-align: left;
+    appearance: none; border: none; background: transparent; border-radius: 6px;
+    padding: 6px 10px; display: flex; align-items: center; gap: 8px;
+    cursor: pointer; transition: background 100ms; width: 100%; text-align: left;
   }
-  .wm-item:hover {
-    background: rgba(0, 0, 0, 0.03);
-  }
-  .wm-item-active {
-    background: rgba(0, 0, 0, 0.02);
-  }
-  .wm-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .wm-item-active .wm-dot {
-    box-shadow: 0 0 4px currentColor;
-  }
+  .wm-item:hover { background: rgba(0, 0, 0, 0.03); }
+  .wm-item-active { background: rgba(0, 0, 0, 0.02); }
+  .wm-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .wm-item-active .wm-dot { box-shadow: 0 0 4px currentColor; }
   .wm-name {
-    font-family: var(--font-mono);
-    font-size: 0.52rem;
-    font-weight: 500;
-    color: var(--text-secondary, #6b6560);
-    flex: 1;
+    font-family: var(--font-mono); font-size: 0.52rem; font-weight: 500;
+    color: var(--text-secondary, #6b6560); flex: 1;
   }
-  .wm-item-active .wm-name {
-    font-weight: 600;
-    color: var(--text-primary, #2D2D2D);
-  }
-  .wm-toggle {
-    font-size: 0.5rem;
-    color: var(--green, #27864a);
-    width: 14px;
-    text-align: center;
-  }
+  .wm-item-active .wm-name { font-weight: 600; color: var(--text-primary, #2D2D2D); }
+  .wm-toggle { font-size: 0.5rem; color: var(--green, #27864a); width: 14px; text-align: center; }
 
   /* ═══ RESPONSIVE ═══ */
   @media (max-width: 600px) {
@@ -471,22 +428,12 @@
       padding: 6px 8px 4px;
       border-radius: 14px;
     }
-    .dock-input {
-      font-size: 0.78rem;
-    }
-    .status-item {
-      padding: 2px 4px;
-    }
-    .status-value {
-      font-size: 0.44rem;
-    }
+    .dock-input { font-size: 0.78rem; }
+    .status-item { padding: 2px 4px; }
+    .status-label { display: none; }
   }
   @media (max-width: 420px) {
-    .status-value {
-      display: none;
-    }
-    .status-item {
-      padding: 2px 3px;
-    }
+    .status-value { font-size: 0.42rem; }
+    .status-item { padding: 2px 3px; gap: 3px; }
   }
 </style>
