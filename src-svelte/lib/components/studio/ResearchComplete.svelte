@@ -15,6 +15,7 @@
    *   viewModel: { modelId: string }
    */
   import { createEventDispatcher } from 'svelte';
+  import { router } from '../../stores/router.ts';
   import {
     jobStore,
     keepCount, crashCount, completedCount, activeNodeCount,
@@ -140,6 +141,15 @@
       </button>
       <button class="cb-btn secondary" on:click={() => dispatch('newResearch')}>
         새 연구
+      </button>
+      <button class="cb-btn secondary" on:click={() => dispatch('retrain', { code: '', parentId: null })}>
+        설정 수정 후 재실행
+      </button>
+      <button class="cb-btn secondary" on:click={() => dispatch('improve', { instruction: '' })}>
+        이 결과 기반 개선
+      </button>
+      <button class="cb-btn ghost" on:click={() => router.navigate('models')}>
+        모델 허브 →
       </button>
     </div>
   </div>
@@ -433,6 +443,8 @@
   .cb-btn.publish:hover { background: #C4644A; box-shadow: 0 2px 8px rgba(217,119,87,0.2); }
   .cb-btn.secondary { background: transparent; border: 1px solid var(--border, #E5E0DA); color: var(--text-secondary, #6b6560); }
   .cb-btn.secondary:hover { border-color: var(--accent, #D97757); color: var(--accent, #D97757); }
+  .cb-btn.ghost { background: transparent; border: none; color: var(--text-muted, #9a9590); font-size: 0.75rem; padding: 6px 10px; }
+  .cb-btn.ghost:hover { color: var(--accent, #D97757); text-decoration: underline; }
 
   /* ═══ HERO ═══ */
   .hero-tile { display: flex; flex-direction: column; padding: 6px 8px; overflow-y: auto; }
