@@ -354,6 +354,7 @@
     preserveAspectRatio="xMidYMid meet"
     class="tm-svg"
     class:tm-zooming={isZooming || zoomViewBox}
+    role="img" aria-label="Experiment treemap"
     on:mouseleave={() => { hoveredCell = null; }}
   >
     {#each cells as cell (cell.id)}

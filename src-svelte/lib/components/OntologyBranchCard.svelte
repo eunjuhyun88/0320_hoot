@@ -19,7 +19,7 @@
 
 <div class="branch-card" class:disabled={!branch.enabled} class:expanded>
   <div class="branch-header">
-    <button class="branch-toggle" on:click={() => dispatch('toggle', def.id)}>
+    <button class="branch-toggle" on:click={() => dispatch('toggle', def.id)} aria-label="Toggle {def.label}">
       <span class="toggle-track" class:on={branch.enabled}>
         <span class="toggle-thumb"></span>
       </span>
@@ -45,6 +45,7 @@
       class="expand-btn"
       on:click={() => dispatch('expand', def.id)}
       disabled={!branch.enabled}
+      aria-label="Expand {def.label} config"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>

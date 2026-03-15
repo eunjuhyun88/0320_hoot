@@ -150,7 +150,7 @@
 <div class="ontology-page">
   <!-- Header Bar -->
   <div class="header-bar">
-    <button class="back-btn" on:click={() => router.navigate('dashboard')}>
+    <button class="back-btn" on:click={() => router.navigate('dashboard')} aria-label="Back to dashboard">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <div class="header-title">
@@ -212,8 +212,9 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label class="form-label">Tags</label>
+            <label class="form-label" for="ont-tags">Tags</label>
             <input
+              id="ont-tags"
               type="text"
               class="form-input mono"
               placeholder="crypto, market, prediction (comma separated)"
@@ -323,14 +324,16 @@
                 {/if}
               </div>
             {:else}
-              <!-- svelte-ignore a11y-no-static-element-interactions -->
               <div
                 class="upload-zone"
                 class:drag-over={csv.dragOver}
+                role="button"
+                tabindex="0"
                 on:dragover|preventDefault={() => csv = { ...csv, dragOver: true }}
                 on:dragleave={() => csv = { ...csv, dragOver: false }}
                 on:drop={handleFileDrop}
                 on:click={() => document.getElementById('csv-input')?.click()}
+                on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); document.getElementById('csv-input')?.click(); }}}
               >
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span class="upload-main">Drop CSV here or click to browse</span>
@@ -367,8 +370,8 @@
               <label class="form-label" for="eval-metric">Metric</label>
               <input id="eval-metric" type="text" class="form-input mono" bind:value={ontology.evaluation.metric} placeholder="bal_acc" />
             </div>
-            <div class="form-group">
-              <label class="form-label">Direction</label>
+            <div class="form-group" role="group" aria-labelledby="lbl-direction">
+              <span class="form-label" id="lbl-direction">Direction</span>
               <div class="toggle-group">
                 <button class="toggle-btn" class:active={ontology.evaluation.direction === 'maximize'} on:click={() => ontology.evaluation.direction = 'maximize'}>maximize</button>
                 <button class="toggle-btn" class:active={ontology.evaluation.direction === 'minimize'} on:click={() => ontology.evaluation.direction = 'minimize'}>minimize</button>
@@ -387,8 +390,8 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Completion Mode</label>
+          <div class="form-group" role="group" aria-labelledby="lbl-completion">
+            <span class="form-label" id="lbl-completion">Completion Mode</span>
             <div class="toggle-group wide">
               <button class="toggle-btn" class:active={ontology.evaluation.completionMode === 'target'} on:click={() => ontology.evaluation.completionMode = 'target'}>
                 Target Metric
@@ -399,8 +402,8 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Validation Strategy</label>
+          <div class="form-group" role="group" aria-labelledby="lbl-validation">
+            <span class="form-label" id="lbl-validation">Validation Strategy</span>
             <div class="toggle-group wide">
               {#each ['holdout', 'kfold', 'purged_cv', 'stratified_kfold'] as vs}
                 <button class="toggle-btn" class:active={ontology.evaluation.validationStrategy === vs} on:click={() => ontology.evaluation.validationStrategy = vs}>{vs.replace('_', ' ')}</button>
@@ -429,8 +432,8 @@
           <span class="section-hint">GPU, budget, reproducibility</span>
         </div>
         <div class="section-body">
-          <div class="form-group">
-            <label class="form-label">GPU Tier</label>
+          <div class="form-group" role="group" aria-labelledby="lbl-gpu">
+            <span class="form-label" id="lbl-gpu">GPU Tier</span>
             <div class="toggle-group">
               <button class="toggle-btn" class:active={ontology.resources.gpuTier === 1} on:click={() => ontology.resources.gpuTier = 1}>Tier 1</button>
               <button class="toggle-btn" class:active={ontology.resources.gpuTier === 2} on:click={() => ontology.resources.gpuTier = 2}>Tier 2</button>
@@ -456,8 +459,9 @@
               <input id="cfg-seed" type="number" class="form-input mono" placeholder="Random" bind:value={ontology.resources.trainingSeed} />
             </div>
             <div class="form-group">
-              <label class="form-label">Deterministic</label>
+              <span class="form-label" id="lbl-deterministic">Deterministic</span>
               <button
+                aria-labelledby="lbl-deterministic"
                 class="toggle-single"
                 class:on={ontology.resources.deterministic}
                 on:click={() => ontology.resources.deterministic = !ontology.resources.deterministic}
@@ -467,8 +471,8 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Visibility</label>
+          <div class="form-group" role="group" aria-labelledby="lbl-visibility">
+            <span class="form-label" id="lbl-visibility">Visibility</span>
             <div class="toggle-group">
               <button class="toggle-btn" class:active={ontology.visibility === 'private'} on:click={() => ontology.visibility = 'private'}>Private</button>
               <button class="toggle-btn" class:active={ontology.visibility === 'public'} on:click={() => ontology.visibility = 'public'}>Public</button>

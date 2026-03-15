@@ -8,7 +8,7 @@
   on:click={() => connectionMode.toggle()}
   title={$isConnected ? 'Connected to API — click to switch to Demo' : 'Demo mode — click to connect to API'}
 >
-  <span class="dot" />
+  <span class="dot"></span>
   <span class="label">{$connectionMode === 'connected' ? 'Live' : 'Demo'}</span>
 </button>
 

@@ -119,6 +119,7 @@
 </script>
 
 <svg {width} {height} viewBox="0 0 {width} {height}" class="convergence-chart"
+  role="img" aria-label="Convergence chart"
   on:mouseleave={() => { hoveredPoint = null; }}>
   <defs>
     <filter id="cv-best-glow" x="-60%" y="-60%" width="220%" height="220%">
