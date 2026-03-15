@@ -1,6 +1,6 @@
 import { writable, derived } from 'svelte/store';
 
-export type AppView = 'studio' | 'dashboard' | 'models' | 'research' | 'research-lab' | 'network' | 'model-detail' | 'protocol' | 'ontology' | 'pipeline';
+export type AppView = 'studio' | 'dashboard' | 'models' | 'research-lab' | 'network' | 'model-detail' | 'protocol' | 'pipeline';
 
 /** Params carried between routes (e.g. topic from Dashboard → Research) */
 export interface RouteParams {
@@ -15,7 +15,7 @@ const ROUTE_MAP: Record<string, AppView> = {
   '/studio': 'studio',
   '/dashboard': 'studio',          // legacy → studio
   '/models': 'models',
-  '/research': 'research',         // still accessible, absorbed into studio in Phase 4
+  '/research': 'studio',            // legacy → studio (AutoresearchPage deleted)
   '/research-lab': 'research-lab',
   '/semantic-zoom': 'research-lab',
   '/autoresearch': 'studio',       // legacy → studio
@@ -24,7 +24,7 @@ const ROUTE_MAP: Record<string, AppView> = {
   '/model-detail': 'model-detail',
   '/protocol': 'protocol',
   '/economics': 'protocol',        // legacy → protocol
-  '/ontology': 'ontology',         // still accessible, absorbed into studio in Phase 4
+  '/ontology': 'studio',            // legacy → studio (OntologyPage deleted)
   '/pipeline': 'pipeline',
 };
 
@@ -32,12 +32,10 @@ const VIEW_TO_HASH: Record<AppView, string> = {
   studio: '/',
   dashboard: '/',              // legacy alias → same as studio
   models: '/models',
-  research: '/research',
   'research-lab': '/research-lab',
   network: '/network',
   'model-detail': '/model-detail',
   protocol: '/protocol',
-  ontology: '/ontology',
   pipeline: '/pipeline',
 };
 
