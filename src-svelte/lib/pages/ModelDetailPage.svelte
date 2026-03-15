@@ -1,5 +1,6 @@
 <script lang="ts">
   import { router } from "../stores/router.ts";
+  import { fly, fade } from 'svelte/transition';
   import { DEMO_MODEL, EXPERIMENT_LOG, SPARK_DATA } from "../data/modelDetailData.ts";
   import ModelCardTab from "../components/ModelCardTab.svelte";
   import ExperimentsTab from "../components/ExperimentsTab.svelte";
@@ -9,6 +10,11 @@
   import ModelSidebar from "../components/ModelSidebar.svelte";
 
   let activeTab: 'card' | 'playground' | 'api' | 'experiments' | 'benchmark' = 'card';
+
+  // UX-MD4: "Use this model" dropdown
+  let dropdownOpen = false;
+  function toggleDropdown() { dropdownOpen = !dropdownOpen; }
+  function closeDropdown() { dropdownOpen = false; }
 
   const m = DEMO_MODEL;
   const experimentLog = EXPERIMENT_LOG;
@@ -29,8 +35,8 @@
 </script>
 
 <div class="detail">
-  <!-- Breadcrumb -->
-  <nav class="breadcrumb">
+  <!-- UX-MD2: Accessible breadcrumb -->
+  <nav class="breadcrumb" aria-label="Breadcrumb">
     <button class="bc-link" on:click={() => router.navigate('dashboard')}>Dashboard</button>
     <span class="bc-sep">/</span>
     <button class="bc-link" on:click={() => router.navigate('models')}>Models</button>
@@ -66,12 +72,30 @@
               </svg>
               {m.likes}
             </button>
-            <button class="action-btn primary">
-              Use this model
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
+            <div class="action-dropdown" on:mouseleave={closeDropdown}>
+              <button class="action-btn primary" on:click={toggleDropdown} aria-haspopup="true" aria-expanded={dropdownOpen}>
+                Use this model
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="chevron" class:chevron-open={dropdownOpen}>
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              {#if dropdownOpen}
+              <div class="dropdown-menu" transition:fly={{ y: -8, duration: 150 }}>
+                <button class="dropdown-item" on:click={closeDropdown}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 14a1 1 0 0 1-.78-1.63l9-11a1 1 0 0 1 1.78.63v7h6a1 1 0 0 1 .78 1.63l-9 11a1 1 0 0 1-1.78-.63v-7H4z" stroke="currentColor" stroke-width="1.5"/></svg>
+                  Deploy
+                </button>
+                <button class="dropdown-item" on:click={closeDropdown}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Download
+                </button>
+                <button class="dropdown-item" on:click={closeDropdown}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Fork
+                </button>
+              </div>
+              {/if}
+            </div>
           </div>
         </div>
 
@@ -93,22 +117,22 @@
       </header>
 
       <!-- Tabs -->
-      <div class="tabs">
-        <button class="tab" class:active={activeTab === 'card'} on:click={() => activeTab = 'card'}>
+      <div class="tabs" role="tablist" aria-label="Model sections">
+        <button class="tab" class:active={activeTab === 'card'} role="tab" aria-selected={activeTab === 'card'} on:click={() => activeTab = 'card'}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.5"/>
             <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.5"/>
           </svg>
           Model Card
         </button>
-        <button class="tab" class:active={activeTab === 'experiments'} on:click={() => activeTab = 'experiments'}>
+        <button class="tab" class:active={activeTab === 'experiments'} role="tab" aria-selected={activeTab === 'experiments'} on:click={() => activeTab = 'experiments'}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M23 6l-9.5 9.5-5-5L1 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
           Experiments
-          <span class="tab-count">{m.totalExperiments}</span>
+          <span class="tab-count" class:tab-count-active={activeTab === 'experiments'}>{m.totalExperiments}</span>
         </button>
-        <button class="tab" class:active={activeTab === 'benchmark'} on:click={() => activeTab = 'benchmark'}>
+        <button class="tab" class:active={activeTab === 'benchmark'} role="tab" aria-selected={activeTab === 'benchmark'} on:click={() => activeTab = 'benchmark'}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <rect x="3" y="12" width="4" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/>
             <rect x="10" y="7" width="4" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -116,13 +140,13 @@
           </svg>
           Benchmark
         </button>
-        <button class="tab" class:active={activeTab === 'playground'} on:click={() => activeTab = 'playground'}>
+        <button class="tab" class:active={activeTab === 'playground'} role="tab" aria-selected={activeTab === 'playground'} on:click={() => activeTab = 'playground'}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <polygon points="5 3 19 12 5 21 5 3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
           </svg>
           Playground
         </button>
-        <button class="tab" class:active={activeTab === 'api'} on:click={() => activeTab = 'api'}>
+        <button class="tab" class:active={activeTab === 'api'} role="tab" aria-selected={activeTab === 'api'} on:click={() => activeTab = 'api'}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <polyline points="16 18 22 12 16 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <polyline points="8 6 2 12 8 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -131,18 +155,22 @@
         </button>
       </div>
 
-      <!-- Tab Content -->
-      {#if activeTab === 'card'}
-        <ModelCardTab {m} />
-      {:else if activeTab === 'experiments'}
-        <ExperimentsTab {m} {experimentLog} />
-      {:else if activeTab === 'benchmark'}
-        <BenchmarkTab visible={activeTab === 'benchmark'} />
-      {:else if activeTab === 'playground'}
-        <PlaygroundTab />
-      {:else if activeTab === 'api'}
-        <ApiTab modelSlug={m.id} />
-      {/if}
+      <!-- UX-MD1: Crossfade tab content -->
+      {#key activeTab}
+      <div class="tab-panel" in:fly={{ y: 8, duration: 200, delay: 60 }} out:fade={{ duration: 80 }}>
+        {#if activeTab === 'card'}
+          <ModelCardTab {m} />
+        {:else if activeTab === 'experiments'}
+          <ExperimentsTab {m} {experimentLog} />
+        {:else if activeTab === 'benchmark'}
+          <BenchmarkTab visible={activeTab === 'benchmark'} />
+        {:else if activeTab === 'playground'}
+          <PlaygroundTab />
+        {:else if activeTab === 'api'}
+          <ApiTab modelSlug={m.id} />
+        {/if}
+      </div>
+      {/key}
     </div>
 
     <!-- Right: Sidebar -->
@@ -306,6 +334,55 @@
     color: var(--text-muted, #9a9590);
     padding: 1px 6px; border-radius: 8px;
     font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    transition: background 200ms, color 200ms;
+  }
+  /* UX-MD5: Tab count accent on active */
+  .tab-count-active {
+    background: rgba(217, 119, 87, 0.15);
+    color: var(--accent, #D97757);
+  }
+
+  /* UX-MD4: Dropdown menu */
+  .action-dropdown {
+    position: relative;
+  }
+  .chevron {
+    transition: transform 200ms ease;
+  }
+  .chevron-open {
+    transform: rotate(180deg);
+  }
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border, #E5E0DA);
+    border-radius: var(--radius-md, 10px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    padding: 4px;
+    min-width: 160px;
+    z-index: 50;
+  }
+  .dropdown-item {
+    appearance: none;
+    border: none;
+    background: none;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-primary, #2D2D2D);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    transition: background 100ms;
+    text-align: left;
+  }
+  .dropdown-item:hover {
+    background: var(--page-bg, #FAF9F7);
   }
 
   /* Content Layout */
@@ -317,14 +394,28 @@
     animation: fade-up 500ms cubic-bezier(0.16, 1, 0.3, 1) 150ms both;
   }
 
+  /* UX-MD3: Sidebar sticky */
+  .content-layout :global(.content-sidebar) {
+    position: sticky;
+    top: calc(var(--header-height, 52px) + 16px);
+  }
+
   /* Responsive */
   @media (max-width: 960px) {
     .content-layout { grid-template-columns: 1fr; }
+    .content-layout :global(.content-sidebar) { position: static; }
   }
   @media (max-width: 600px) {
     .detail { padding: var(--space-3, 12px); }
     .header-top { flex-direction: column; }
     .header-actions { width: 100%; }
     .model-name { font-size: 1.2rem; }
+  }
+
+  /* C-1: prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .breadcrumb, .content-layout { animation: none !important; }
+    .chevron { transition: none; }
+    .tab-count { transition: none; }
   }
 </style>
