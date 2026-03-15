@@ -12,6 +12,9 @@
   let inputEl: HTMLInputElement;
   let widgetMenuOpen = false;
 
+  // ── Hide input row on Studio page (page already has its own primary input) ──
+  $: isStudioPage = $router === 'studio' || $router === 'dashboard';
+
   // ── Status items derived from dashboardStore ──
   $: statusItems = [
     {
@@ -105,35 +108,37 @@
 <AgentSheet />
 
 <!-- Agent Dock (always at bottom) -->
-<div class="agent-dock" class:sheet-open={$agentSheetOpen} class:focused={$agentInputFocused}>
-  <!-- Row 1: Input bar -->
-  <div class="dock-input-row">
-    <span class="dock-owl">
-      <PixelIcon type="sparkle" size={16} />
-    </span>
-    <input
-      bind:this={inputEl}
-      bind:value={inputValue}
-      on:keydown={handleKeyDown}
-      on:focus={handleFocus}
-      on:blur={handleBlur}
-      type="text"
-      class="dock-input"
-      placeholder="무엇이든 물어보세요..."
-      autocomplete="off"
-    />
-    <button
-      class="dock-send"
-      class:dock-send-active={inputValue.trim().length > 0}
-      on:click={handleSubmit}
-      disabled={!inputValue.trim()}
-      title="Send"
-    >
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-        <path d="M2 14l12-6L2 2v4.8L10 8 2 9.2z" fill="currentColor"/>
-      </svg>
-    </button>
-  </div>
+<div class="agent-dock" class:sheet-open={$agentSheetOpen} class:focused={$agentInputFocused} class:compact={isStudioPage}>
+  <!-- Row 1: Input bar (hidden on Studio — page has its own primary input) -->
+  {#if !isStudioPage}
+    <div class="dock-input-row">
+      <span class="dock-owl">
+        <PixelIcon type="sparkle" size={16} />
+      </span>
+      <input
+        bind:this={inputEl}
+        bind:value={inputValue}
+        on:keydown={handleKeyDown}
+        on:focus={handleFocus}
+        on:blur={handleBlur}
+        type="text"
+        class="dock-input"
+        placeholder="무엇이든 물어보세요..."
+        autocomplete="off"
+      />
+      <button
+        class="dock-send"
+        class:dock-send-active={inputValue.trim().length > 0}
+        on:click={handleSubmit}
+        disabled={!inputValue.trim()}
+        title="Send"
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M2 14l12-6L2 2v4.8L10 8 2 9.2z" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  {/if}
 
   <!-- Row 2: Status icons -->
   <div class="dock-status-row">
@@ -272,6 +277,12 @@
     opacity: 0.4;
   }
 
+  /* ═══ COMPACT MODE (Studio — status only, no input) ═══ */
+  .agent-dock.compact {
+    padding: 4px 12px;
+    border-radius: 14px;
+  }
+
   /* ═══ STATUS ROW ═══ */
   .dock-status-row {
     display: flex;
@@ -280,6 +291,11 @@
     padding-top: 4px;
     border-top: 1px solid var(--border-subtle, #EDEAE5);
     margin-top: 4px;
+  }
+  .compact .dock-status-row {
+    padding-top: 0;
+    border-top: none;
+    margin-top: 0;
   }
   .status-item {
     appearance: none;
