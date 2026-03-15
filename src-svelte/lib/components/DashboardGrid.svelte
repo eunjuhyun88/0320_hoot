@@ -37,7 +37,7 @@
     <div class="dg-section-header">
       <span class="dg-section-dot" style:background="var(--accent, #D97757)"></span>
       <span class="dg-section-title">Active Research</span>
-      <button class="dg-section-link" on:click={() => router.navigate("research")}>View All →</button>
+      <button class="dg-section-link" on:click={() => router.navigate("studio")}>View All →</button>
     </div>
     <div class="dg-cards">
       {#each topJobs as job (job.id)}
