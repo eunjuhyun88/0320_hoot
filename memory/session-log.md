@@ -222,6 +222,58 @@ runtime-api가 실제 runtime summary를 읽게 된 뒤, 다음 단계로 `Autor
 - normalize controller `/events` into the shared runtime SSE contract
 - move the remaining page/runtime hybrids fully onto runtime snapshots + streams
 
+---
+
+## 2026-03-15 (cont): Agent governance hardening and recovered-branch audit
+
+### Context
+사용자 요청: 같은 브랜치를 여러 agent가 공유하지 못하게 하고, 메모리를 읽지 않거나 쓰지 않은 채 작업/핸드오프/머지를 진행하지 못하도록 강제. 이후 `codex/autoresearch-runtime-persistence` 복구가 완료되어 실제 상태를 다시 점검.
+
+### Completed
+- **Recovered branch audit**:
+  - `codex/autoresearch-runtime-persistence` at `6a1a2ad` restored
+  - branch commit is patch-equivalent to `main`'s `79e5873`, but the branch itself is still a separate lane and must not be deleted without confirmation
+  - root `main` worktree currently contains active dirty/conflicted WIP, so governance work continued only inside isolated `codex/agent-governance`
+
+- **Governance scripts hardened**:
+  - `scripts/dev/new-worktree.sh`
+    - rejects reusing an existing working branch for a new worktree
+  - `scripts/dev/check-context-quality.sh`
+    - validates checkpoint/brief/handoff/state artifacts against semantic requirements
+    - strict mode now blocks provisional, degraded, or state-less handoff memory
+  - `scripts/dev/agent-guard.mjs`
+    - blocks provisional checkpoints on active `codex/*` lanes
+    - checks lane size against checkpoint `Start Head`
+    - blocks stale merge cadence and missing state refresh
+  - `scripts/dev/check-agent-coordination.mjs`
+    - coordination report now exposes checkpoint/state visibility per active claim
+  - `scripts/dev/release-work.mjs`
+    - blocks handoff/release from dirty worktrees
+    - requires non-provisional checkpoint + compacted state + meaningful handoff artifacts
+  - `scripts/dev/context-compact.sh`
+    - state ledger now records `currentHead`, changed files, and uncommitted files
+
+- **Canonical docs/memory aligned**:
+  - `README.md`, `AGENTS.md`, `CLAUDE.md`
+  - `docs/AGENT_BRANCHING.md`, `docs/MULTI_AGENT_COORDINATION.md`, `docs/GIT_WORKFLOW.md`
+  - `docs/AUTOPILOT.md`, `docs/AGENT_CONTEXT_PROTOCOL.md`
+  - `memory/MEMORY.md`
+
+### Verification
+- Pending in this session after the script/doc edits:
+  - `npm run agent:guard`
+  - `npm run ctx:save -- --title "agent-governance"`
+  - `npm run ctx:compact -- --work-id "W-20260315-agent-governance"`
+  - `npm run ctx:check -- --strict`
+  - `npm run coord:check`
+  - `npm run docs:refresh`
+  - `npm run docs:check`
+  - `npm run build`
+
+### Key Findings
+- branch recovery alone does not prove unique unmerged scope; branch identity and merged patch content must be checked separately
+- the real failure mode was not missing docs but missing enforcement; agents could ignore memory because push/handoff/branch reuse were not blocked by runtime gates
+
 ### Additional Completed
 - **Agent enforcement added**:
   - `scripts/dev/agent-guard.mjs`
@@ -586,144 +638,50 @@ runtime-api가 실제 runtime summary를 읽게 된 뒤, 다음 단계로 `Autor
 
 ---
 
-## 2026-03-15 (cont): Root-tree runtime refactor audit
+## 2026-03-15 (cont): Mobile UX sweep for Magnet Research and page flow
 
 ### Context
-사용자 요청: 전체 변경이 실제로 무엇인지 다시 확인하고, 프론트/백엔드 분리를 다른 작업과 무관하게 계속 진행할 수 있는 상태인지 분석
+사용자 요청:
+- `Magnet Research` 이름은 그대로 유지
+- 모바일에서 Research 탭 진입 시 내용이 안 보이는 문제 수정
+- 기능은 유지한 채 전체 모바일 페이지 동선을 점검하고 UIUX 최적화
 
 ### Completed
-- **Working tree audit**:
-  - root worktree is currently on protected `main`
-  - tracked changes are mostly staged, not unstaged
-  - current mixed stack spans runtime-api, frontend runtime consumers, docs, and repo-refactor supervisor scaffolding
+- **AutoresearchPage mobile entry fixed**:
+  - `ContextPanel` / topic input card is now visible on the first mobile fold
+  - mobile research grid reordered so `context` sits immediately after the prompt band
+  - mobile charts tab layout now includes scatter / effect / treemap / lineage / mesh areas
+  - mobile tab label updated from `Network` to `Mesh` for clarity
 
-- **Runtime viability check**:
-  - `npm run build` passes
-  - `node --experimental-strip-types apps/runtime-api/src/server.ts` fails with `ERR_MODULE_NOT_FOUND`
-  - missing imports in current tree: `apps/runtime-api/src/mesh-broker.ts`, `apps/runtime-api/src/persistence.ts`
+- **Shared mobile chrome compressed**:
+  - `AppDock.svelte` now hides labels and tightens spacing on narrow screens
+  - `SiteFooter.svelte` now uses a compact mobile layout with smaller spacing and hidden marketing copy
 
-- **Autonomous refactor loop audit**:
-  - `npm run eval:refactor -- --scope-id=network-cutover --json --skip-build=true` returns `keep: false`
-  - `npm run agent:guard` blocks because the active branch is protected `main`
-  - `scripts/autoresearch_repo_refactor_supervisor.ts` currently tells workers to stay on the current branch, which conflicts with repo worktree rules
-
-### Key Findings
-- 현재 root tree는 "프론트/백엔드 분리 작업이 일부 들어간 mixed WIP" 상태이지, 안정적으로 계속 돌릴 수 있는 autonomous refactor lane이 아님
-- `NetworkView` runtime mode와 `jobStore` mesh SSE 경로는 코드상 존재하지만, backend runtime-api가 현재 checkout에서 부팅되지 않으므로 end-to-end cutover는 아직 미완성
-- 다음 우선순위는 새 기능 추가가 아니라:
-  1. dirty/staged stack 분리
-  2. runtime-api runnable 복구
-  3. supervisor를 branch/worktree-safe loop로 수정
+- **Page-level mobile density improved**:
+  - `HeroSection.svelte` and `DashboardPage.svelte` now reduce hero/editor spacing on small screens
+  - `NetworkView.svelte` now reduces the fixed globe height and makes panel tabs scrollable/sticky on mobile
 
 ### Verification
-- `git status --short --branch`
-- `git diff --cached --stat`
-- `npm run build`
-- `node --experimental-strip-types apps/runtime-api/src/server.ts`
-- `npm run eval:refactor -- --scope-id=network-cutover --json --skip-build=true`
-- `npm run agent:guard`
-
----
-
-## 2026-03-15 (cont): Repo refactor autoresearch scaffold + Network runtime mode
-
-### Context
-사용자 요청: `autoresearch`를 실제 이 레포 리팩토링에 적용해서 계속 돌릴 수 있게 만들고, 프론트/백엔드를 나누면서 1000명 이상 대응 구조로 가기
-- 기존 supervisor는 pinned `karpathy/autoresearch` + `train.py` 루프에 맞춰져 있었음
-- `NetworkView`는 fixture/live telemetry 모델만 알고 있었고 runtime mesh를 직접 못 읽었음
-
-### Completed
-- **Repo-specific loop scaffold 추가**:
-  - `config/repo-refactor-scopes.json`
-  - `scripts/prepare_repo_refactor_runtime.ts`
-  - `scripts/eval_refactor_runtime.ts`
-  - `scripts/autoresearch_repo_refactor_supervisor.ts`
-  - `package.json` scripts:
-    - `npm run autoresearch:prepare-refactor`
-    - `npm run eval:refactor`
-    - `npm run autoresearch:supervisor:repo`
-
-- **Runtime mesh → Network visualizer adapter 추가**:
-  - `packages/contracts/src/runtime.ts` now carries workspace geo/resource fields (`lat`, `lng`, `cpu`, `gpu`, `memGb`)
-  - `packages/autoresearch-adapter/src/runtime-root.ts` exposes those through `RuntimeWorkspaceSummary`
-  - `src-svelte/lib/api/runtimeVisualizerAdapter.ts` maps runtime mesh snapshots into `VisualizerModel`
-
-- **Network runtime mode 추가**:
-  - `src-svelte/lib/pages/NetworkView.svelte`
-  - `src-svelte/lib/components/NetworkHUD.svelte`
-  - `fixture`, `live`, `runtime` 3-mode 구조
-  - explicit telemetry URL이 없으면 runtime mesh를 먼저 시도하고, 실패 시 fixture로 fallback
-  - HUD now has a Runtime toggle
-
-- **Docs updated**:
-  - `README.md` now includes repo refactor autoresearch commands
-
-### Verification
+- Playwright mobile sweep run against:
+  - `#/`
+  - `#/research`
+  - `#/models`
+  - `#/network`
+  - `#/protocol`
+  - `#/ontology`
+  - `#/pipeline`
+  - `#/research-lab`
+- Updated screenshots confirmed:
+  - `Magnet Research` first fold shows `Start Research`, topic input, CTA, and presets
+  - `Dashboard` first fold is denser without changing available actions
+  - `Network` first fold shows more node detail below the globe
+- `npm run ctx:save -- --title "mobile ux sweep" --work-id "W-20260315-mobile-ux-sweep"` ✓
+- `npm run ctx:compact` ✓
 - `npm run build` ✓
-- `npm run eval:refactor -- --scope-id=network-cutover --json --skip-build=true` ✓
-  - current root worktree is multi-scope dirty, so evaluator correctly returns scope violation instead of false keep
-- `node --experimental-strip-types scripts/prepare_repo_refactor_runtime.ts --runtime-root=runtime/repo-refactor-loop-test` ✓
-  - generated test pack verified, then removed
-
-### Key Findings
-- repo-specific autoresearch loop는 이제 ML 전용 `train.py` prompt와 분리된 별도 entrypoint를 가짐
-- evaluator가 현재 root dirty state를 scope violation으로 잡는 것은 정상이며, 실제 worker worktree에서는 clean scoped diff 기준으로 쓰는 게 맞음
-- `NetworkView`는 이제 runtime-api mesh stream을 directly consume할 수 있는 경계까지 올라왔음
+  - existing Svelte a11y warnings remain in untouched `OntologyPage`, `ConvergenceChart`, and `ExperimentTreemap`
 
 ### Pending
-- dashboard fixture loop를 runtime mesh/shared selectors로 cutover
-- research-store local simulation responsibility further reduce
-- repo supervisor 실전 launch는 clean dedicated worktree에서만 수행
-
----
-
-## 2026-03-15 (cont): Runtime API persistence + mesh SSE cutover
-
-### Context
-사용자 요청: `autoresearch`를 적용한 리팩토링을 계속 진행하고, 1000명 이상 사용해도 버티는 방향으로 구조를 바꾸기
-- 기존 `runtime-api`는 in-memory job state만 갖고 있었음
-- `AutoresearchPage` / `jobStore`는 여전히 클라이언트 polling 의존
-- backend가 single poll + fanout 역할을 못 해서 고부하에서 비효율적이었음
-
-### Completed
-- **runtime-api persisted state 추가**:
-  - `apps/runtime-api/src/persistence.ts`
-  - Node 내장 `node:sqlite` 기반으로 job/event/latest mesh snapshot 저장
-  - 저장 경로: `.agent-context/runtime-api/runtime-state.sqlite`
-
-- **mesh broker 추가**:
-  - `apps/runtime-api/src/mesh-broker.ts`
-  - runtime root inspection 결과를 캐시하고, 변경 시 저장
-  - `GET /api/runtime/mesh/events` SSE fanout 추가
-  - `GET /api/runtime/mesh` / `workspaces`는 direct filesystem scan 대신 broker cache 경유
-
-- **domain/contracts 확장**:
-  - `packages/contracts/src/runtime.ts` → `RuntimeMeshEvent` 추가
-  - `packages/domain/src/runtime-state.ts` → persisted jobs/events에서 `hydrateRuntimeState()` 가능
-
-- **web read path 개선**:
-  - `src-svelte/lib/api/client.ts` → `subscribeRuntimeMesh()` 추가
-  - `src-svelte/lib/stores/jobStore.ts` → runtime 연결 시 SSE 우선, 실패 시 기존 backoff polling fallback
-  - missing import로 깨져 있던 `src-svelte/lib/utils/perf.ts`도 복구
-
-### Verification
-- `npm run build` ✓
-- runtime-api smoke test on `8791` ✓
-  - `GET /api/runtime/health`
-  - `POST /api/runtime/jobs`
-  - server restart 후 `GET /api/runtime/jobs`로 persisted recovery 확인
-  - `GET /api/runtime/mesh?runtimeRoot=runtime/autoresearch-loop-pin-test`
-  - `GET /api/runtime/mesh/events?runtimeRoot=runtime/autoresearch-loop-pin-test` initial SSE frame 확인
-
-### Key Findings
-- 이제 runtime-api가 프로세스 재시작 후에도 job state를 유지함
-- mesh inspection은 브라우저가 각자 직접 polling하는 구조가 아니라 backend cache + SSE fanout 구조로 한 단계 올라감
-- 프론트는 stream 우선으로 붙었지만, 아직 page-local timer churn과 selector 중복은 남아 있음
-
-### Pending
-- runtime-api control path의 command/event ownership을 SQLite 쪽으로 더 밀어넣기
-- `AutoresearchPage` / dashboard / network 공통 selector 계층 정리
-- `jobStore`에서 남아 있는 local simulation responsibility 더 축소
+- commit / merge after validation
 
 ---
 

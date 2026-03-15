@@ -871,12 +871,12 @@
     }
   }
   @media (max-width: 600px) {
-    .content { grid-template-rows: 45vh 1fr; }
+    .content { grid-template-rows: 38vh 1fr; }
     .canvas-area {
       position: fixed;
       top: calc(52px + 44px);
       left: 0; right: 0;
-      height: 45vh;
+      height: 38vh;
       z-index: 0;
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
@@ -885,9 +885,23 @@
     .side-panel {
       position: relative;
       z-index: 2;
-      margin-top: 45vh;
+      margin-top: 38vh;
       border-radius: var(--radius-lg, 16px) var(--radius-lg, 16px) 0 0;
       min-height: 50vh;
+    }
+    .panel-tabs {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+    .panel-tabs::-webkit-scrollbar { display: none; }
+    .ptab {
+      flex: 0 0 auto;
+      min-width: 72px;
+      white-space: nowrap;
     }
     .content { display: block; }
   }

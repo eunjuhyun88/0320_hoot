@@ -108,7 +108,7 @@
 
 <svelte:window on:click={handleWindowClick} />
 
-<div class="dock" on:click|stopPropagation>
+<div class="dock">
   <div class="dock-apps">
     <!-- ═══ RESEARCH ═══ -->
     <button type="button" class="dock-app" class:active={researchActive}
@@ -331,14 +331,22 @@
 
   /* ── Responsive ── */
   @media (max-width: 600px) {
-    .dock { padding: 3px 4px; border-radius: 12px; bottom: 6px; }
-    .dock-app { min-width: 42px; padding: 4px 6px; }
+    .dock {
+      padding: 4px 6px;
+      border-radius: 14px;
+      bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      max-width: calc(100vw - 14px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.03);
+    }
+    .dock-app { min-width: 38px; padding: 5px 6px; }
     .dock-icon { font-size: 0.9rem; }
-    .dock-label { font-size: 0.38rem; }
+    .dock-label { display: none; }
     .dock-data { font-size: 0.36rem; }
+    .dock-sep { height: 18px; margin: 0 2px; }
+    .dock-gear { padding: 5px; }
   }
   @media (max-width: 420px) {
     .dock-data { display: none; }
-    .dock-app { min-width: 36px; padding: 3px 4px; }
+    .dock-app { min-width: 34px; padding: 4px; }
   }
 </style>

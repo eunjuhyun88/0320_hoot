@@ -443,12 +443,47 @@
 
   /* ── Responsive ── */
   @media (max-width: 600px) {
+    .ws-headline {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    .ws-sub {
+      font-size: 0.76rem;
+      margin-bottom: 16px;
+      max-width: 340px;
+    }
+    .ws-proof {
+      margin-bottom: 14px;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .ws-proof-item {
+      font-size: 0.54rem;
+    }
+    .program-editor {
+      border-radius: 14px;
+    }
+    .pe-chrome {
+      padding: 7px 12px;
+    }
+    .pe-body {
+      min-height: 104px;
+    }
     .pe-footer { flex-direction: column; gap: 8px; }
     .pe-submit { width: 100%; justify-content: center; }
     .pe-meta { justify-content: center; }
     .pe-tag { font-size: 0.48rem; padding: 2px 7px; }
     .pe-line-numbers { display: none; }
     .pe-textarea { padding: 12px; }
-    .pe-examples { gap: 4px; }
+    .pe-examples {
+      gap: 4px;
+      padding: 8px 10px 10px;
+      justify-content: center;
+    }
+    .chip {
+      font-size: 0.64rem;
+      padding: 5px 12px;
+    }
   }
 </style>

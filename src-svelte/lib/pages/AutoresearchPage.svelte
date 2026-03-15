@@ -238,7 +238,7 @@
   <div class="mobile-tabs">
     <button class="mtab-btn" class:mtab-active={mobileTab === 'activity'} on:click={() => mobileTab = 'activity'}>Activity</button>
     <button class="mtab-btn" class:mtab-active={mobileTab === 'charts'} on:click={() => mobileTab = 'charts'}>Charts</button>
-    <button class="mtab-btn" class:mtab-active={mobileTab === 'network'} on:click={() => mobileTab = 'network'}>Network</button>
+    <button class="mtab-btn" class:mtab-active={mobileTab === 'network'} on:click={() => mobileTab = 'network'}>Mesh</button>
   </div>
 
   <!-- ═══ BRANCHES ═══ -->
@@ -359,7 +359,7 @@
   </div>
 
   <!-- ═══ CONTEXT PANEL (terminal) ═══ -->
-  <div class="tile context-tile mtab-network" class:mtab-hidden={mobileTab !== 'network'} style="grid-area: context">
+  <div class="tile context-tile" style="grid-area: context">
     <ContextPanel
       bestMetric={job.bestMetric}
       {phase}
@@ -846,24 +846,63 @@
   @media (max-width: 600px) {
     .research-page {
       grid-template-columns: 1fr;
-      grid-template-rows: auto auto auto auto auto auto auto auto auto auto auto auto;
+      grid-template-rows: auto auto auto auto auto auto auto auto auto auto auto auto auto auto;
       grid-template-areas:
-        "prompt" "hero" "stats" "mtabs"
-        "context" "converge"
-        "branches" "stream"
-        "treemap" "lineage" "mesh"
+        "prompt"
+        "context"
+        "hero"
+        "stats"
+        "mtabs"
+        "converge"
+        "branches"
+        "stream"
+        "scatter"
+        "effect"
+        "treemap"
+        "lineage"
+        "mesh"
         "footer";
       gap: 8px;
-      padding: 0 6px 6px;
+      padding: 0 6px 14px;
     }
     .hero-owl { display: none; }
+    .hero-tile {
+      justify-content: flex-start;
+      padding: 10px 12px;
+    }
+    .hero-data {
+      align-items: flex-start;
+    }
+    .hero-compare {
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
     .branch-list { max-height: 200px; }
     .br-actions { display: none; }
     .mobile-tabs {
       display: flex;
       gap: 4px;
-      padding: 0 4px;
+      padding: 0 2px;
       justify-content: center;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: linear-gradient(180deg, rgba(250, 249, 247, 0.96), rgba(250, 249, 247, 0.88));
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+    }
+    .context-tile {
+      min-height: 0;
+      overflow: hidden;
+    }
+    .tile {
+      border-radius: 14px;
+    }
+    .footer-tile {
+      padding: 8px 12px;
+    }
+    .fd-progress {
+      margin-top: 2px;
     }
     .mtab-hidden { display: none !important; }
   }

@@ -396,7 +396,28 @@
   }
 
   @media (max-width: 600px) {
-    .hero-area { padding: 12px 8px; }
+    .hero-area { padding: 8px 8px 6px; }
+    .download-cta {
+      margin-top: 10px;
+      gap: 4px;
+      width: 100%;
+    }
+    .download-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 12px 18px;
+      font-size: 0.78rem;
+    }
+    .download-sub {
+      font-size: 0.48rem;
+      text-align: center;
+    }
+    .wallet-cta {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 12px;
+      padding: 12px 14px;
+    }
     .wallet-cta-btns { flex-direction: column; width: 100%; }
     .wallet-btn { justify-content: center; }
   }

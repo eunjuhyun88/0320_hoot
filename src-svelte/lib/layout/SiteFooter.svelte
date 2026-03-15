@@ -226,13 +226,13 @@
   /* ── Mobile — compact footer ── */
   @media (max-width: 600px) {
     .site-footer-inner {
-      padding: 16px 16px 8px;
-      gap: 12px;
+      padding: 12px 14px 6px;
+      gap: 10px;
     }
 
     .footer-brand { gap: 6px; }
-    .footer-brand-mark { font-size: 1rem; }
-    .footer-brand-name { font-size: 0.6rem; }
+    .footer-brand-mark { font-size: 0.94rem; }
+    .footer-brand-name { font-size: 0.56rem; }
 
     /* 설명문 숨김 — 모바일에서 불필요 */
     .footer-copy { display: none; }
@@ -241,27 +241,29 @@
     .footer-links-grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px 16px;
+      gap: 4px 12px;
     }
     .footer-group {
       flex-direction: row;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     .footer-group-title { display: none; }
     .footer-link-list {
       flex-direction: row;
       flex-wrap: wrap;
-      gap: 4px 12px;
+      gap: 2px 10px;
     }
     .footer-link {
-      font-size: 0.68rem;
+      font-size: 0.64rem;
       padding: 0;
     }
 
     .site-footer-meta {
-      padding: 8px 16px 10px;
-      font-size: 0.5rem;
+      padding: 8px 14px 10px;
+      font-size: 0.54rem;
+      gap: 6px;
+      flex-wrap: wrap;
     }
   }
 

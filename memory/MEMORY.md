@@ -42,6 +42,7 @@
 ## Key Decisions (confirmed by user)
 - Economics tab → renamed **Protocol**
 - Research tab → renamed **Magnet** (NavBar) / "Model Magnet Research" (full name)
+- **Magnet Research label must remain unchanged**; the mobile fix is to surface the research input/content, not rename the tab
 - OntologyPage connected to router at `/ontology`
 - Protocol page new sections: Page Header, PPAP Pipeline, Trust Score, Your Journey
 - **All 6 viz elements must stay**: Branch panel + 5 viz cards (MetricChart, ParamScatter, ModHeatmap, ExpTree, DistributedMesh)
@@ -113,6 +114,10 @@
   - page: `src-svelte/lib/pages/ResearchZoomLabPage.svelte`
   - canonical design note: `docs/design-docs/research-semantic-zoom.md`
   - purpose: validate inline drill-down + breadcrumb + hover ratios before cutting the main Research surface over
+- **Mobile UX sweep baseline updated**:
+  - `Magnet Research` mobile first fold now exposes `ContextPanel` / topic input instead of hiding it behind tab gating
+  - `AppDock` and `SiteFooter` are compacted for narrow screens
+  - `Dashboard` hero and `Network` mesh viewport are tightened on mobile to improve first-screen scanability
 - **Canonical multi-agent branching guide added**:
   - `docs/AGENT_BRANCHING.md`
   - root routers (`README.md`, `AGENTS.md`, `CLAUDE.md`) now require it for parallel agent work or handoffs
