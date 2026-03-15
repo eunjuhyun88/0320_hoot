@@ -43,13 +43,23 @@
     dashboardStore.startResearch(e.detail);
   }
 
+  /** UX-D3: Track mouse position for download-btn radial ripple */
+  function handleRippleMove(e: MouseEvent) {
+    const btn = e.currentTarget as HTMLElement;
+    const rect = btn.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(0);
+    const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(0);
+    btn.style.setProperty('--ripple-x', `${x}%`);
+    btn.style.setProperty('--ripple-y', `${y}%`);
+  }
+
   onMount(() => {
     dashboardStore.init();
     return () => dashboardStore.destroy();
   });
 </script>
 
-<div class="home" class:mounted={$dashboardStore.mounted} class:logged-in={$dashboardStore.isLoggedIn} data-theme="light">
+<div class="home" class:mounted={$dashboardStore.mounted} class:logged-in={$dashboardStore.isLoggedIn}>
   <!-- ═══════ INFO BAR (always visible) ═══════ -->
   <InfoBar
     system={$dashboardStore.liveSystem}
@@ -95,7 +105,7 @@
 
       <!-- Download CTA (below editor) -->
       <div class="download-cta">
-        <button class="download-btn">
+        <button class="download-btn" on:mousemove={handleRippleMove}>
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="dl-icon">
             <path d="M8 1v10M4 8l4 4 4-4M2 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -136,36 +146,38 @@
 
     <!-- ═══════ WIDGET LAYER (left & right on desktop, below hero on mobile) ═══════ -->
     <div class="widget-layer">
-      {#each $visibleWidgets as w (w.id)}
-        <WidgetContainer config={w} detailView={WIDGET_NAV[w.id]}>
-          {#if w.id === "status-panel"}
-            <StatusPanel
-              research={$dashboardStore.liveResearch}
-              runningCount={$dashboardStore.runningCount}
-              doneCount={$dashboardStore.doneCount}
-            />
-          {:else if w.id === "jobs-list"}
-            <JobsListWidget jobs={$dashboardStore.liveJobs} />
-          {:else if w.id === "findings"}
-            <FindingsWidget jobs={$dashboardStore.liveJobs} />
-          {:else if w.id === "event-log"}
-            <EventLogWidget events={$dashboardStore.events} />
-          {:else if w.id === "my-models"}
-            <ModelsWidget models={$dashboardStore.modelsSummary.models} />
-          {:else if w.id === "my-bonds"}
-            <BondsWidget bonds={$dashboardStore.portfolioSummary.bonds} />
-          {:else if w.id === "network-status"}
-            <NetworkWidget system={$dashboardStore.liveSystem} />
-          {:else if w.id === "ecosystem"}
-            <EcosystemWidget
-              tvl={$dashboardStore.protocolSummary.tvl}
-              burned={$dashboardStore.protocolSummary.burned}
-              bonds={$dashboardStore.protocolSummary.bonds}
-              trustScore={$dashboardStore.protocolSummary.trustScore}
-              mauPercent={$dashboardStore.protocolSummary.mauPercent}
-            />
-          {/if}
-        </WidgetContainer>
+      {#each $visibleWidgets as w, i (w.id)}
+        <div class="widget-enter" style:--widget-i={i}>
+          <WidgetContainer config={w} detailView={WIDGET_NAV[w.id]}>
+            {#if w.id === "status-panel"}
+              <StatusPanel
+                research={$dashboardStore.liveResearch}
+                runningCount={$dashboardStore.runningCount}
+                doneCount={$dashboardStore.doneCount}
+              />
+            {:else if w.id === "jobs-list"}
+              <JobsListWidget jobs={$dashboardStore.liveJobs} />
+            {:else if w.id === "findings"}
+              <FindingsWidget jobs={$dashboardStore.liveJobs} />
+            {:else if w.id === "event-log"}
+              <EventLogWidget events={$dashboardStore.events} />
+            {:else if w.id === "my-models"}
+              <ModelsWidget models={$dashboardStore.modelsSummary.models} />
+            {:else if w.id === "my-bonds"}
+              <BondsWidget bonds={$dashboardStore.portfolioSummary.bonds} />
+            {:else if w.id === "network-status"}
+              <NetworkWidget system={$dashboardStore.liveSystem} />
+            {:else if w.id === "ecosystem"}
+              <EcosystemWidget
+                tvl={$dashboardStore.protocolSummary.tvl}
+                burned={$dashboardStore.protocolSummary.burned}
+                bonds={$dashboardStore.protocolSummary.bonds}
+                trustScore={$dashboardStore.protocolSummary.trustScore}
+                mauPercent={$dashboardStore.protocolSummary.mauPercent}
+              />
+            {/if}
+          </WidgetContainer>
+        </div>
       {/each}
     </div>
   </div>
@@ -184,7 +196,7 @@
 <style>
   /* ═══════ CONTAINER ═══════ */
   .home {
-    opacity: 0; transition: opacity 600ms ease;
+    opacity: 0; transition: opacity var(--dur-slow, 600ms) ease;
     -webkit-font-smoothing: antialiased;
     background: var(--page-bg, #FAF9F7);
     flex: 1;
@@ -207,7 +219,7 @@
   .globe-layer {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: var(--z-base, 0);
     filter: saturate(0.4) sepia(0.03) opacity(0.2);
     pointer-events: none;
   }
@@ -217,7 +229,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 0;
+    z-index: var(--z-base, 0);
     pointer-events: none;
     text-align: center;
     display: flex;
@@ -234,11 +246,21 @@
   .go-title { font-size: 1.4rem; font-weight: 700; color: rgba(0, 0, 0, 0.05); }
   .go-sub { font-size: 0.6rem; font-weight: 500; color: rgba(0, 0, 0, 0.04); letter-spacing: 0.08em; }
 
+  /* ═══════ UX-D1: WIDGET STAGGERED ENTRY ═══════ */
+  .widget-enter {
+    animation: widgetFadeInUp var(--dur-entrance, 700ms) var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)) both;
+    animation-delay: calc(var(--widget-i, 0) * 60ms + 200ms);
+  }
+  @keyframes widgetFadeInUp {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
   /* ═══════ WIDGET LAYER (floating on desktop, flow on mobile) ═══════ */
   .widget-layer {
     position: absolute;
     inset: 0;
-    z-index: 3;
+    z-index: var(--z-widget, 3);
     pointer-events: none;
   }
   .widget-layer :global(.wc) {
@@ -248,7 +270,7 @@
   /* ═══════ DASHBOARD GRID AREA ═══════ */
   .grid-area {
     position: relative;
-    z-index: 2;
+    z-index: var(--z-grid, 2);
     pointer-events: auto;
     padding-top: 8px;
   }
@@ -276,12 +298,16 @@
     .widget-layer :global(.wc-header) {
       cursor: default;
     }
+    /* UX-D1: on mobile, widget-enter keeps display:contents behavior */
+    .widget-enter {
+      display: contents;
+    }
   }
 
   /* ═══════ HERO AREA (center, z-index 2) ═══════ */
   .hero-area {
     position: relative;
-    z-index: 2;
+    z-index: var(--z-grid, 2);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -312,6 +338,8 @@
     gap: 6px;
     margin-top: 16px;
   }
+
+  /* UX-D3: Download button with ripple hover effect */
   .download-btn {
     appearance: none;
     border: none;
@@ -320,14 +348,30 @@
     font-size: 0.85rem;
     font-weight: 600;
     padding: 14px 32px;
-    border-radius: 100px;
+    border-radius: var(--radius-pill, 100px);
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
     white-space: nowrap;
     box-shadow: 0 4px 16px rgba(217, 119, 87, 0.3);
-    transition: background 150ms, transform 100ms, box-shadow 150ms;
+    transition: background var(--dur-fast, 150ms), transform 100ms, box-shadow var(--dur-fast, 150ms);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .download-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), rgba(255,255,255,0.25) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity var(--dur-fast, 150ms);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .download-btn:hover::after {
+    opacity: 1;
   }
   .download-btn:hover {
     background: var(--accent-hover, #C4644A);
@@ -366,6 +410,8 @@
     color: var(--text-muted, #9a9590);
   }
   .wallet-cta-btns { display: flex; gap: 8px; }
+
+  /* UX-D4: Wallet button with pulse feedback on click */
   .wallet-btn {
     appearance: none;
     border: 1px solid var(--border, #E5E0DA);
@@ -378,7 +424,7 @@
     align-items: center;
     gap: 6px;
     cursor: pointer;
-    transition: background 150ms, border-color 150ms, transform 100ms;
+    transition: background var(--dur-fast, 150ms), border-color var(--dur-fast, 150ms), transform 100ms, box-shadow var(--dur-fast, 150ms);
     font-family: var(--font-mono);
     font-size: 0.6rem;
     font-weight: 600;
@@ -388,6 +434,16 @@
     background: rgba(0, 0, 0, 0.03);
     border-color: var(--accent, #D97757);
     transform: translateY(-1px);
+    box-shadow: var(--glow-accent-sm, 0 0 6px rgba(217, 119, 87, 0.25));
+  }
+  .wallet-btn:active {
+    transform: scale(0.96);
+    animation: walletPulse 400ms var(--ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+  }
+  @keyframes walletPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(217, 119, 87, 0.4); }
+    50%  { box-shadow: 0 0 0 6px rgba(217, 119, 87, 0); }
+    100% { box-shadow: 0 0 0 0 transparent; }
   }
 
   /* ═══════ RESPONSIVE ═══════ */
@@ -395,8 +451,18 @@
     .globe-overlay { display: none; }
   }
 
+  /* UX-D6: Mobile scroll snap between sections */
   @media (max-width: 600px) {
-    .hero-area { padding: 8px 8px 6px; }
+    .main-area {
+      scroll-snap-type: y proximity;
+    }
+    .hero-area {
+      padding: 8px 8px 6px;
+      scroll-snap-align: start;
+    }
+    .grid-area {
+      scroll-snap-align: start;
+    }
     .download-cta {
       margin-top: 10px;
       gap: 4px;
