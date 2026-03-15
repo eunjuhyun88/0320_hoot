@@ -1,25 +1,40 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { ContractCall } from '../data/protocolData.ts';
+  import { toastStore } from '../stores/toastStore.ts';
 
   export let modalCall: ContractCall | null;
   export let modalOpen: boolean;
-  export let modalStep: 'review' | 'pending' | 'confirmed';
+  export let modalStep: 'review' | 'pending' | 'confirmed' | 'error';
   export let walletConnected: boolean;
   export let walletAddress: string;
+
+  let errorMessage = '';
 
   const dispatch = createEventDispatcher<{
     close: void;
     confirm: void;
     connectWallet: void;
   }>();
+
+  /** Called externally or can be triggered to simulate error */
+  export function triggerError(msg: string) {
+    errorMessage = msg;
+    modalStep = 'error';
+    toastStore.error('트랜잭션이 실패했습니다');
+  }
+
+  function retryTransaction() {
+    errorMessage = '';
+    modalStep = 'review';
+  }
 </script>
 
 {#if modalOpen && modalCall}
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <!-- svelte-ignore a11y-interactive-supports-focus -->
   <div class="modal-overlay" on:click|self={() => dispatch('close')} role="dialog" aria-modal="true">
-    <div class="modal-card" class:confirmed={modalStep === 'confirmed'}>
+    <div class="modal-card" class:confirmed={modalStep === 'confirmed'} class:error={modalStep === 'error'}>
       <!-- Close -->
       <button class="modal-close" on:click={() => dispatch('close')}>×</button>
 
@@ -120,6 +135,35 @@
             <span class="modal-mono">Gas used: {modalCall.gas}</span>
           </div>
           <button class="action-btn secondary" on:click={() => dispatch('close')}>Done</button>
+        </div>
+
+      {:else if modalStep === 'error'}
+        <!-- STEP: ERROR -->
+        <div class="modal-step-indicator">
+          <span class="step done">Review</span>
+          <span class="step-arrow">→</span>
+          <span class="step done">Pending</span>
+          <span class="step-arrow">→</span>
+          <span class="step active error-step">Failed</span>
+        </div>
+
+        <div class="modal-error">
+          <div class="error-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#f38ba8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </div>
+          <h3>트랜잭션 실패</h3>
+          {#if errorMessage}
+            <p class="error-message">{errorMessage}</p>
+          {:else}
+            <p class="error-message">트랜잭션이 거부되었거나 네트워크 오류가 발생했습니다.</p>
+          {/if}
+          <div class="error-actions">
+            <button class="action-btn primary" on:click={retryTransaction}>다시 시도</button>
+            <button class="action-btn secondary" on:click={() => dispatch('close')}>닫기</button>
+          </div>
         </div>
       {/if}
     </div>
@@ -453,4 +497,61 @@
   }
 
   .action-btn:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+
+  /* Error state */
+  .modal-card.error {
+    border-color: rgba(243, 139, 168, 0.3);
+  }
+
+  .step.error-step { background: rgba(243, 139, 168, 0.1); color: #f38ba8; }
+
+  .modal-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+    text-align: center;
+  }
+
+  .error-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(243, 139, 168, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 400ms var(--ease-spring);
+  }
+
+  .error-icon svg { width: 24px; height: 24px; }
+
+  .modal-error h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    margin: 0;
+    color: #f38ba8;
+  }
+
+  .error-message {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    padding: 8px 14px;
+    background: var(--page-bg);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid #f38ba8;
+    text-align: left;
+    width: 100%;
+  }
+
+  .error-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+  }
 </style>
