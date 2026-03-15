@@ -3,7 +3,7 @@
   import { unlockedPages } from "./lib/stores/stageStore.ts";
   import { fly, fade } from "svelte/transition";
   import NavBar from "./lib/layout/NavBar.svelte";
-  import DashboardPage from "./lib/pages/DashboardPage.svelte";
+  import MagnetStudioPage from "./lib/pages/MagnetStudioPage.svelte";
   import SiteFooter from "./lib/layout/SiteFooter.svelte";
   import SplashScreen from "./lib/components/SplashScreen.svelte";
   import PageSkeleton from "./lib/components/PageSkeleton.svelte";
@@ -52,7 +52,7 @@
     {#key routeKey}
       <div class="page-transition" in:fly={{ y: 12, duration: 280, delay: 60 }} out:fade={{ duration: 150 }}>
         {#if isStudio}
-          <DashboardPage />
+          <MagnetStudioPage />
         {:else if pagePromise}
           {#await pagePromise}
             <PageSkeleton />
