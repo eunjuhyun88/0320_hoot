@@ -227,8 +227,8 @@
 
   <!-- Model Grid -->
   <div class="model-grid">
-    {#each filteredModels as model (model.id)}
-      <button class="model-card" on:click={() => router.navigate('model-detail', { modelId: model.id })}>
+    {#each filteredModels as model, i (model.id)}
+      <button class="model-card" style:--i={i} on:click={() => router.navigate('model-detail', { modelId: model.id })}>
         <!-- Card Header -->
         <div class="card-top">
           <div class="card-icon">
@@ -516,14 +516,8 @@
     transition: all 200ms ease;
     position: relative;
     animation: card-enter 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 80ms + 200ms);
   }
-
-  .model-card:nth-child(1) { animation-delay: 200ms; }
-  .model-card:nth-child(2) { animation-delay: 280ms; }
-  .model-card:nth-child(3) { animation-delay: 360ms; }
-  .model-card:nth-child(4) { animation-delay: 440ms; }
-  .model-card:nth-child(5) { animation-delay: 520ms; }
-  .model-card:nth-child(6) { animation-delay: 600ms; }
 
   @keyframes card-enter {
     from { opacity: 0; transform: translateY(20px) scale(0.98); }
