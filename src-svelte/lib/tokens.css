@@ -107,10 +107,16 @@
   /* ── Z-index scale ── */
   --z-base: 1;
   --z-widget: 3;
+  --z-raised: 5;
   --z-sticky: 10;
+  --z-popover: 50;
+  --z-infobar: 90;
+  --z-nav: 100;
+  --z-nav-overlay: 200;
   --z-dropdown: 100;
   --z-overlay: 240;
   --z-modal: 300;
+  --z-splash: 9999;
 
   /* ── Mobile ── */
   --mobile-nav-height: 56px;

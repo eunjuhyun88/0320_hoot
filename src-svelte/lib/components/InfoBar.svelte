@@ -94,7 +94,7 @@
     overflow-x: auto;
     overflow-y: hidden;
     flex-shrink: 0;
-    z-index: 90;
+    z-index: var(--z-infobar, 90);
   }
 
   .ib-section {

@@ -363,7 +363,7 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     padding: 4px;
     min-width: 160px;
-    z-index: 50;
+    z-index: var(--z-popover, 50);
   }
   .dropdown-item {
     appearance: none;

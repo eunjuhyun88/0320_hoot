@@ -527,7 +527,7 @@
   /* ── Tooltip ── */
   .tm-tooltip {
     position: absolute;
-    z-index: 20;
+    z-index: var(--z-sticky, 10);
     background: rgba(24, 24, 24, 0.92);
     border-radius: 8px;
     padding: 8px 10px;

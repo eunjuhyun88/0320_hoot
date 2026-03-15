@@ -394,7 +394,7 @@
   .metrics-strip {
     position: sticky;
     top: var(--header-height, 52px);
-    z-index: 20;
+    z-index: var(--z-sticky, 10);
     background: var(--surface, #fff);
     border: 1px solid var(--border-subtle, #EDEAE5);
     border-radius: var(--group-radius, 16px);
@@ -746,7 +746,7 @@
       border-radius: 10px;
       position: sticky;
       top: calc(var(--header-height, 52px) + 0px);
-      z-index: 19;
+      z-index: calc(var(--z-sticky, 10) - 1);
     }
 
     /* Section labels visible */

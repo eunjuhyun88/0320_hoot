@@ -203,7 +203,7 @@
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.03);
-    z-index: 9999;
+    z-index: var(--z-splash, 9999);
     pointer-events: auto;
     max-width: calc(100vw - 20px);
   }
@@ -282,7 +282,7 @@
     border-radius: 12px;
     backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
     box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.02);
-    overflow: hidden; z-index: 10000;
+    overflow: hidden; z-index: calc(var(--z-splash, 9999) + 1);
     animation: panelUp 140ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   @keyframes panelUp {

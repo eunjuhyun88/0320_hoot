@@ -214,7 +214,7 @@
   .navbar {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: var(--z-nav, 100);
     background: var(--glass-bg, rgba(255, 255, 255, 0.72));
     backdrop-filter: blur(var(--glass-blur, 24px));
     -webkit-backdrop-filter: blur(var(--glass-blur, 24px));
@@ -475,7 +475,7 @@
     border: 1px solid var(--border, #E5E0DA);
     border-radius: var(--radius-md, 10px);
     box-shadow: var(--shadow-lg, 0 8px 32px rgba(0,0,0,0.12));
-    z-index: 200;
+    z-index: var(--z-nav-overlay, 200);
     padding: 6px;
     animation: scaleIn 150ms var(--ease-out-expo, ease);
   }
@@ -575,7 +575,7 @@
     -webkit-backdrop-filter: blur(4px);
     padding: 0;
     cursor: pointer;
-    z-index: 99;
+    z-index: calc(var(--z-nav, 100) - 1);
     animation: fadeIn var(--dur-normal, 300ms) var(--ease-smooth);
   }
 
@@ -593,7 +593,7 @@
     border-bottom: 1px solid var(--border, #E5E0DA);
     border-radius: 0 0 0 var(--radius-lg, 16px);
     box-shadow: var(--shadow-lg);
-    z-index: 101;
+    z-index: calc(var(--z-nav, 100) + 1);
     padding: var(--space-3, 12px);
     flex-direction: column;
     gap: 2px;
