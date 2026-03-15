@@ -642,7 +642,8 @@ export const totalGpuTime = derived(jobStore, $j => {
   return `${secs}s`;
 });
 
-/** Best-so-far frontier (monotonically decreasing keep metrics) */
+/** Best-so-far frontier (monotonically decreasing keep metrics) — memoized by length+last */
+let _prevFrontier: number[] = [];
 export const bestFrontier = derived(jobStore, $j => {
   const frontier: number[] = [];
   let best = Infinity;
@@ -650,10 +651,15 @@ export const bestFrontier = derived(jobStore, $j => {
     const e = $j.experiments[i];
     if (e.status === 'keep' && e.metric < best) { best = e.metric; frontier.push(best); }
   }
+  // Return previous reference if content unchanged (avoids downstream recalc)
+  if (frontier.length === _prevFrontier.length && frontier[frontier.length - 1] === _prevFrontier[_prevFrontier.length - 1]) {
+    return _prevFrontier;
+  }
+  _prevFrontier = frontier;
   return frontier;
 });
 
-/** SVG sparkline points string from bestFrontier */
+/** SVG sparkline points string from bestFrontier — only recalculated on reference change */
 export const sparkPoints = derived(bestFrontier, $f => {
   if ($f.length < 2) return '';
   const min = Math.min(...$f);
