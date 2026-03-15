@@ -12,14 +12,11 @@
   export let expandable = false;
 
   const dispatch = createEventDispatcher<{
-    newresearch: void;
-    deploy: { target: string };
     retrain: { code: string; parentId: number | null };
     improve: { instruction: string };
     expand: void;
   }>();
 
-  let showDeployOptions = false;
   let showCodeEditor = false;
   let showImproveInput = false;
   let codeEditorContent = '';
@@ -148,23 +145,9 @@
   {/if}
 </div>
 
-<div class="next-actions">
-  <span class="section-label">What's next?</span>
-  {#if !showDeployOptions}
-    <button class="deploy-btn" on:click={() => { showDeployOptions = true; }}>Deploy Best Model</button>
-  {:else}
-    <div class="deploy-options">
-      <button class="deploy-opt" on:click={() => dispatch('deploy', { target: 'checkpoint' })}><span class="do-icon">&#x1F4E6;</span><div class="do-text"><span class="do-name">Export Checkpoint</span><span class="do-desc">Save model locally</span></div></button>
-      <button class="deploy-opt" on:click={() => dispatch('deploy', { target: 'huggingface' })}><span class="do-icon">&#x1F917;</span><div class="do-text"><span class="do-name">Push to HF Hub</span><span class="do-desc">Publish to registry</span></div></button>
-      <button class="deploy-opt" on:click={() => dispatch('deploy', { target: 'cloud' })}><span class="do-icon">&#x2601;</span><div class="do-text"><span class="do-name">Deploy as API</span><span class="do-desc">Cloud endpoint</span></div></button>
-      <button class="deploy-back" on:click={() => { showDeployOptions = false; }}>Back</button>
-    </div>
-  {/if}
-  <div class="action-grid">
-    <button class="next-btn" on:click={() => dispatch('newresearch')}><span class="next-icon">+</span><div class="next-text"><span class="next-name">New Research</span><span class="next-desc">Start a different topic</span></div></button>
-    <button class="next-btn"><span class="next-icon">&#x21BB;</span><div class="next-text"><span class="next-name">Re-run</span><span class="next-desc">Same topic, new seeds</span></div></button>
-  </div>
-  <div class="click-hint">Click any result to review & fork</div>
+<div class="panel-hint">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Use the top bar to publish or start new research</span>
 </div>
 
 <style>
@@ -268,43 +251,13 @@
   }
   .improve-cancel:hover { border-color: #585b70; color: #cdd6f4; }
 
-  /* -- Next actions -- */
-  .next-actions { padding: 8px 14px; margin-top: auto; display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #313244; }
-  .action-grid { display: flex; gap: 6px; }
-  .next-btn {
-    flex: 1; display: flex; align-items: center; gap: 8px;
-    padding: 8px 10px; border-radius: 6px;
-    border: 1px solid #313244; background: #181825;
-    cursor: pointer; transition: all 150ms; text-align: left;
+  /* -- Hint (points to top banner for deploy/new-research) -- */
+  .panel-hint {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px; margin: 4px 14px 8px;
+    border-top: 1px solid #313244;
+    font: 400 10px/1.3 'SF Mono', monospace;
+    color: #585b70;
   }
-  .next-btn:hover { border-color: #89b4fa; background: rgba(137,180,250,0.05); }
-  .next-icon { font: 600 16px/1 'SF Mono', monospace; color: #fab387; width: 24px; text-align: center; }
-  .next-text { display: flex; flex-direction: column; gap: 1px; }
-  .next-name { font: 600 11px/1 'SF Mono', monospace; color: #cdd6f4; }
-  .next-desc { font: 400 9px/1 'SF Mono', monospace; color: #585b70; }
-  .click-hint { font: 400 10px/1 'SF Mono', monospace; color: #45475a; text-align: center; margin-top: 2px; }
-
-  /* -- Deploy -- */
-  .deploy-btn {
-    width: 100%; padding: 10px;
-    background: #fab387; color: #1e1e2e;
-    border: none; border-radius: 6px;
-    font: 600 12px/1 'SF Mono', monospace;
-    cursor: pointer; transition: background 150ms; letter-spacing: 0.02em;
-  }
-  .deploy-btn:hover { background: #f9e2af; }
-  .deploy-options { display: flex; flex-direction: column; gap: 4px; }
-  .deploy-opt {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 10px; border-radius: 6px;
-    border: 1px solid #313244; background: #181825;
-    cursor: pointer; transition: all 150ms; text-align: left;
-  }
-  .deploy-opt:hover { border-color: #89b4fa; background: rgba(137,180,250,0.05); }
-  .do-icon { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
-  .do-text { display: flex; flex-direction: column; gap: 1px; }
-  .do-name { font: 600 11px/1 'SF Mono', monospace; color: #cdd6f4; }
-  .do-desc { font: 400 9px/1 'SF Mono', monospace; color: #585b70; }
-  .deploy-back { padding: 4px 8px; border: none; background: none; font: 500 10px/1 'SF Mono', monospace; color: #585b70; cursor: pointer; align-self: flex-start; }
-  .deploy-back:hover { color: #cdd6f4; }
+  .panel-hint svg { color: #585b70; flex-shrink: 0; }
 </style>
