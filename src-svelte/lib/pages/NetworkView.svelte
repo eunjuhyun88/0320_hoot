@@ -26,6 +26,33 @@
   import JobsPanel from "../components/JobsPanel.svelte";
   import { router } from "../stores/router.ts";
   import { jobStore } from '../stores/jobStore.ts';
+  import { wallet } from '../stores/walletStore.ts';
+  import ContractCallModal from '../components/ContractCallModal.svelte';
+  import type { ContractCall } from '../data/protocolData.ts';
+
+  // ── Wallet ──
+  $: walletConnected = $wallet.connected;
+  $: walletAddress = $wallet.address;
+
+  // ── Contract Call Modal ──
+  let modalOpen = false;
+  let modalCall: ContractCall | null = null;
+  let modalStep: 'review' | 'pending' | 'confirmed' = 'review';
+
+  function openContractModal(call: ContractCall) {
+    modalCall = call;
+    modalStep = 'review';
+    modalOpen = true;
+  }
+  function closeModal() {
+    modalOpen = false;
+    modalCall = null;
+    modalStep = 'review';
+  }
+  function confirmTx() {
+    modalStep = 'pending';
+    setTimeout(() => { modalStep = 'confirmed'; }, 2200);
+  }
 
   // ── Live Jobs: derive from model.jobs (telemetry/fixture data) ──
   $: liveJobs = model.jobs.map(j => {
@@ -348,6 +375,18 @@
       </div>
     </div>
   </div>
+
+  <!-- CONTRACT CALL MODAL -->
+  <ContractCallModal
+    {modalCall}
+    {modalOpen}
+    {modalStep}
+    {walletConnected}
+    {walletAddress}
+    on:close={closeModal}
+    on:confirm={confirmTx}
+    on:connectWallet={() => { wallet.connect('Phantom'); }}
+  />
 </div>
 
 <style>
