@@ -11,14 +11,12 @@ import { HUMAN_READABLE } from '../data/modifications.ts';
 // API layer imports
 import { normalizeRuntimeApiBase, fetchRuntimeMesh, sendRuntimeCommand, subscribeRuntimeMesh } from '../api/client.ts';
 import { mapRuntimeMeshToJob, applyRuntimeControllerToJob } from '../api/meshAdapter.ts';
-import { selectModification, generateExperiment, createTrainingExperiment } from '../api/simulationAdapter.ts';
+import { runSetupPhase, runSimulationLoop, type SimulationDeps } from '../services/simulationService.ts';
 
 import type { RuntimeJobCommand } from '@mesh/contracts';
-import { capArray } from '../utils/perf.ts';
 
 /* ─── Constants ─── */
 
-const MAX_EXPERIMENTS = 500;
 const RUNTIME_POLL_BASE_MS = 2500;
 const RUNTIME_POLL_MAX_MS = 10000;
 
@@ -154,7 +152,8 @@ function createJobStore() {
       runtimeApiBase: null, runtimeRoot: null, runtimeStatus: 'offline', runtimeError: null,
     });
 
-    simulateSetup(topic);
+    const simDeps: SimulationDeps = { update, getState: () => get(store), addTimer, clearAllTimers };
+    runSetupPhase(topic, simDeps, () => runSimulationLoop(simDeps));
   }
 
   /** Connect to runtime mesh API */
@@ -290,161 +289,6 @@ function createJobStore() {
       const message = error instanceof Error ? error.message : String(error);
       update((state) => ({ ...state, runtimeStatus: 'error', runtimeError: message }));
     }
-  }
-
-  /** Setup phase — fast streaming messages */
-  function simulateSetup(topic: string) {
-    const messages = [
-      `Analyzing research domain: "${topic}"...`,
-      'Generating program.md with Claude...',
-      'Configuring train.py template...',
-      'Setting up evaluation pipeline...',
-      'Distributing to compute nodes...',
-      'Starting first experiments...',
-    ];
-    let idx = 0;
-
-    const interval = setInterval(() => {
-      if (idx >= messages.length) {
-        clearInterval(interval);
-        update(s => ({ ...s, phase: 'running', setupMessage: '' }));
-        startSimulation();
-        return;
-      }
-      update(s => ({ ...s, setupMessage: messages[idx] }));
-      idx++;
-    }, 350);
-    addTimer(interval);
-  }
-
-  /** Main simulation loop */
-  function startSimulation() {
-    const clock = setInterval(() => {
-      update(s => ({ ...s, elapsedSeconds: s.elapsedSeconds + 3 }));
-    }, 1000);
-    addTimer(clock);
-
-    let nextId = 1;
-    let trainingId: number | null = null;
-
-    // First experiment: training baseline
-    const firstExp = createTrainingExperiment(nextId++, 1, 'baseline model (initial run)');
-    trainingId = firstExp.id;
-    update(s => ({ ...s, experiments: [firstExp] }));
-
-    // Combined progress + verification tick (merged for fewer timers, 400ms)
-    const combinedTick = setInterval(() => {
-      update(s => {
-        let changed = false;
-        const now = Date.now();
-        const exps = s.experiments.map(e => {
-          // Progress: advance training experiments (doubled step to compensate 200→400ms)
-          if (e.id === trainingId && e.status === 'training') {
-            changed = true;
-            const newProgress = Math.min(100, e.progress + 24 + Math.random() * 30);
-            if (newProgress >= 100) {
-              const metric = 1.4 + Math.random() * 0.3;
-              trainingId = null;
-              return {
-                ...e,
-                status: 'keep' as ExperimentStatus,
-                progress: 100,
-                metric: Math.round(metric * 1000) / 1000,
-                delta: 0,
-                duration: Math.round(280 + Math.random() * 40),
-              };
-            }
-            return { ...e, progress: newProgress };
-          }
-          // Verification: advance commit-reveal pipeline
-          if (e.status !== 'training') {
-            const age = now - e.timestamp;
-            if (e.verification === 'pending' && age > 800) {
-              changed = true;
-              return { ...e, verification: 'committed' as VerificationState };
-            }
-            if (e.verification === 'committed' && age > 1400) {
-              changed = true;
-              return { ...e, verification: 'revealed' as VerificationState };
-            }
-            if (e.verification === 'revealed' && age > 1900) {
-              changed = true;
-              const isSpotChecked = Math.random() < 0.2;
-              return { ...e, verification: (isSpotChecked ? 'spot-checked' : 'verified') as VerificationState };
-            }
-          }
-          return e;
-        });
-        if (!changed) return s;
-        const capped = capArray(exps, MAX_EXPERIMENTS);
-        const keeps = capped.filter(e => e.status === 'keep');
-        const best = keeps.length > 0 ? Math.min(...keeps.map(k => k.metric)) : s.bestMetric;
-        const newBaseline = s.baselineMetric === Infinity && keeps.length > 0
-          ? keeps[keeps.length - 1].metric : s.baselineMetric;
-        return { ...s, experiments: capped, bestMetric: best === Infinity ? s.bestMetric : best, baselineMetric: newBaseline };
-      });
-    }, 400);
-    addTimer(combinedTick);
-
-    function scheduleNext() {
-      const delay = 500 + Math.random() * 700;
-      const timer = setTimeout(() => {
-        const state = get(store);
-        if (state.phase !== 'running') return;
-        if (state.paused) { scheduleNext(); return; }
-
-        const doneCount = state.experiments.filter(
-          e => e.status === 'keep' || e.status === 'discard' || e.status === 'crash'
-        ).length;
-        if (doneCount >= state.totalExperiments) {
-          update(s => ({ ...s, phase: 'complete' }));
-          clearAllTimers();
-          return;
-        }
-
-        const available = state.branches.filter(b => b.completed < b.total);
-        if (available.length === 0) {
-          update(s => ({ ...s, phase: 'complete' }));
-          clearAllTimers();
-          return;
-        }
-
-        const branch = available[Math.floor(Math.random() * available.length)];
-
-        if (trainingId === null && Math.random() < 0.25) {
-          const mod = selectModification(state.experiments, state.boostedCategories, state.pausedCategories);
-          const trainExp = createTrainingExperiment(nextId++, branch.id, mod);
-          trainingId = trainExp.id;
-          update(s => ({ ...s, experiments: capArray([trainExp, ...s.experiments], MAX_EXPERIMENTS) }));
-          scheduleNext();
-          return;
-        }
-
-        const newExp = generateExperiment(
-          nextId++, branch.id, state.bestMetric, state.experiments,
-          state.boostedCategories, state.pausedCategories,
-        );
-
-        update(s => {
-          const exps = capArray([newExp, ...s.experiments], MAX_EXPERIMENTS);
-          const updatedBranches = s.branches.map(b => {
-            if (b.id !== branch.id) return b;
-            const newBest = newExp.status === 'keep' && newExp.metric < b.bestMetric
-              ? newExp.metric : b.bestMetric;
-            return { ...b, completed: b.completed + 1, bestMetric: newBest };
-          });
-          const newBest = newExp.status === 'keep' && newExp.metric < s.bestMetric
-            ? newExp.metric : s.bestMetric;
-          return { ...s, experiments: exps, branches: updatedBranches, bestMetric: newBest };
-        });
-
-        scheduleNext();
-      }, delay);
-      addTimer(timer);
-    }
-
-    const kickoff = setTimeout(() => scheduleNext(), 1200);
-    addTimer(kickoff);
   }
 
   function reset() {
