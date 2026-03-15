@@ -68,29 +68,25 @@ export const CATEGORY_COLORS: Record<WidgetCategory, string> = {
 // ── Default layouts ──
 
 export const DEFAULT_LAYOUT_LOGGED_IN: Record<WidgetId, WidgetLayoutEntry> = {
-  // Left side — research widgets (key widgets ON by default)
-  "status-panel":    { rect: { x: 16,  y: 12,  w: 280, h: 90  }, visible: true },
-  "jobs-list":       { rect: { x: 16,  y: 112, w: 280, h: 210 }, visible: true },
+  // All widgets OFF by default — user enables via widget picker
+  "status-panel":    { rect: { x: 16,  y: 12,  w: 280, h: 90  }, visible: false },
+  "jobs-list":       { rect: { x: 16,  y: 112, w: 280, h: 210 }, visible: false },
   "findings":        { rect: { x: 16,  y: 332, w: 280, h: 140 }, visible: false },
-  "event-log":       { rect: { x: 16,  y: 482, w: 280, h: 140 }, visible: true },
-  // Right side — network & protocol widgets
-  "network-status":  { rect: { x: 1120, y: 12,  w: 280, h: 180 }, visible: true },
-  "ecosystem":       { rect: { x: 1120, y: 202, w: 280, h: 180 }, visible: true },
-  // Right side — portfolio widgets
-  "my-models":       { rect: { x: 1120, y: 392, w: 280, h: 200 }, visible: true },
+  "event-log":       { rect: { x: 16,  y: 482, w: 280, h: 140 }, visible: false },
+  "network-status":  { rect: { x: 1120, y: 12,  w: 280, h: 180 }, visible: false },
+  "ecosystem":       { rect: { x: 1120, y: 202, w: 280, h: 180 }, visible: false },
+  "my-models":       { rect: { x: 1120, y: 392, w: 280, h: 200 }, visible: false },
   "my-bonds":        { rect: { x: 1120, y: 602, w: 280, h: 140 }, visible: false },
 };
 
 export const DEFAULT_LAYOUT_LOGGED_OUT: Record<WidgetId, WidgetLayoutEntry> = {
-  // Left side — research widgets (key ones ON by default)
-  "status-panel":    { rect: { x: 16,  y: 12,  w: 260, h: 80  }, visible: true },
-  "jobs-list":       { rect: { x: 16,  y: 102, w: 260, h: 200 }, visible: true },
+  // All widgets OFF by default — user enables via widget picker
+  "status-panel":    { rect: { x: 16,  y: 12,  w: 260, h: 80  }, visible: false },
+  "jobs-list":       { rect: { x: 16,  y: 102, w: 260, h: 200 }, visible: false },
   "findings":        { rect: { x: 16,  y: 312, w: 260, h: 120 }, visible: false },
-  "event-log":       { rect: { x: 16,  y: 442, w: 260, h: 120 }, visible: true },
-  // Right side — network & protocol widgets
-  "network-status":  { rect: { x: 1120, y: 12,  w: 260, h: 170 }, visible: true },
-  "ecosystem":       { rect: { x: 1120, y: 192, w: 260, h: 170 }, visible: true },
-  // Right side — portfolio widgets (hidden when logged out)
+  "event-log":       { rect: { x: 16,  y: 442, w: 260, h: 120 }, visible: false },
+  "network-status":  { rect: { x: 1120, y: 12,  w: 260, h: 170 }, visible: false },
+  "ecosystem":       { rect: { x: 1120, y: 192, w: 260, h: 170 }, visible: false },
   "my-models":       { rect: { x: 1120, y: 372, w: 260, h: 170 }, visible: false },
   "my-bonds":        { rect: { x: 1120, y: 552, w: 260, h: 110 }, visible: false },
 };
