@@ -1,33 +1,30 @@
 <script lang="ts">
   /**
-   * StudioIdle — Activity-First home screen.
+   * StudioIdle — Quick Start home screen (matches production hoot-v2 quality).
    *
-   * Guest: Search bar + community live mini-view
-   * Member: Running research hero + activity cards + urgent banners
-   * If member has no activity, shows search bar like Guest.
+   * Primary CTA: preset cards (icon + difficulty + description + time + tags)
+   * Secondary CTA: "Custom setup >" for advanced users
+   * Running research hero: shown when a job is active
+   * Activity cards: shown when user has models/nodes
    *
    * Events:
-   *   startCreate: { topic?: string } — user wants to create new research
-   *   goToSetup: void — user wants advanced setup
-   *   goToRunning: void — user clicked running research hero
+   *   startCreate: { topic?: string, presetId?: string } — select preset or free topic
+   *   goToSetup: void — advanced config
+   *   goToRunning: void — open running research
    *   navigate: { view: AppView } — navigate to another tab
    */
   import { createEventDispatcher } from 'svelte';
   import { dashboardStore } from '../../stores/dashboardStore.ts';
   import { jobStore } from '../../stores/jobStore.ts';
   import type { AppView } from '../../stores/router.ts';
-  import ActivityCard from './ActivityCard.svelte';
   import PixelIcon from '../PixelIcon.svelte';
 
   const dispatch = createEventDispatcher<{
-    startCreate: { topic?: string };
+    startCreate: { topic?: string; presetId?: string };
     goToSetup: void;
     goToRunning: void;
     navigate: { view: AppView };
   }>();
-
-  let searchQuery = '';
-  let dropdownOpen = false;
 
   // ── Derived state ──
   $: isLoggedIn = $dashboardStore.isLoggedIn;
@@ -37,82 +34,79 @@
   $: jobTopic = $jobStore.topic;
   $: jobProgress = $jobStore.progress;
 
-  // Activity card visibility
-  $: hasModels = ($dashboardStore.modelsSummary?.count ?? 0) > 0;
-  $: hasNodes = ($dashboardStore.networkSummary?.nodes ?? 0) > 0;
-  $: hasAnyActivity = isLoggedIn && (hasRunningResearch || hasModels);
+  // ── Quick Start preset cards ──
+  interface QuickStartCard {
+    id: string;
+    presetId: string;
+    icon: string;
+    title: string;
+    description: string;
+    difficulty: 'Advanced' | 'Intermediate' | 'Beginner';
+    time: string;
+    tags: string[];
+  }
 
-  // Topic suggestions
-  const suggestions = [
-    'bitcoin prediction',
-    'spam detection',
-    'sentiment analysis',
-    'image classification',
-    'fraud detection',
-    'NLP translation',
+  const quickStartCards: QuickStartCard[] = [
+    {
+      id: 'crypto_market',
+      presetId: 'crypto_market',
+      icon: '⚡',
+      title: '암호화폐 시장 예측',
+      description: '온체인 + 시장 데이터 + 감성 지표로 단기 가격 방향 예측',
+      difficulty: 'Advanced',
+      time: '~2h',
+      tags: ['XGBoost', 'Ensemble', 'Optuna'],
+    },
+    {
+      id: 'defi_risk',
+      presetId: 'defi_risk',
+      icon: '≡',
+      title: 'DeFi 리스크 분류',
+      description: 'TVL 변동, 감사 이력, 토큰 이코노믹스로 프로토콜 위험도 분류',
+      difficulty: 'Intermediate',
+      time: '~1h',
+      tags: ['Stacking', 'Classification'],
+    },
+    {
+      id: 'fraud_detection',
+      presetId: 'fraud_detection',
+      icon: '🔍',
+      title: '이상거래 탐지',
+      description: '거래 패턴, 네트워크 분석, 행동 피처로 사기 거래 식별',
+      difficulty: 'Intermediate',
+      time: '~1h',
+      tags: ['CatBoost', 'SMOTE', 'F1'],
+    },
+    {
+      id: 'time_series',
+      presetId: 'time_series',
+      icon: '📈',
+      title: '시계열 예측',
+      description: '추세 분해, 계절성 분석, 외부 변수 결합한 범용 시계열 모델',
+      difficulty: 'Beginner',
+      time: '~30m',
+      tags: ['LightGBM', 'Kalman', 'RMSE'],
+    },
   ];
 
-  function handleSearch() {
-    if (!searchQuery.trim()) return;
-    dispatch('startCreate', { topic: searchQuery.trim() });
-    searchQuery = '';
-  }
+  const difficultyColors: Record<string, string> = {
+    Advanced: '#D97757',
+    Intermediate: '#d4a017',
+    Beginner: '#27864a',
+  };
 
-  function handleKeyDown(e: KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSearch();
-    }
-  }
-
-  function selectSuggestion(topic: string) {
-    dispatch('startCreate', { topic });
-  }
-
-  function toggleDropdown() {
-    dropdownOpen = !dropdownOpen;
-  }
-
-  function handleNewClick(mode: 'create' | 'setup') {
-    dropdownOpen = false;
-    if (mode === 'setup') {
-      dispatch('goToSetup');
-    } else {
-      dispatch('startCreate', {});
-    }
+  function selectPreset(card: QuickStartCard) {
+    dispatch('startCreate', { topic: card.title, presetId: card.presetId });
   }
 </script>
 
 <div class="studio-idle">
-  <!-- Header -->
-  <div class="idle-header">
-    <h1 class="idle-title">Magnet Studio</h1>
-    {#if isLoggedIn}
-      <div class="new-dropdown-wrap">
-        <button class="new-btn" on:click={toggleDropdown}>
-          <span>+ New</span>
-          <svg width="10" height="10" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
-        {#if dropdownOpen}
-          <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-          <div class="new-dropdown" on:click|stopPropagation>
-            <button class="dd-item" on:click={() => handleNewClick('create')}>
-              <span class="dd-label">직접 입력</span>
-              <span class="dd-hint">토픽과 AI 추천으로 시작</span>
-            </button>
-            <button class="dd-item" on:click={() => handleNewClick('setup')}>
-              <span class="dd-label">고급 설정</span>
-              <span class="dd-hint">브랜치, 데이터, 평가 직접 설정</span>
-            </button>
-          </div>
-        {/if}
-      </div>
-    {/if}
-  </div>
-
-  <div class="idle-body">
-    <!-- Hero: Running research (Member with active job) -->
-    {#if hasRunningResearch && jobPhase === 'running'}
+  <!-- Hero: Running research (takes priority) -->
+  {#if hasRunningResearch && jobPhase === 'running'}
+    <div class="idle-header">
+      <h1 class="idle-title">Magnet Studio</h1>
+    </div>
+    <div class="idle-body">
       <button class="hero-running" on:click={() => dispatch('goToRunning')}>
         <div class="hero-status">
           <span class="hero-dot pulse"></span>
@@ -125,87 +119,76 @@
           <span class="hero-sep">·</span>
           <span>ETA calculating...</span>
         </div>
-        <span class="hero-cta">열기 &rarr;</span>
+        <span class="hero-cta">열기 →</span>
       </button>
-    {:else}
-      <!-- Search bar (Guest or Member with no running research) -->
-      <div class="search-section">
-        <div class="search-bar">
-          <span class="search-icon">
-            <PixelIcon type="sparkle" size={18} />
-          </span>
-          <input
-            type="text"
-            class="search-input"
-            placeholder="무엇을 연구하고 싶으세요?"
-            bind:value={searchQuery}
-            on:keydown={handleKeyDown}
-          />
-          <button class="search-submit" on:click={handleSearch} disabled={!searchQuery.trim()} aria-label="Search">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  {:else}
+    <!-- Quick Start (default state) -->
+    <div class="idle-header">
+      <div class="header-left">
+        <h1 class="idle-title">Magnet Studio</h1>
+        <p class="idle-subtitle">BitNet + Nemotron + AutoResearch — 분산 AI 학습 네트워크</p>
+      </div>
+      <div class="header-stats">
+        <div class="stat">
+          <span class="stat-value">{$dashboardStore.networkSummary?.nodes ?? 0}</span>
+          <span class="stat-label">NODES</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{$dashboardStore.networkSummary?.gpuMemory ?? '0'}<span class="stat-unit">GB</span></span>
+          <span class="stat-label">VRAM</span>
+        </div>
+        <div class="stat accent">
+          <span class="stat-value">{$dashboardStore.protocolSummary?.tvl ?? '0.0'}</span>
+          <span class="stat-label">HOOT</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="idle-body">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Quick Start</h2>
+          <p class="section-sub">원클릭으로 AI 모델 연구를 시작하세요</p>
+        </div>
+        <button class="custom-setup-link" on:click={() => dispatch('goToSetup')}>
+          Custom setup <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <div class="cards-grid">
+        {#each quickStartCards as card (card.id)}
+          <button class="qs-card" on:click={() => selectPreset(card)}>
+            <div class="qs-card-top">
+              <span class="qs-icon">{card.icon}</span>
+              <span class="qs-difficulty" style:color={difficultyColors[card.difficulty]}>
+                <span class="qs-diff-dot" style:background={difficultyColors[card.difficulty]}></span>
+                {card.difficulty}
+              </span>
+            </div>
+            <h3 class="qs-title">{card.title}</h3>
+            <p class="qs-desc">{card.description}</p>
+            <div class="qs-card-bottom">
+              <span class="qs-time">{card.time}</span>
+              <div class="qs-tags">
+                {#each card.tags as tag}
+                  <span class="qs-tag">{tag}</span>
+                {/each}
+              </div>
+            </div>
           </button>
-        </div>
-        <div class="suggestions">
-          {#each suggestions as s}
-            <button class="suggestion-chip" on:click={() => selectSuggestion(s)}>{s}</button>
-          {/each}
-        </div>
+        {/each}
       </div>
-    {/if}
 
-    <!-- Activity cards (Member only, each only if active) -->
-    {#if isLoggedIn && hasAnyActivity}
-      <div class="activity-section">
-        {#if hasRunningResearch && jobPhase !== 'running'}
-          <ActivityCard
-            icon="research"
-            label="실행 중인 연구"
-            value="{runningCount}"
-            subtitle="running"
-            accentColor="var(--accent, #D97757)"
-            on:click={() => dispatch('goToRunning')}
-          />
-        {/if}
-        {#if hasModels}
-          <ActivityCard
-            icon="grid"
-            label="모델"
-            value="{$dashboardStore.modelsSummary?.count ?? 0}"
-            subtitle="active models"
-            accentColor="#2980b9"
-            on:click={() => dispatch('navigate', { view: 'models' })}
-          />
-        {/if}
-        {#if hasNodes}
-          <ActivityCard
-            icon="globe"
-            label="네트워크"
-            value="{$dashboardStore.networkSummary?.nodes ?? 0} nodes"
-            subtitle="online"
-            accentColor="var(--green, #27864a)"
-            on:click={() => dispatch('navigate', { view: 'network' })}
-          />
-        {/if}
-      </div>
-    {/if}
-
-    <!-- Community live mini-view (always shown for Guest, below cards for Member) -->
-    {#if !isLoggedIn || !hasAnyActivity}
-      <div class="community-section">
-        <span class="community-label">지금 커뮤니티에서</span>
-        <div class="community-card">
-          <div class="cc-row">
-            <span class="cc-dot active"></span>
-            <span class="cc-name">spam-detect-v3</span>
-            <span class="cc-status">실험 중</span>
-            <span class="cc-metric">0.94 F1</span>
-          </div>
-          <div class="cc-progress"><div class="cc-fill" style="width: 78%"></div></div>
-          <div class="cc-meta">78% · by 0x4a2...</div>
+      <!-- Empty state hint -->
+      {#if !hasRunningResearch}
+        <div class="empty-hint">
+          <PixelIcon type="sparkle" size={24} />
+          <span>위에서 preset을 선택해서 첫 모델을 만들어보세요</span>
         </div>
-      </div>
-    {/if}
-  </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -213,16 +196,22 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 0 0 80px; /* space for dock */
+    padding: 0 0 56px; /* space for compact dock */
     min-height: 0;
   }
 
-  /* ── Header ── */
+  /* ═══ HEADER ═══ */
   .idle-header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 24px 32px 0;
+    padding: 28px 32px 0;
+    gap: 20px;
+  }
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
   .idle-title {
     font-family: var(--font-display, 'Playfair Display', serif);
@@ -231,110 +220,218 @@
     color: var(--text-primary, #2D2D2D);
     margin: 0;
   }
+  .idle-subtitle {
+    font-size: 0.72rem;
+    color: var(--text-muted, #9a9590);
+    margin: 0;
+  }
 
-  /* ── New button + dropdown ── */
-  .new-dropdown-wrap { position: relative; }
-  .new-btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 7px 14px; border-radius: 8px;
-    border: 1px solid var(--border, #E5E0DA);
-    background: var(--surface, #fff);
-    font-size: 0.78rem; font-weight: 600;
+  /* ── Header Stats ── */
+  .header-stats {
+    display: flex;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  .stat-value {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--text-primary, #2D2D2D);
-    cursor: pointer; transition: all 140ms;
+    font-variant-numeric: tabular-nums;
   }
-  .new-btn:hover { border-color: var(--accent, #D97757); color: var(--accent, #D97757); }
-  .new-dropdown {
-    position: absolute; top: calc(100% + 8px); right: 0;
-    min-width: 200px; background: var(--surface, #fff);
-    border: 1px solid var(--border, #E5E0DA);
-    border-radius: 10px; box-shadow: var(--shadow-lg);
-    overflow: hidden; z-index: var(--z-dropdown, 100);
-    animation: dropIn 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  .stat.accent .stat-value { color: var(--accent, #D97757); }
+  .stat-unit { font-size: 0.56rem; font-weight: 500; }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.44rem;
+    font-weight: 600;
+    color: var(--text-muted, #9a9590);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
-  @keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-  .dd-item {
-    appearance: none; border: none; background: transparent;
-    display: flex; flex-direction: column; gap: 2px;
-    padding: 10px 14px; width: 100%; text-align: left;
-    cursor: pointer; transition: background 100ms;
-  }
-  .dd-item:hover { background: rgba(0, 0, 0, 0.03); }
-  .dd-item + .dd-item { border-top: 1px solid var(--border-subtle, #EDEAE5); }
-  .dd-label { font-size: 0.78rem; font-weight: 600; color: var(--text-primary, #2D2D2D); }
-  .dd-hint { font-size: 0.64rem; color: var(--text-muted, #9a9590); }
 
-  /* ── Body ── */
+  /* ═══ BODY ═══ */
   .idle-body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    padding: 24px 32px;
+    gap: 20px;
+    padding: 20px 32px;
     overflow-y: auto;
   }
 
-  /* ── Search Section ── */
-  .search-section {
+  /* ── Section Header ── */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary, #2D2D2D);
+    margin: 0;
+  }
+  .section-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted, #9a9590);
+    margin: 2px 0 0;
+  }
+  .custom-setup-link {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary, #6b6560);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px 0;
+    transition: color 140ms;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .custom-setup-link:hover { color: var(--accent, #D97757); }
+
+  /* ═══ QUICK START CARDS ═══ */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .qs-card {
+    appearance: none;
+    border: 1px solid var(--border, #E5E0DA);
+    background: var(--surface, #fff);
+    border-radius: 14px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding: 32px 0;
-  }
-  .search-bar {
-    display: flex;
-    align-items: center;
     gap: 10px;
-    width: 100%;
-    max-width: 560px;
-    padding: 12px 16px;
-    background: var(--surface, #fff);
-    border: 1.5px solid var(--border, #E5E0DA);
-    border-radius: 14px;
-    box-shadow: var(--shadow-sm);
-    transition: all 200ms;
+    text-align: left;
+    cursor: pointer;
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    min-height: 160px;
   }
-  .search-bar:focus-within {
+  .qs-card:hover {
     border-color: var(--accent, #D97757);
-    box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+    box-shadow: 0 4px 20px rgba(217, 119, 87, 0.08);
+    transform: translateY(-2px);
   }
-  .search-icon { color: var(--accent, #D97757); display: flex; flex-shrink: 0; }
-  .search-input {
-    flex: 1; appearance: none; border: none; background: transparent;
-    font-size: 0.92rem; color: var(--text-primary, #2D2D2D);
-    outline: none;
-  }
-  .search-input::placeholder { color: var(--text-muted, #9a9590); }
-  .search-submit {
-    appearance: none; border: none; background: transparent;
-    color: var(--text-muted, #9a9590); cursor: pointer;
-    padding: 4px; border-radius: 6px; transition: all 140ms;
+
+  /* Card top: icon + difficulty badge */
+  .qs-card-top {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
-  .search-submit:hover:not(:disabled) { color: var(--accent, #D97757); background: rgba(217, 119, 87, 0.06); }
-  .search-submit:disabled { opacity: 0.3; cursor: default; }
+  .qs-icon {
+    font-size: 1.4rem;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-warm, #FAF9F7);
+    border-radius: 10px;
+  }
+  .qs-difficulty {
+    font-size: 0.6rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.02);
+  }
+  .qs-diff-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
 
-  .suggestions {
-    display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+  /* Card content */
+  .qs-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-primary, #2D2D2D);
+    margin: 0;
+    line-height: 1.3;
   }
-  .suggestion-chip {
-    appearance: none; border: 1px solid var(--border, #E5E0DA);
-    background: var(--surface, #fff); padding: 5px 12px;
-    border-radius: 14px; font-size: 0.72rem; font-weight: 500;
-    color: var(--text-secondary, #6b6560); cursor: pointer;
-    transition: all 120ms;
+  .qs-desc {
+    font-size: 0.68rem;
+    color: var(--text-secondary, #6b6560);
+    margin: 0;
+    line-height: 1.5;
+    flex: 1;
   }
-  .suggestion-chip:hover { border-color: var(--accent, #D97757); color: var(--accent, #D97757); }
 
-  /* ── Hero Running Research ── */
+  /* Card bottom: time + tags */
+  .qs-card-bottom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: auto;
+  }
+  .qs-time {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.6rem;
+    font-weight: 500;
+    color: var(--text-muted, #9a9590);
+  }
+  .qs-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+  .qs-tag {
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    font-weight: 500;
+    color: var(--text-muted, #9a9590);
+    background: var(--bg-warm, #FAF9F7);
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle, #EDEAE5);
+  }
+
+  /* ═══ EMPTY HINT ═══ */
+  .empty-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    color: var(--text-muted, #9a9590);
+    font-size: 0.72rem;
+  }
+
+  /* ═══ HERO RUNNING ═══ */
   .hero-running {
-    appearance: none; border: 1.5px solid var(--accent, #D97757);
+    appearance: none;
+    border: 1.5px solid var(--accent, #D97757);
     background: var(--surface, #fff);
-    border-radius: 14px; padding: 16px 20px;
-    display: flex; flex-direction: column; gap: 8px;
-    cursor: pointer; transition: all 200ms;
-    text-align: left; width: 100%;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 200ms;
+    text-align: left;
+    width: 100%;
   }
   .hero-running:hover {
     box-shadow: var(--card-glow-hover);
@@ -345,12 +442,14 @@
   .hero-dot.pulse { animation: dotPulse 1.5s ease-in-out infinite; }
   @keyframes dotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
   .hero-phase {
-    font-family: var(--font-mono); font-size: 0.58rem; font-weight: 700;
-    color: var(--accent, #D97757); text-transform: uppercase; letter-spacing: 0.06em;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: var(--accent, #D97757);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
-  .hero-topic {
-    font-size: 1.1rem; font-weight: 600; color: var(--text-primary, #2D2D2D);
-  }
+  .hero-topic { font-size: 1.1rem; font-weight: 600; color: var(--text-primary, #2D2D2D); }
   .hero-progress-bar {
     width: 100%; height: 4px; border-radius: 2px;
     background: var(--border-subtle, #EDEAE5); overflow: hidden;
@@ -370,61 +469,17 @@
     align-self: flex-end;
   }
 
-  /* ── Activity Cards ── */
-  .activity-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-  }
-
-  /* ── Community Section ── */
-  .community-section {
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .community-label {
-    font-family: var(--font-mono); font-size: 0.62rem; font-weight: 600;
-    color: var(--text-muted, #9a9590); text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .community-card {
-    padding: 12px 14px; border-radius: 10px;
-    border: 1px solid var(--border-subtle, #EDEAE5);
-    background: var(--surface, #fff);
-    display: flex; flex-direction: column; gap: 6px;
-  }
-  .cc-row { display: flex; align-items: center; gap: 8px; }
-  .cc-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--text-muted, #9a9590);
-  }
-  .cc-dot.active { background: var(--green, #27864a); animation: dotPulse 2s ease infinite; }
-  .cc-name {
-    font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600;
-    color: var(--text-primary, #2D2D2D);
-  }
-  .cc-status {
-    font-size: 0.64rem; color: var(--accent, #D97757); font-weight: 500;
-  }
-  .cc-metric {
-    margin-left: auto; font-family: var(--font-mono);
-    font-size: 0.72rem; font-weight: 700; color: var(--green, #27864a);
-  }
-  .cc-progress {
-    width: 100%; height: 3px; border-radius: 2px;
-    background: var(--border-subtle, #EDEAE5); overflow: hidden;
-  }
-  .cc-fill { height: 100%; background: var(--green, #27864a); border-radius: 2px; }
-  .cc-meta {
-    font-family: var(--font-mono); font-size: 0.58rem;
-    color: var(--text-muted, #9a9590);
-  }
-
-  /* ── Responsive ── */
+  /* ═══ RESPONSIVE ═══ */
   @media (max-width: 640px) {
-    .idle-header { padding: 16px 16px 0; }
-    .idle-body { padding: 16px 16px; }
+    .idle-header {
+      padding: 16px 16px 0;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .header-stats { align-self: flex-start; }
+    .idle-body { padding: 16px; }
     .idle-title { font-size: 1.3rem; }
-    .search-section { padding: 16px 0; }
-    .activity-section { grid-template-columns: repeat(2, 1fr); }
+    .cards-grid { grid-template-columns: 1fr; }
+    .qs-card { min-height: 120px; }
   }
 </style>
