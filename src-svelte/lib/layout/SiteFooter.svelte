@@ -8,10 +8,10 @@
   };
 
   const productLinks: FooterLink[] = [
-    { label: "Dashboard", href: "#/" },
-    { label: "Research", href: "#/research" },
+    { label: "Magnet Studio", href: "#/studio" },
     { label: "Models", href: "#/models" },
     { label: "Network", href: "#/network" },
+    { label: "Protocol", href: "#/protocol" },
   ];
 
   const resourceLinks: FooterLink[] = [
