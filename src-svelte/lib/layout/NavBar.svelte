@@ -5,6 +5,7 @@
   import { unlockedPages } from "../stores/stageStore.ts";
   import PixelOwl from "../components/PixelOwl.svelte";
   import PixelIcon from "../components/PixelIcon.svelte";
+  import ConnectionBadge from "../components/ConnectionBadge.svelte";
 
   type PixelIconType = "sparkle" | "grid" | "chart" | "globe" | "protocol" | "ontology";
 
@@ -106,6 +107,7 @@
           <span class="ri-pct">{researchProgress}%</span>
         </button>
       {/if}
+      <ConnectionBadge />
       <span class="powered">powered by <strong>holostudio</strong></span>
       <!-- Wallet Connect -->
       <div class="wallet-wrap">
