@@ -19,7 +19,9 @@
   import { modelPublishStore } from '../../stores/modelPublishStore.ts';
   import { wallet } from '../../stores/walletStore.ts';
   import type { BranchInfo, Experiment } from '../../stores/jobStore.ts';
+  import type { ContractCall } from '../../data/protocolData.ts';
   import PixelIcon from '../PixelIcon.svelte';
+  import ContractCallModal from '../ContractCallModal.svelte';
 
   export let topic: string = '';
   export let bestMetric: number = 0;
@@ -39,6 +41,13 @@
   let publishedModelId: string | null = null;
   let isPublic = true;
   let trainingSeed: number | null = 42; // demo default
+
+  // ── ContractCallModal state ──
+  let modalOpen = false;
+  let modalCall: ContractCall | null = null;
+  let modalStep: 'review' | 'pending' | 'confirmed' | 'error' = 'review';
+  $: walletConnected = $wallet.connected;
+  $: walletAddress = $wallet.address;
 
   // ── Derived data ──
   $: keptExperiments = experiments.filter(e => e.status === 'keep').length;
@@ -99,8 +108,45 @@
   }
 
   function handleNextToVTR() {
-    step = 2;
-    runVTRSimulation();
+    // Open ContractCallModal for VTR signature (VTRSubmitted)
+    modalCall = {
+      title: '모델 인증 등록 (VTR)',
+      contract: '0x7B2a...9F1c  HootVTR.sol',
+      fn: 'submitVTR',
+      params: [
+        { name: 'modelHash', type: 'bytes32', value: '0x' + Math.random().toString(16).slice(2, 10) + '...' },
+        { name: 'ckptHash', type: 'bytes32', value: '0x' + Math.random().toString(16).slice(2, 10) + '...' },
+        { name: 'seed', type: 'uint256', value: trainingSeed !== null ? String(trainingSeed) : 'null (SELF_ATTESTED)' },
+        { name: 'config', type: 'bytes', value: '0x...' },
+      ],
+      fee: '0 HOOT',
+      gas: '~180,000',
+      note: 'VTR 검증 후 ModelNFT가 자동 발행됩니다.',
+      accentColor: 'var(--green)',
+    };
+    modalStep = 'review';
+    modalOpen = true;
+  }
+
+  function handleModalConfirm() {
+    modalStep = 'pending';
+    setTimeout(() => {
+      modalStep = 'confirmed';
+      // After confirmed, proceed to VTR simulation
+      setTimeout(() => {
+        modalOpen = false;
+        modalCall = null;
+        modalStep = 'review';
+        step = 2;
+        runVTRSimulation();
+      }, 800);
+    }, 2200);
+  }
+
+  function handleModalClose() {
+    modalOpen = false;
+    modalCall = null;
+    modalStep = 'review';
   }
 
   function handleViewModel() {
@@ -179,11 +225,14 @@
           <span class="toggle-hint">{isPublic ? '모든 사용자가 이 모델에 접근할 수 있습니다' : '본인만 사용 가능합니다'}</span>
         </div>
 
-        <!-- Seed warning -->
+        <!-- Seed warning (enhanced §3-B) -->
         {#if trainingSeed === null}
           <div class="seed-warning">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/></svg>
-            학습 시드가 설정되지 않아 재현이 불가능할 수 있습니다
+            <div class="seed-warning-body">
+              <span class="seed-warning-title">⚠ training_seed 없음 — SELF_ATTESTED로 등록됩니다</span>
+              <span class="seed-warning-desc">재현 가능성이 보장되지 않아 모델 신뢰도가 낮을 수 있습니다.</span>
+            </div>
           </div>
         {/if}
 
@@ -222,7 +271,7 @@
         <div class="step-actions">
           <button class="secondary-btn" on:click={handleBack}>돌아가기</button>
           <button class="primary-btn" on:click={handleNextToVTR}>
-            다음: 인증 &rarr;
+            서명하기 &rarr;
           </button>
         </div>
       </div>
@@ -316,6 +365,17 @@
     {/if}
   </div>
 </div>
+
+<ContractCallModal
+  {modalOpen}
+  {modalCall}
+  {modalStep}
+  {walletConnected}
+  {walletAddress}
+  on:close={handleModalClose}
+  on:confirm={handleModalConfirm}
+  on:connectWallet={() => { wallet.connect('MetaMask'); }}
+/>
 
 <style>
   .studio-publish {
@@ -525,6 +585,16 @@
     font-size: 0.72rem; color: #b7860e; font-weight: 500;
   }
   .seed-warning svg { flex-shrink: 0; }
+  .seed-warning-body {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .seed-warning-title {
+    font-weight: 700; font-size: 0.72rem;
+  }
+  .seed-warning-desc {
+    font-size: 0.64rem; font-weight: 400;
+    color: var(--text-muted, #9a9590);
+  }
 
   /* ── Endpoint URL ── */
   .endpoint-box {
