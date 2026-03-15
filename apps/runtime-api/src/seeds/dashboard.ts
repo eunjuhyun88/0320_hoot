@@ -5,6 +5,28 @@ import type {
 
 export function seedDashboardSummary(): DashboardData {
   return {
+    jobs: [
+      {
+        id: "job-2891",
+        topic: "DeFi Risk Scoring",
+        status: "running",
+        progress: 50,
+        metric: 0.891,
+        metricLabel: "bpb",
+        findings: 2,
+        startedAt: Date.now() - 15 * 60_000,
+      },
+      {
+        id: "job-2887",
+        topic: "Crypto 24h Prediction",
+        status: "complete",
+        progress: 100,
+        metric: 0.931,
+        metricLabel: "bpb",
+        findings: 3,
+        startedAt: Date.now() - 60 * 60_000,
+      },
+    ],
     research: {
       runningJobs: 2,
       queuedJobs: 3,

@@ -59,6 +59,17 @@ export interface PortfolioSummary {
   bonds: BondItem[];
 }
 
+export interface DashboardJob {
+  id: string;
+  topic: string;
+  status: "running" | "complete" | "queued";
+  progress: number;
+  metric: number;
+  metricLabel: string;
+  findings: number;
+  startedAt: number;
+}
+
 export interface DashboardEvent {
   id: string;
   timestamp: number;
@@ -67,6 +78,7 @@ export interface DashboardEvent {
 }
 
 export interface DashboardData {
+  jobs: DashboardJob[];
   research: ResearchSummary;
   network: NetworkSummary;
   protocol: ProtocolSummary;

@@ -20,6 +20,7 @@ import {
   selectRuntimeEvents,
   selectRuntimeJob,
 } from "@mesh/domain";
+import { buildDashboardData, buildDashboardEvents } from "./dashboard.ts";
 import { createRuntimeMeshBroker } from "./mesh-broker.ts";
 import { createRuntimePersistence } from "./persistence.ts";
 import { seedModels } from "./seeds/models.ts";
@@ -29,7 +30,6 @@ import {
   SIMULATED_BALANCE, MAU_TARGET, TRUST_SCORE_TARGET,
 } from "./seeds/protocol.ts";
 import { seedRewards, computeRewardSummary } from "./seeds/rewards.ts";
-import { seedDashboardSummary, seedDashboardEvents } from "./seeds/dashboard.ts";
 
 const port = Number(process.env.RUNTIME_API_PORT ?? "8790");
 const defaultRuntimeRoot = process.env.AUTORESEARCH_RUNTIME_ROOT ?? "runtime/autoresearch-loop-live";
@@ -259,11 +259,35 @@ const server = createServer(async (request, response) => {
 
   // Dashboard
   if (method === "GET" && url.pathname === "/api/dashboard/summary") {
-    return json(response, 200, seedDashboardSummary());
+    const mesh = await readMeshSummary(url);
+    const jobs = listRuntimeJobs(state);
+    return json(response, 200, buildDashboardData({
+      mesh,
+      jobs,
+      protocol: {
+        tvl: "247,800 HOOT",
+        burned: "12,340 HOOT",
+        bonds: "62,000 HOOT",
+        trustScore: 847,
+        mauPercent: 72,
+      },
+      models: buildDashboardModelsSummary(),
+      portfolio: {
+        bondCount: 2,
+        totalStaked: "12,000 HOOT",
+        modelCount: 5,
+        bonds: [
+          { name: "seoul-4090", tier: "Standard", amount: "2,000" },
+          { name: "berlin-a100", tier: "Enterprise", amount: "10,000" },
+        ],
+      },
+    }));
   }
 
   if (method === "GET" && url.pathname === "/api/dashboard/events") {
-    return json(response, 200, seedDashboardEvents());
+    const mesh = await readMeshSummary(url);
+    const jobs = listRuntimeJobs(state);
+    return json(response, 200, buildDashboardEvents(mesh, jobs));
   }
 
   return json(response, 404, { error: "not found" });
@@ -273,6 +297,24 @@ server.listen(port, () => {
   console.log(`[runtime-api] listening on http://localhost:${port}`);
   console.log(`[runtime-api] health=http://localhost:${port}/api/runtime/health`);
 });
+
+function buildDashboardModelsSummary() {
+  const models = seedModels()
+    .sort((left, right) => right.metrics.best - left.metrics.best)
+    .slice(0, 3)
+    .map((model) => ({
+      name: model.name,
+      metric: `${model.metrics.best.toFixed(3)} bpb`,
+      type: model.vtr.baseModelId ?? model.state,
+      downloads: model.usage.totalCalls,
+    }));
+
+  return {
+    count: models.length,
+    topMetric: models[0]?.metric ?? "—",
+    models,
+  };
+}
 
 function emit(event: RuntimeEvent) {
   persistence.appendEvent(event);

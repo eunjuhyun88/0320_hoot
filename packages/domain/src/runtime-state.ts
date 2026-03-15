@@ -58,7 +58,7 @@ export function createRuntimeJob(input: CreateRuntimeJobInput): RuntimeJob {
     id: input.id,
     topic: input.topic,
     surface: input.surface ?? "web",
-    status: "running",
+    status: "queued",
     source: input.source ?? "manual",
     createdAt: input.createdAt,
     updatedAt: input.createdAt,
