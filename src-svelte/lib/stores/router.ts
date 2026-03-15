@@ -6,6 +6,8 @@ export type AppView = 'dashboard' | 'models' | 'research' | 'research-lab' | 'ne
 export interface RouteParams {
   topic?: string;
   modelId?: string;
+  jobId?: string;
+  tab?: string;  // sub-tab within a page (e.g. 'rewards', 'my-nodes')
 }
 
 const ROUTE_MAP: Record<string, AppView> = {
@@ -52,6 +54,8 @@ function getParamsFromHash(): RouteParams {
   const params: RouteParams = {};
   if (search.has('topic')) params.topic = search.get('topic')!;
   if (search.has('modelId')) params.modelId = search.get('modelId')!;
+  if (search.has('jobId')) params.jobId = search.get('jobId')!;
+  if (search.has('tab')) params.tab = search.get('tab')!;
   return params;
 }
 
@@ -72,6 +76,8 @@ function createRouter() {
       const qs = new URLSearchParams();
       if (p.topic) qs.set('topic', p.topic);
       if (p.modelId) qs.set('modelId', p.modelId);
+      if (p.jobId) qs.set('jobId', p.jobId);
+      if (p.tab) qs.set('tab', p.tab);
       const str = qs.toString();
       if (str) hash += '?' + str;
     }
