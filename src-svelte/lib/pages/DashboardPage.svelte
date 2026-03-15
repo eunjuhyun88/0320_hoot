@@ -7,7 +7,7 @@
   import StatusPanel from "../components/StatusPanel.svelte";
   import InfoBar from "../components/InfoBar.svelte";
   import WidgetContainer from "../components/WidgetContainer.svelte";
-  import AppDock from "../components/AppDock.svelte";
+  // AppDock replaced by global AgentDock (in App.svelte)
   import JobsListWidget from "../components/widgets/JobsListWidget.svelte";
   import FindingsWidget from "../components/widgets/FindingsWidget.svelte";
   import EventLogWidget from "../components/widgets/EventLogWidget.svelte";
@@ -182,15 +182,7 @@
     </div>
   </div>
 
-  <!-- ═══════ APP DOCK (widget toggles + navigation) ═══════ -->
-  <AppDock
-    loggedIn={$dashboardStore.isLoggedIn}
-    research={$dashboardStore.researchSummary}
-    network={$dashboardStore.networkSummary}
-    protocol={$dashboardStore.protocolSummary}
-    models={$dashboardStore.modelsSummary}
-    portfolio={$dashboardStore.portfolioSummary}
-  />
+  <!-- AppDock replaced by global AgentDock (see App.svelte) -->
 </div>
 
 <style>
