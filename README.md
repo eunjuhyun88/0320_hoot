@@ -31,6 +31,7 @@ If the task touches retrieval, compaction, agent manifests, or tool contracts, a
 - Semantic checkpoint: `npm run ctx:checkpoint -- --work-id "W-..." --surface "web" --objective "..."`
 - Runtime snapshot: `npm run ctx:save -- --title "..."`
 - Compacted resume state: `npm run ctx:compact`
+- Push / handoff gates: `npm run ctx:check -- --strict` and `npm run coord:check`
 - Resume command: `npm run ctx:restore -- --mode brief`
 - Generated context views: `npm run docs:refresh`
 
@@ -103,9 +104,13 @@ npm run docs:check
 
 When more than one agent is active:
 
+- one active agent must have exactly one active branch, one worktree, and one claim
 - split work by branch, worktree, claim, and path boundary
+- do not share the same working branch across active agents
 - do not share dirty work-in-progress across agents
 - do not let two agents edit the same path family concurrently
+- provisional checkpoints are bootstrap memory only and do not satisfy push or handoff gates
+- handoff and release must come from a clean worktree after `ctx:save` + `ctx:compact`
 - merge validated commits, not half-finished worktrees
 
 Use:
@@ -114,6 +119,8 @@ Use:
 npm run agent:guard
 npm run safe:worktree -- <task-slug> main
 npm run ctx:checkpoint -- --work-id "W-..." --surface "<surface>" --objective "<objective>"
+npm run ctx:save -- --title "<status>"
+npm run ctx:compact -- --work-id "W-..."
 npm run coord:claim -- --work-id "W-..." --agent "<agent>" --surface "<surface>" --summary "<summary>" --path "<prefix>"
 ```
 
@@ -218,28 +225,6 @@ Useful flags:
 - `--max-no-keep=40`
 - `--target-val-bpb=0.990500`
 - `--max-runtime-minutes=480`
-
-## Repo Refactor Autoresearch
-
-Prepare a repo-scoped runtime pack for continuous refactor workers:
-
-```bash
-npm run autoresearch:prepare-refactor -- --runtime-root=runtime/repo-refactor-loop
-```
-
-Evaluate a scoped refactor experiment:
-
-```bash
-npm run eval:refactor -- --scope-id=network-cutover --json
-```
-
-Launch the repo-specific refactor supervisor:
-
-```bash
-npm run autoresearch:supervisor:repo -- --runtime-root=runtime/repo-refactor-loop-live --workers=4
-```
-
-This path is for product-repo refactors, not the pinned `train.py` ML loop. It keeps workers inside declared path scopes and expects `npm run build` plus the refactor evaluator to stay green.
 
 Notes:
 

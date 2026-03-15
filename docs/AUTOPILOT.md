@@ -46,6 +46,7 @@ If the branch has no latest checkpoint, autopilot may create a provisional check
 - default canonical docs from `context-kit.json`
 
 Humans or agents should later replace the provisional objective with a task-specific one.
+Provisional checkpoints do not satisfy push, release, or handoff gates.
 
 ## Claim Rule
 
@@ -56,6 +57,14 @@ On feature branches, autopilot may create a provisional claim only when:
 - the inferred path depth meets the configured minimum
 
 If no safe path boundary can be inferred, autopilot should skip claim creation and leave the normal coordination rule in place.
+
+## Release Boundary
+
+Autopilot may help bootstrap memory, but it must not create a false sense of completion.
+
+- autopilot-created provisional checkpoints are intentionally blocked by `agent:guard`, `ctx:check -- --strict`, and `coord:release`
+- humans or task agents must still write the real scope, owned files, next actions, and exit criteria
+- handoff still requires `ctx:save`, `ctx:compact`, and a clean worktree
 
 ## Configuration
 

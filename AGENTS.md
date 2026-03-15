@@ -34,7 +34,12 @@ Before ending a meaningful session:
 - Canonical project truth lives in committed docs and `memory/`.
 - Runtime working memory lives in `.agent-context/` and should not be committed.
 - When parallel agents are active, branch/worktree split is mandatory.
+- One active agent must have one active `codex/*` branch, one worktree, and one claim.
+- Two active agents must never share the same working branch.
 - Never continue another agent's dirty WIP on the same branch.
+- Required read-first docs must be recorded in the semantic checkpoint before meaningful work continues.
+- Provisional checkpoints and degraded briefs do not satisfy push, release, or handoff gates.
+- Handoff/release must come from a clean worktree after `npm run ctx:save` and `npm run ctx:compact`.
 - `npm run agent:guard` is the enforced lane check used by session-start, `agent:start`, and pre-push.
 - Completed scoped work must be merged to the approved integration branch and pushed immediately after validation.
 
@@ -58,7 +63,7 @@ Before ending a meaningful session:
 
 Before non-trivial work:
 ```bash
-npm run ctx:checkpoint -- --work-id "W-..." --surface "web" --objective "..."
+npm run ctx:checkpoint -- --work-id "W-..." --surface "web" --objective "..." --why "..." --scope "..." --doc "memory/MEMORY.md" --file "<owned-path>" --next "..." --exit "..."
 ```
 
 During long work:
@@ -73,7 +78,7 @@ npm run ctx:restore -- --mode brief
 
 To compact and refresh handoff state:
 ```bash
-npm run ctx:compact
+npm run ctx:compact -- --work-id "W-..."
 ```
 
 ## Surface Defaults

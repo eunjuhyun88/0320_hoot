@@ -17,13 +17,28 @@ usage() {
 	echo "  --file <path>"
 	echo "  --decision <text>"
 	echo "  --rejected <text>"
+	echo "  --blocker <text>"
+	echo "  --depends-on <work-id>"
+	echo "  --done <text>"
 	echo "  --question <text>"
 	echo "  --next <text>"
 	echo "  --exit <text>"
+	echo "  --merge-target <branch>"
+	echo "  --provisional"
 }
 
 sanitize() {
 	printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+|-+$//g'
+}
+
+normalize_repo_path() {
+	printf '%s' "$1" | sed -E 's#\\#/#g; s#^\./##; s#/$##'
+}
+
+meta_value() {
+	local source="$1"
+	local key="$2"
+	awk -F': ' -v prefix="- $key" '$1 == prefix {print $2; exit}' "$source"
 }
 
 print_list() {
@@ -40,17 +55,44 @@ print_list() {
 	fi
 }
 
+load_config_array() {
+	local dotted_path="$1"
+	node - "$ROOT_DIR" "$dotted_path" <<'EOF'
+const fs = require('fs');
+const path = require('path');
+const [rootDir, dottedPath] = process.argv.slice(2);
+const configPath = path.join(rootDir, 'context-kit.json');
+let value = [];
+try {
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  value = dottedPath.split('.').reduce((current, key) => current?.[key], config) ?? [];
+} catch {}
+if (Array.isArray(value)) {
+  for (const item of value) {
+    if (item != null && String(item).length > 0) {
+      process.stdout.write(`${String(item)}\n`);
+    }
+  }
+}
+EOF
+}
+
 WORK_ID=""
 SURFACE=""
 STATUS="in_progress"
 OBJECTIVE=""
 WHY_NOW=""
 SCOPE=""
+MERGE_TARGET=""
+PROVISIONAL=0
 
 declare -a DOCS=()
 declare -a FILES=()
 declare -a DECISIONS=()
 declare -a REJECTED=()
+declare -a BLOCKERS=()
+declare -a DEPENDS_ON=()
+declare -a COMPLETED_SCOPE=()
 declare -a QUESTIONS=()
 declare -a NEXT_ACTIONS=()
 declare -a EXIT_CRITERIA=()
@@ -97,6 +139,18 @@ while [ "$#" -gt 0 ]; do
 			REJECTED+=("${2:-}")
 			shift 2
 			;;
+		--blocker)
+			BLOCKERS+=("${2:-}")
+			shift 2
+			;;
+		--depends-on)
+			DEPENDS_ON+=("${2:-}")
+			shift 2
+			;;
+		--done)
+			COMPLETED_SCOPE+=("${2:-}")
+			shift 2
+			;;
 		--question)
 			QUESTIONS+=("${2:-}")
 			shift 2
@@ -108,6 +162,14 @@ while [ "$#" -gt 0 ]; do
 		--exit)
 			EXIT_CRITERIA+=("${2:-}")
 			shift 2
+			;;
+		--merge-target)
+			MERGE_TARGET="${2:-}"
+			shift 2
+			;;
+		--provisional)
+			PROVISIONAL=1
+			shift 1
 			;;
 		-h|--help)
 			usage
@@ -151,14 +213,93 @@ WORK_POINTER_FILE="$RUNTIME_DIR/${BRANCH_SAFE}.work-id"
 
 mkdir -p "$CHECKPOINT_DIR" "$RUNTIME_DIR"
 
+START_HEAD=""
+if [ -f "$CHECKPOINT_FILE" ]; then
+	START_HEAD="$(meta_value "$CHECKPOINT_FILE" "Start Head")"
+fi
+[ -n "$START_HEAD" ] || START_HEAD="$HEAD_SHA"
+
+if [ -z "$MERGE_TARGET" ] && [ -f "$CHECKPOINT_FILE" ]; then
+	MERGE_TARGET="$(meta_value "$CHECKPOINT_FILE" "Merge Target")"
+fi
+if [ -z "$MERGE_TARGET" ]; then
+	MERGE_TARGET="$(node scripts/dev/context-config.mjs get-string git.integrationBranch 2>/dev/null || true)"
+fi
+if [ -z "$MERGE_TARGET" ]; then
+	MERGE_TARGET="$(node scripts/dev/context-config.mjs get-string git.mainBranch 2>/dev/null || true)"
+fi
+if [ -z "$MERGE_TARGET" ]; then
+	MERGE_TARGET="main"
+fi
+
+VALIDATION_ERRORS=0
+PROVISIONAL_LABEL="no"
+if [ "$PROVISIONAL" -eq 1 ]; then
+	PROVISIONAL_LABEL="yes"
+fi
+
+if [[ "$BRANCH" == codex/* ]] && [ "$PROVISIONAL" -ne 1 ]; then
+	if [ -z "$WHY_NOW" ]; then
+		echo "[ctx:checkpoint] fail: --why is required on codex branches" >&2
+		VALIDATION_ERRORS=1
+	fi
+	if [ -z "$SCOPE" ]; then
+		echo "[ctx:checkpoint] fail: --scope is required on codex branches" >&2
+		VALIDATION_ERRORS=1
+	fi
+	if [ "${#FILES[@]}" -eq 0 ]; then
+		echo "[ctx:checkpoint] fail: at least one --file or owned path is required on codex branches" >&2
+		VALIDATION_ERRORS=1
+	fi
+	if [ "${#DOCS[@]}" -eq 0 ]; then
+		echo "[ctx:checkpoint] fail: at least one --doc is required on codex branches" >&2
+		VALIDATION_ERRORS=1
+	fi
+	if [ "${#NEXT_ACTIONS[@]}" -eq 0 ]; then
+		echo "[ctx:checkpoint] fail: at least one --next action is required on codex branches" >&2
+		VALIDATION_ERRORS=1
+	fi
+	if [ "${#EXIT_CRITERIA[@]}" -eq 0 ]; then
+		echo "[ctx:checkpoint] fail: at least one --exit criterion is required on codex branches" >&2
+		VALIDATION_ERRORS=1
+	fi
+
+	REQUIRED_DOCS=()
+	while IFS= read -r required_doc; do
+		[ -n "$required_doc" ] && REQUIRED_DOCS+=("$required_doc")
+	done < <(load_config_array coordination.requiredCheckpointDocs)
+	for required_doc in "${REQUIRED_DOCS[@]-}"; do
+		required_doc="$(normalize_repo_path "$required_doc")"
+		FOUND=0
+		for opened_doc in "${DOCS[@]-}"; do
+			if [ "$(normalize_repo_path "$opened_doc")" = "$required_doc" ]; then
+				FOUND=1
+				break
+			fi
+		done
+		if [ "$FOUND" -ne 1 ]; then
+			echo "[ctx:checkpoint] fail: required read-first doc missing from checkpoint docs: $required_doc" >&2
+			VALIDATION_ERRORS=1
+		fi
+	done
+fi
+
+if [ "$VALIDATION_ERRORS" -ne 0 ]; then
+	echo "[ctx:checkpoint] blocked: checkpoint is missing required memory or execution details." >&2
+	exit 1
+fi
+
 {
 	echo "# Checkpoint"
 	echo ""
 	echo "- Work ID: $WORK_ID"
 	echo "- Branch: $BRANCH"
+	echo "- Start Head: $START_HEAD"
 	echo "- Head: $HEAD_SHA"
 	echo "- Surface: $SURFACE"
 	echo "- Status: $STATUS"
+	echo "- Provisional: $PROVISIONAL_LABEL"
+	echo "- Merge Target: $MERGE_TARGET"
 	echo "- Updated At: $TS_HUMAN"
 	echo ""
 	echo "## Objective"
@@ -178,6 +319,9 @@ mkdir -p "$CHECKPOINT_DIR" "$RUNTIME_DIR"
 		echo "- none"
 	fi
 	echo ""
+	echo "## Completed Scope"
+	print_list "${COMPLETED_SCOPE[@]-}"
+	echo ""
 	echo "## Owned Files"
 	print_list "${FILES[@]-}"
 	echo ""
@@ -189,6 +333,12 @@ mkdir -p "$CHECKPOINT_DIR" "$RUNTIME_DIR"
 	echo ""
 	echo "## Rejected Alternatives"
 	print_list "${REJECTED[@]-}"
+	echo ""
+	echo "## Blocking Risks"
+	print_list "${BLOCKERS[@]-}"
+	echo ""
+	echo "## Depends On Work"
+	print_list "${DEPENDS_ON[@]-}"
 	echo ""
 	echo "## Open Questions"
 	print_list "${QUESTIONS[@]-}"

@@ -36,12 +36,14 @@ if ! git rev-parse --verify "$BASE_BRANCH" >/dev/null 2>&1; then
 fi
 
 if git rev-parse --verify "$BRANCH_NAME" >/dev/null 2>&1; then
-	echo "Using existing branch: $BRANCH_NAME"
-	git worktree add "$TARGET_DIR" "$BRANCH_NAME"
-else
-	echo "Creating branch: $BRANCH_NAME (base: $BASE_BRANCH)"
-	git worktree add -b "$BRANCH_NAME" "$TARGET_DIR" "$BASE_BRANCH"
+	echo "Branch already exists: $BRANCH_NAME"
+	echo "Refusing to reuse an existing working branch for a new worktree."
+	echo "Choose a unique task slug or archive the old lane first."
+	exit 1
 fi
+
+echo "Creating branch: $BRANCH_NAME (base: $BASE_BRANCH)"
+git worktree add -b "$BRANCH_NAME" "$TARGET_DIR" "$BASE_BRANCH"
 
 echo ""
 echo "Created worktree: $TARGET_DIR"

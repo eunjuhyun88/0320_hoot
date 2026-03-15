@@ -178,6 +178,7 @@ function ensureCheckpoint({ branchName, surface, workId, autopilot, forceCheckpo
     '--work-id', workId,
     '--surface', surface,
     '--objective', objective,
+    '--provisional',
     '--status', 'in_progress',
     '--why', 'autopilot created a provisional checkpoint because the branch had no semantic checkpoint yet.',
     '--scope', 'Replace this provisional checkpoint with a task-specific objective and scope once the work intent is explicit.',

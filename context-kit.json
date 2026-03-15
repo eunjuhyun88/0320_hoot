@@ -9,7 +9,8 @@
     "deadline": "TBD"
   },
   "git": {
-    "mainBranch": "main"
+    "mainBranch": "main",
+    "integrationBranch": "feat/next-iteration"
   },
   "discovery": {
     "routesDir": "src-svelte/lib/pages",
@@ -98,15 +99,23 @@
 	    "requireClaimOnFeatureBranches": true,
 	    "requirePathsOnFeatureBranches": true,
 	    "featureBranchPrefixes": [
-	      "codex/",
-	      "claude/",
-	      "feat/"
+	      "codex/"
 	    ],
 	    "defaultLeaseMinutes": 240,
 	    "lockStaleMinutes": 15,
 	    "failOnExpiredClaims": true,
 	    "failOnPathOverlap": true,
 	    "failOnUnscopedSurfaceOverlap": true,
+	    "requiredCheckpointDocs": [
+	      "memory/MEMORY.md",
+	      "memory/session-log.md",
+	      "memory/architecture.md",
+	      "README.md",
+	      "docs/README.md"
+	    ],
+	    "maxChangedFiles": 25,
+	    "maxAheadCommits": 12,
+	    "maxUnmergedHours": 8,
 	    "sharedPathPrefixes": [
       "docs/AGENT_WATCH_LOG.md",
       "docs/generated/",
@@ -131,6 +140,9 @@
 	    "defaultSurface": "web",
 	    "defaultObjectivePrefix": "Resume branch work on",
 	    "defaultDocs": [
+	      "memory/MEMORY.md",
+	      "memory/session-log.md",
+	      "memory/architecture.md",
 	      "README.md",
 	      "AGENTS.md",
 	      "docs/README.md",

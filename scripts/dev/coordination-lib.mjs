@@ -92,6 +92,17 @@ export function coordinationConfig(config) {
     failOnExpiredClaims: config.coordination?.failOnExpiredClaims ?? true,
     failOnPathOverlap: config.coordination?.failOnPathOverlap ?? true,
     failOnUnscopedSurfaceOverlap: config.coordination?.failOnUnscopedSurfaceOverlap ?? true,
+    requiredCheckpointDocs: (config.coordination?.requiredCheckpointDocs ?? [
+      'memory/MEMORY.md',
+      'memory/session-log.md',
+      'memory/architecture.md',
+      'README.md',
+      'docs/README.md',
+    ]).map(normalizeRepoPath),
+    maxChangedFiles: Number(config.coordination?.maxChangedFiles ?? 25),
+    maxAheadCommits: Number(config.coordination?.maxAheadCommits ?? 12),
+    maxUnmergedHours: Number(config.coordination?.maxUnmergedHours ?? 8),
+    integrationBranch: normalizeRepoPath(config.git?.integrationBranch ?? ''),
     sharedPathPrefixes: (config.coordination?.sharedPathPrefixes ?? ['docs/AGENT_WATCH_LOG.md', 'docs/generated/', '.agent-context/'])
       .map(normalizeRepoPath),
   };
@@ -193,6 +204,25 @@ export function listChangedFiles(rootDir, mainBranch) {
   }
 
   return [...files].sort();
+}
+
+export function resolveBaseRef(rootDir, config) {
+  const mainBranch = config.git?.mainBranch || 'main';
+  const integrationBranch = config.git?.integrationBranch;
+  const candidates = [
+    integrationBranch ? `origin/${integrationBranch}` : '',
+    integrationBranch ?? '',
+    `origin/${mainBranch}`,
+    mainBranch,
+  ].filter(Boolean);
+  return candidates.find((ref) => repoHasRef(rootDir, ref)) ?? null;
+}
+
+export function countAheadCommits(rootDir, baseRef) {
+  if (!baseRef) return 0;
+  const result = run('git', ['rev-list', '--count', `${baseRef}..HEAD`], { cwd: rootDir });
+  if (result.status !== 0) return 0;
+  return Number.parseInt(result.stdout.trim(), 10) || 0;
 }
 
 export function validateSurfaceId(config, surface) {

@@ -142,10 +142,16 @@ STATUS="unknown"
 CURRENT_OBJECTIVE="$SNAPSHOT_OBJECTIVE"
 WHY_NOW="- none"
 SCOPE="- none"
+START_HEAD="$HEAD_SHA"
+PROVISIONAL="unknown"
+MERGE_TARGET="unknown"
+COMPLETED_SCOPE="- none"
 OWNED_FILES="- none"
 CANONICAL_DOCS="- none"
 DECISIONS="- none"
 REJECTED="- none"
+BLOCKING_RISKS="- none"
+DEPENDS_ON_WORK="- none"
 OPEN_QUESTIONS="- none"
 NEXT_ACTIONS="- none"
 EXIT_CRITERIA="- none"
@@ -153,20 +159,30 @@ WARNINGS=()
 
 if [ "$HAS_CHECKPOINT" -eq 1 ]; then
 	WORK_ID_EFFECTIVE="$(meta_value "$CHECKPOINT_FILE" "Work ID")"
+	START_HEAD="$(meta_value "$CHECKPOINT_FILE" "Start Head")"
 	SURFACE="$(meta_value "$CHECKPOINT_FILE" "Surface")"
 	STATUS="$(meta_value "$CHECKPOINT_FILE" "Status")"
+	PROVISIONAL="$(meta_value "$CHECKPOINT_FILE" "Provisional")"
+	MERGE_TARGET="$(meta_value "$CHECKPOINT_FILE" "Merge Target")"
 	CURRENT_OBJECTIVE="$(extract_section "$CHECKPOINT_FILE" "Objective" | trim_non_empty 6)"
 	WHY_NOW="$(extract_section "$CHECKPOINT_FILE" "Why Now" | trim_non_empty 10)"
 	SCOPE="$(extract_section "$CHECKPOINT_FILE" "Scope" | trim_non_empty 12)"
+	COMPLETED_SCOPE="$(extract_section "$CHECKPOINT_FILE" "Completed Scope" | trim_non_empty 12)"
 	OWNED_FILES="$(extract_section "$CHECKPOINT_FILE" "Owned Files" | trim_non_empty 20)"
 	CANONICAL_DOCS="$(extract_section "$CHECKPOINT_FILE" "Canonical Docs Opened" | trim_non_empty 12)"
 	DECISIONS="$(extract_section "$CHECKPOINT_FILE" "Decisions Made" | trim_non_empty 12)"
 	REJECTED="$(extract_section "$CHECKPOINT_FILE" "Rejected Alternatives" | trim_non_empty 10)"
+	BLOCKING_RISKS="$(extract_section "$CHECKPOINT_FILE" "Blocking Risks" | trim_non_empty 12)"
+	DEPENDS_ON_WORK="$(extract_section "$CHECKPOINT_FILE" "Depends On Work" | trim_non_empty 12)"
 	OPEN_QUESTIONS="$(extract_section "$CHECKPOINT_FILE" "Open Questions" | trim_non_empty 12)"
 	NEXT_ACTIONS="$(extract_section "$CHECKPOINT_FILE" "Next Actions" | trim_non_empty 10)"
 	EXIT_CRITERIA="$(extract_section "$CHECKPOINT_FILE" "Exit Criteria" | trim_non_empty 10)"
 else
 	WARNINGS+=("no semantic checkpoint recorded for this branch")
+fi
+
+if [ -z "$START_HEAD" ]; then
+	START_HEAD="$HEAD_SHA"
 fi
 
 if [ -z "$WORK_ID_EFFECTIVE" ]; then
@@ -185,12 +201,28 @@ if [ -z "$CURRENT_OBJECTIVE" ] || printf '%s' "$CURRENT_OBJECTIVE" | grep -Eiq '
 	WARNINGS+=("objective is still stage-like; checkpoint objective should replace automation stage names")
 fi
 
+if [ "$PROVISIONAL" = "yes" ]; then
+	WARNINGS+=("checkpoint is still provisional and must be replaced before handoff or push")
+fi
+
+if [ -z "$OWNED_FILES" ] || [ "$OWNED_FILES" = "- none" ]; then
+	WARNINGS+=("owned files missing from semantic checkpoint")
+fi
+
+if [ -z "$CANONICAL_DOCS" ] || [ "$CANONICAL_DOCS" = "- none" ]; then
+	WARNINGS+=("canonical docs missing from semantic checkpoint")
+fi
+
 if [ -z "$NEXT_ACTIONS" ] || [ "$NEXT_ACTIONS" = "- none" ]; then
 	WARNINGS+=("next actions missing from semantic checkpoint")
 fi
 
 if [ -z "$OPEN_QUESTIONS" ] || [ "$OPEN_QUESTIONS" = "- none" ]; then
 	WARNINGS+=("open questions missing from semantic checkpoint")
+fi
+
+if [ -z "$EXIT_CRITERIA" ] || [ "$EXIT_CRITERIA" = "- none" ]; then
+	WARNINGS+=("exit criteria missing from semantic checkpoint")
 fi
 
 PINNED_FACTS="- none"
@@ -206,6 +238,7 @@ VALIDATION_SNAPSHOT=$(
 - build: unknown
 - head: $HEAD_SHA
 - uncommitted_state: $( [ "$UNCOMMITTED" = "- clean" ] && echo clean || echo dirty )
+- merge_target: $MERGE_TARGET
 EOF
 )
 
@@ -244,10 +277,13 @@ fi
 	echo ""
 	echo "- Generated: $TS_HUMAN"
 	echo "- Branch: $BRANCH"
+	echo "- Start Head: $START_HEAD"
 	echo "- Head: $HEAD_SHA"
 	echo "- Work ID: $WORK_ID_EFFECTIVE"
 	echo "- Surface: $SURFACE"
 	echo "- Status: $STATUS"
+	echo "- Provisional: $PROVISIONAL"
+	echo "- Merge Target: $MERGE_TARGET"
 	echo "- Source snapshot: ${SOURCE_FILE#$ROOT_DIR/}"
 	if [ "$HAS_CHECKPOINT" -eq 1 ]; then
 		echo "- Source checkpoint: ${CHECKPOINT_FILE#$ROOT_DIR/}"
@@ -264,11 +300,20 @@ fi
 	echo "## Repo State"
 	echo "${REPO_STATE:-- none}"
 	echo ""
+	echo "## Completed Scope"
+	echo "${COMPLETED_SCOPE:-- none}"
+	echo ""
 	echo "## Owned Files"
 	echo "${OWNED_FILES:-- none}"
 	echo ""
 	echo "## Locked Decisions"
 	echo "${DECISIONS:-- none}"
+	echo ""
+	echo "## Blocking Risks"
+	echo "${BLOCKING_RISKS:-- none}"
+	echo ""
+	echo "## Depends On Work"
+	echo "${DEPENDS_ON_WORK:-- none}"
 	echo ""
 	echo "## Open Questions"
 	echo "${OPEN_QUESTIONS:-- none}"
@@ -300,10 +345,13 @@ fi
 	echo ""
 	echo "- Generated: $TS_HUMAN"
 	echo "- Branch: $BRANCH"
+	echo "- Start Head: $START_HEAD"
 	echo "- Head: $HEAD_SHA"
 	echo "- Work ID: $WORK_ID_EFFECTIVE"
 	echo "- Surface: $SURFACE"
 	echo "- Status: $STATUS"
+	echo "- Provisional: $PROVISIONAL"
+	echo "- Merge Target: $MERGE_TARGET"
 	echo ""
 	echo "## What Changed"
 	echo "${HANDOFF_CHANGED_FILES:-- none}"
@@ -313,6 +361,9 @@ fi
 	echo ""
 	echo "## Scope"
 	echo "${SCOPE:-- none}"
+	echo ""
+	echo "## Completed Scope"
+	echo "${COMPLETED_SCOPE:-- none}"
 	echo ""
 	echo "## Branch Diff Context"
 	echo "${BRANCH_DIFF_CONTEXT:-- none}"
@@ -324,7 +375,15 @@ fi
 	echo "${REJECTED:-- none}"
 	echo ""
 	echo "## Risks / Traps"
-	echo "$WARNING_BLOCK"
+	echo "${BLOCKING_RISKS:-- none}"
+	if [ "$WARNING_BLOCK" != "- none" ]; then
+		echo ""
+		echo "### Artifact Warnings"
+		echo "$WARNING_BLOCK"
+	fi
+	echo ""
+	echo "## Depends On Work"
+	echo "${DEPENDS_ON_WORK:-- none}"
 	echo ""
 	echo "## Open Questions"
 	echo "${OPEN_QUESTIONS:-- none}"
@@ -359,22 +418,35 @@ cat > "$STATE_FILE" <<EOF
 {
   "workId": "$(json_escape "$WORK_ID_EFFECTIVE")",
   "branch": "$(json_escape "$BRANCH")",
+  "startHead": "$(json_escape "$START_HEAD")",
+  "currentHead": "$(json_escape "$HEAD_SHA")",
   "surface": "$(json_escape "$SURFACE")",
   "status": "$(json_escape "$STATUS")",
+  "provisional": "$(json_escape "$PROVISIONAL")",
+  "mergeTarget": "$(json_escape "$MERGE_TARGET")",
   "objective": "$(json_escape "$CURRENT_OBJECTIVE")",
   "whyNow": "$(json_escape "$WHY_NOW")",
   "scope": "$(json_escape "$SCOPE")",
+  "completedScope": "$(json_escape "$COMPLETED_SCOPE")",
   "ownedFiles": "$(json_escape "$OWNED_FILES")",
   "canonicalDocs": "$(json_escape "$CANONICAL_DOCS")",
+  "blockingRisks": "$(json_escape "$BLOCKING_RISKS")",
+  "dependsOnWork": "$(json_escape "$DEPENDS_ON_WORK")",
   "openQuestions": "$(json_escape "$OPEN_QUESTIONS")",
   "nextActions": "$(json_escape "$NEXT_ACTIONS")",
+  "exitCriteria": "$(json_escape "$EXIT_CRITERIA")",
+  "changedFiles": "$(json_escape "$CHANGED_FILES")",
+  "uncommittedFiles": "$(json_escape "$UNCOMMITTED")",
   "head": "$(json_escape "$HEAD_SHA")",
+  "updatedAt": "$(json_escape "$TS_HUMAN")",
   "checkpointPresent": $HAS_CHECKPOINT,
   "validation": {
     "docsCheck": "unknown",
     "check": "unknown",
     "build": "unknown"
   },
+  "snapshotPath": "$(json_escape "${SOURCE_FILE#$ROOT_DIR/}")",
+  "checkpointPath": "$(json_escape "${CHECKPOINT_FILE#$ROOT_DIR/}")",
   "briefPath": "$(json_escape "${BRIEF_WORK_FILE#$ROOT_DIR/}")",
   "handoffPath": "$(json_escape "${HANDOFF_WORK_FILE#$ROOT_DIR/}")"
 }

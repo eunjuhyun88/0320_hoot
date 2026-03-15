@@ -76,8 +76,13 @@ COMPACT_DIR="$BASE_DIR/compact"
 INDEX_FILE="$BASE_DIR/index.tsv"
 LATEST_FILE="$BASE_DIR/latest-$BRANCH_SAFE.md"
 SNAPSHOT_FILE="$SNAPSHOT_DIR/${TS_KEY}-${TITLE_SAFE}.md"
+WORK_POINTER_FILE="$BASE_DIR/runtime/${BRANCH_SAFE}.work-id"
 
 mkdir -p "$SNAPSHOT_DIR" "$COMPACT_DIR"
+
+if [ -z "$WORK_ID" ] && [ -f "$WORK_POINTER_FILE" ]; then
+	WORK_ID="$(cat "$WORK_POINTER_FILE" 2>/dev/null || true)"
+fi
 
 UPSTREAM="$(git rev-parse --abbrev-ref --symbolic-full-name @{upstream} 2>/dev/null || true)"
 AHEAD_BEHIND="n/a"

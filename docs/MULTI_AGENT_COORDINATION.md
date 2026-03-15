@@ -16,6 +16,7 @@ The unit of parallel work is:
 3. one active coordination claim
 4. one explicit surface
 5. one explicit path boundary
+6. one semantic checkpoint lineage (`checkpoint -> brief -> handoff -> state`)
 
 If any of those are missing, the task is not safely partitioned.
 If another agent already has dirty work on the path, do not continue in place. Split into a new branch or wait for a handoff.
@@ -26,7 +27,8 @@ If another agent already has dirty work on the path, do not continue in place. S
 2. reserve a work ID
 3. create a coordination claim before meaningful edits
 4. record semantic checkpoint/handoff as work evolves
-5. release or hand off the claim when the task ends
+5. keep a compacted work state current enough for another agent to resume
+6. release or hand off the claim when the task ends
 
 ## Claim Rules
 
@@ -72,10 +74,12 @@ Shared paths are allowed only for configured low-risk prefixes such as generated
 When agent A hands work to agent B:
 
 1. update the checkpoint and brief
-2. release the claim with `--status handoff --handoff-to <agent>`
-3. agent B creates a new claim that references the new work ID or dependency chain
+2. save a fresh snapshot and compact it into handoff/state artifacts
+3. release the claim with `--status handoff --handoff-to <agent>` from a clean worktree
+4. agent B creates a new claim that references the new work ID or dependency chain
 
 Do not silently continue work under another agent's stale claim.
+Do not treat provisional checkpoints as handoff-ready memory.
 
 ## Mechanical Enforcement
 
@@ -84,6 +88,7 @@ Do not silently continue work under another agent's stale claim.
   - lease freshness
   - branch ownership checks
   - path-overlap detection
+  - checkpoint/state visibility in the coordination report
 - `npm run gate:context`
   - includes coordination validation
 - `.githooks/pre-push`
@@ -102,5 +107,5 @@ The multi-agent system is healthy when:
 
 - most non-trivial feature branches have exactly one active claim
 - claims identify code boundaries before implementation starts
-- handoffs move through checkpoint + release instead of ad-hoc chat memory
+- handoffs move through checkpoint + compacted state + release instead of ad-hoc chat memory
 - coordination checks catch overlaps before merge-time conflicts appear

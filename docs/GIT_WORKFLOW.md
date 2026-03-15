@@ -21,10 +21,12 @@ The goal is:
 4. Create a coordination claim before meaningful edits on a feature branch.
 5. Keep branches short-lived and scoped to one coherent change.
 6. Another agent's dirty branch is not a valid continuation point. Hand off by checkpoint + claim release, not by shared WIP.
+7. Do not reuse an existing working branch for a new worktree.
 
 ## Worktree Rules
 
 - Use `npm run safe:worktree -- <task-name> [base-branch]` to create an isolated worktree.
+- `safe:worktree` intentionally refuses to create a new worktree from an already-used working branch.
 - Treat the current worktree as the canonical implementation target for the active task.
 - Do not mix unrelated tasks in one dirty worktree.
 - If a worktree becomes large or unstable, checkpoint and split the next task into a fresh worktree.
@@ -41,58 +43,13 @@ The goal is:
 
 - Pass `npm run docs:check` and `npm run ctx:check -- --strict` before push.
 - Pass project-specific `check`, `build`, or `gate` commands when configured.
-- Push only from a branch with an active checkpoint or brief.
+- Push only from a branch with a non-provisional checkpoint, compacted state, and coordination claim.
+- Run `npm run ctx:save -- --title "<status>"` and `npm run ctx:compact -- --work-id "W-..."` before handoff or release.
+- Release or hand off only from a clean worktree.
 - Completed scoped work must not sit locally. Once validated, merge to the approved integration branch immediately and push immediately.
 - Prefer squash merge or a short clean history over long accidental merge chains.
 - Do not create periodic merge commits just to "save progress."
 - Mirror local merge expectations in `docs/CI_PIPELINE.md` and `.github/workflows/ci.yml`.
-
-### One-Command Merge (`safe:merge`)
-
-Use `npm run safe:merge` from a feature branch to execute the full validated merge cycle:
-
-```
-feature branch → fetch origin/main → rebase → build → checkout main → ff-merge → push → cleanup
-```
-
-This command:
-1. Auto-commits any uncommitted changes on the feature branch.
-2. Fetches `origin/main` and rebases the feature branch onto it.
-3. Runs `npm run build` after rebase to catch integration issues.
-4. Checks out `main`, pulls latest, and fast-forward merges the feature branch.
-5. Pushes `main` to origin immediately.
-6. Deletes the local and remote feature branch.
-7. Prunes worktree metadata.
-
-If the rebase has conflicts, the script stops and the agent must resolve them before re-running.
-
-### Stale Branch Cleanup (`safe:cleanup`)
-
-Use `npm run safe:cleanup` to inspect merged branches and stale worktrees (dry-run).
-Use `npm run safe:cleanup -- --force` to delete them.
-
-**Manual deletion commands are BLOCKED by PreToolUse hook:**
-- `git worktree remove` → blocked
-- `git branch -d` / `git branch -D` → blocked
-- `rm -rf` on worktree paths → blocked
-
-All cleanup MUST go through `safe:cleanup` which automatically protects dirty and unmerged worktrees.
-
-## Dirty Main Recovery
-
-When `main` has accumulated uncommitted or mixed-scope changes (staged files from multiple surfaces, untracked scaffolding, etc.):
-
-1. **Do not commit the mixed state directly to main.**
-2. Identify changed files by scope: `git diff --cached --name-only`.
-3. Split by surface ownership (runtime, network, research, docs).
-4. For each scope:
-   - Create a new worktree: `npm run safe:worktree -- <scope-slug>`
-   - Move only that scope's files via `git checkout main -- <paths>` in the new worktree.
-   - Validate: `npm run build`.
-   - Merge via `npm run safe:merge`.
-5. After all scopes are merged, reset main to clean: `git checkout main && git reset --hard origin/main`.
-
-The key principle: **never commit a mixed-scope dirty tree to main**. Split first, merge each scope independently.
 
 ## What Should Be Periodic
 
@@ -135,8 +92,6 @@ The kit sets these repo-local defaults:
 - apply git defaults: `npm run safe:git-config`
 - sync branch: `npm run safe:sync`
 - sync and validate: `npm run safe:sync:gate`
-- **merge feature to main**: `npm run safe:merge` (from feature branch)
-- **cleanup stale branches**: `npm run safe:cleanup` (dry-run) / `npm run safe:cleanup -- --force`
 
 ## Interpretation
 

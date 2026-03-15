@@ -13,22 +13,11 @@ This document is the canonical operating guide for concurrent agents in this rep
 
 If any of those are false, parallel work is not safe.
 
-## Allowed Branch Prefixes
-
-Agent work may use any of these prefixes:
-
-- `codex/<slug>` — primary agent execution branches
-- `claude/<slug>` — Claude Code auto-generated worktree branches
-- `feat/<slug>` — product integration branches
-
-All three are recognized by `agent:guard`, coordination claims, and pre-push hooks.
-Any other prefix is blocked.
-
 ## Required Pattern
 
 Use this shape for every non-trivial task:
 
-- branch: `codex/<agent>-<work-id>-<slug>` (or `claude/<slug>`, `feat/<slug>`)
+- branch: `codex/<agent>-<work-id>-<slug>`
 - worktree: dedicated path created with `npm run safe:worktree -- <slug> [base-branch]`
 - work ID: `W-YYYYMMDD-<slug>`
 - claim: one active `coord:claim` covering only the owned paths
@@ -48,9 +37,16 @@ Examples:
 ```bash
 npm run safe:status
 npm run safe:worktree -- runtime-control main
-npm run ctx:checkpoint -- --work-id "W-20260315-runtime-control" --surface "runtime-api" --objective "unify runtime control path"
+npm run ctx:checkpoint -- --work-id "W-20260315-runtime-control" --surface "runtime-api" --objective "unify runtime control path" --why "replace shared branch drift with explicit runtime control ownership" --scope "apps/runtime-api + scripts + packages runtime control" --doc "memory/MEMORY.md" --file "apps/runtime-api/src/server.ts" --next "wire the proxy path" --exit "runtime control path validated and merged"
 npm run coord:claim -- --work-id "W-20260315-runtime-control" --agent "claude" --surface "runtime-api" --summary "runtime control path" --path "apps/runtime-api" --path "scripts" --path "packages"
 ```
+
+## Memory Gate
+
+- Read the required canonical docs first and list them in the checkpoint.
+- A provisional checkpoint is only a bootstrap artifact for a newly entered lane.
+- Replace provisional checkpoints with a task-specific checkpoint before handoff, push, or release.
+- Refresh `ctx:save` and `ctx:compact` before handing work to another agent.
 
 ## Automatic Enforcement
 
@@ -85,29 +81,26 @@ npm run agent:guard
 Before another agent takes over:
 
 1. save a checkpoint
-2. compact context
-3. release or hand off the claim
-4. give the next agent the branch, work ID, owned paths, and blocking risks
+2. save a fresh snapshot
+3. compact context
+4. release or hand off the claim from a clean worktree
+5. give the next agent the work ID, owned paths, remaining scope, and blocking risks
 
 ```bash
 npm run ctx:save -- --title "runtime control handoff"
-npm run ctx:compact
+npm run ctx:compact -- --work-id "W-20260315-runtime-control"
 npm run coord:release -- --work-id "W-20260315-runtime-control" --status handoff --handoff-to "codex"
 ```
 
 ## Merge Rules
 
 - Integration happens by commit, not by shared dirty state.
+- `safe:worktree` refuses to reuse an existing working branch for a new worktree.
 - Merge or cherry-pick only validated commits.
 - Do not leave completed work parked on a local-only agent branch.
 - After a scoped task is done, merge it into the approved integration branch immediately and push the result immediately.
-- **Use `npm run safe:merge`** from the feature branch to run the full cycle automatically:
-
-```
-fetch origin/main → rebase → build → ff-merge to main → push → cleanup
-```
-
-- If manual merge is needed, run these before push or merge:
+- `ctx:check -- --strict` and `coord:check` now reject provisional or degraded handoff state.
+- Run these before push or merge:
 
 ```bash
 npm run docs:check
@@ -116,49 +109,6 @@ npm run coord:check
 npm run build
 ```
 
-## Dirty Main Recovery
-
-When `main` has accumulated mixed-scope uncommitted changes:
-
-1. **Do not commit the mixed state directly to main.**
-2. List staged files: `git diff --cached --name-only`.
-3. Group files by surface: runtime (`apps/`, `packages/`, `scripts/`), network (`NetworkView`, `NetworkHUD`), research (`jobStore`, `AutoresearchPage`), docs (`memory/`, `README.md`).
-4. For each scope:
-   - `npm run safe:worktree -- <scope-slug>`
-   - Move that scope's files to the new branch.
-   - Validate: `npm run build`.
-   - `npm run safe:merge`.
-5. After all scopes are merged: `git checkout main && git reset --hard origin/main`.
-
-Key principle: **split by scope first, then merge each independently**.
-
-## Cleanup
-
-### Mandatory Rule
-
-**NEVER manually run `git worktree remove`, `git branch -D`, or `rm -rf` on worktree directories.**
-These commands are blocked by `PreToolUse` hook. All cleanup MUST go through the safe cleanup script.
-
-### Required Process
-
-1. **Dry-run first**: `npm run safe:cleanup` — shows what would be deleted
-2. **Review the output**: verify 🟢 ACTIVE and 🟡 PENDING items are correct
-3. **Execute**: `npm run safe:cleanup -- --force` — deletes ONLY 🔴 STALE items
-
-### What the script protects
-
-- 🟢 **ACTIVE**: has dirty files → **never deleted**
-- 🟡 **PENDING**: has unmerged commits → **never deleted** (merge first)
-- 🔴 **STALE**: clean + fully merged → safe to delete
-
-### What is prohibited
-
-- `git worktree remove` / `git worktree remove --force` → use `safe:cleanup`
-- `git branch -d` / `git branch -D` → use `safe:cleanup`
-- `rm -rf` on any worktree path → use `safe:cleanup`
-- Deleting a dirty worktree without saving its patch first
-- Deleting a branch without verifying its commits are in main
-
 ## What To Reject
 
 Reject the workflow if any of these appear:
@@ -166,8 +116,7 @@ Reject the workflow if any of these appear:
 - "keep working in my current dirty branch and just avoid conflicts"
 - "two agents can both edit the same store and sort it out later"
 - "continue from another agent's uncommitted workspace"
+- "reuse the same branch in another worktree so we can go faster"
 - "skip the claim because this is small"
-- "commit everything to main and sort it out later"
-- "merge without fetching origin first"
 
 Those patterns create merge debt and broken context lineage.
