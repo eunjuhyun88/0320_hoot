@@ -151,14 +151,32 @@
 
   const PAD = 10;
 
-  function valueFor(node: LabNode, mode: MetricMode = metricMode, frame: Timeframe = timeframe): number {
-    if (node.children?.length) {
-      return node.children.reduce((sum, child) => sum + valueFor(child, mode, frame), 0);
-    }
+  // Memoized valueFor — cache keyed by node.id + mode + frame
+  let _valueCache = new Map<string, number>();
+  let _valueCacheKey = '';
 
-    const base = mode === 'impact' ? node.impact ?? 0 : node.volume ?? 0;
-    const multiplier = node.bias?.[frame] ?? 1;
-    return base * multiplier;
+  function invalidateValueCache(mode: MetricMode, frame: Timeframe) {
+    const key = `${mode}:${frame}`;
+    if (key !== _valueCacheKey) {
+      _valueCache.clear();
+      _valueCacheKey = key;
+    }
+  }
+
+  function valueFor(node: LabNode, mode: MetricMode = metricMode, frame: Timeframe = timeframe): number {
+    const cacheKey = node.id;
+    const cached = _valueCache.get(cacheKey);
+    if (cached !== undefined) return cached;
+
+    let result: number;
+    if (node.children?.length) {
+      result = node.children.reduce((sum, child) => sum + valueFor(child, mode, frame), 0);
+    } else {
+      const base = mode === 'impact' ? node.impact ?? 0 : node.volume ?? 0;
+      result = base * (node.bias?.[frame] ?? 1);
+    }
+    _valueCache.set(cacheKey, result);
+    return result;
   }
 
   function getNodeById(node: LabNode, id: string): LabNode | null {
@@ -280,6 +298,9 @@
     return result;
   }
 
+  // Invalidate value cache whenever inputs change
+  $: invalidateValueCache(metricMode, timeframe);
+
   $: currentNode = getNodeByPath(focusPath);
   $: breadcrumbNodes = [root, ...focusPath.map((_, index) => getNodeByPath(focusPath.slice(0, index + 1)))];
   $: currentChildren = currentNode.children ?? [];
@@ -295,6 +316,9 @@
     return { id: tf, value: valueFor(root, metricMode, tf) };
   });
 
+  // Pre-build children lookup Map for O(1) find in cells
+  $: childrenMap = new Map(currentChildren.map(node => [node.id, node]));
+
   $: cells = (() => {
     if (surfaceWidth <= 0 || surfaceHeight <= 0 || currentChildren.length === 0) return [] as TreemapCell[];
     const layout = squarify(
@@ -306,7 +330,7 @@
     );
 
     return layout.map(cell => {
-      const node = currentChildren.find(entry => entry.id === cell.id)!;
+      const node = childrenMap.get(cell.id)!;
       const value = valueFor(node);
       return {
         node,
@@ -321,7 +345,9 @@
     });
   })();
 
-  $: hoveredCell = cells.find(cell => cell.node.id === hoveredNodeId) ?? null;
+  // O(1) hovered cell lookup via Map
+  $: cellMap = new Map(cells.map(cell => [cell.node.id, cell]));
+  $: hoveredCell = (hoveredNodeId && cellMap.get(hoveredNodeId)) ?? null;
   $: tooltipStyle = (() => {
     if (!hoveredCell) return 'display:none;';
     const left = Math.min(Math.max(hoveredCell.x + hoveredCell.w * 0.52, 18), Math.max(surfaceWidth - 248, 18));
