@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fly, fade } from 'svelte/transition';
   import { wallet } from '../stores/walletStore.ts';
   import { animateCounter } from '../utils/animate.ts';
   import { fmtDollar, fmtK, fmtInt } from '../utils/format.ts';
@@ -19,6 +20,7 @@
   import { router } from '../stores/router.ts';
 
   let visible = false;
+  let isMobile = false;
 
   // ── Mobile tab switching (supports deep-link via ?tab=) ──
   const validTabs = ['operations', 'analytics', 'events'] as const;
@@ -52,6 +54,12 @@
     visible = true;
     const isDestroyed = () => destroyed;
 
+    // UX-E5: Track mobile state for tab slide transitions
+    const mq = window.matchMedia('(max-width: 600px)');
+    isMobile = mq.matches;
+    const handleMq = (e: MediaQueryListEvent) => { isMobile = e.matches; };
+    mq.addEventListener('change', handleMq);
+
     // Stagger counter starts to reduce initial RAF contention (5 simultaneous → waterfall)
     const delays = [300, 420, 540, 660, 780];
     const timers = delays.map((delay, i) => setTimeout(() => {
@@ -71,11 +79,13 @@
       destroyed = true;
       timers.forEach(t => clearTimeout(t));
       clearTimeout(confirmTimer);
+      mq.removeEventListener('change', handleMq);
     };
   });
 
   // ── Gauge (for metrics strip mini-arc) ──
   $: gaugeRatio = Math.round(mau) / mauTarget;
+  $: mauPulse = gaugeRatio >= 0.85;
 
   // ── Contract Call Modal ──
   let modalOpen = false;
@@ -185,11 +195,11 @@
       <div class="metric-item" style="--delay: 4">
         <span class="metric-value">{fmtInt(mau)}<span class="metric-of">/{fmtInt(mauTarget)}</span></span>
         <span class="metric-label">MAU → Deflation</span>
-        <div class="mau-arc">
+        <div class="mau-arc" class:mau-pulse={mauPulse}>
           <svg viewBox="0 0 36 18" class="mau-arc-svg">
             <path d="M2,16 A14,14 0 0,1 34,16" fill="none" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
             <path d="M2,16 A14,14 0 0,1 34,16" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"
-              stroke-dasharray="{44 * gaugeRatio} 44"/>
+              stroke-dasharray="{44 * gaugeRatio} 44" class="mau-arc-fill"/>
           </svg>
         </div>
       </div>
@@ -197,16 +207,16 @@
   </div>
 
   <!-- 2. MOBILE SEGMENT CONTROL -->
-  <div class="mobile-tabs">
-    <button class="mtab-btn" class:mtab-active={mobileTab === 'operations'} on:click={() => mobileTab = 'operations'}>
+  <div class="mobile-tabs" role="tablist" aria-label="Protocol sections">
+    <button class="mtab-btn" class:mtab-active={mobileTab === 'operations'} role="tab" aria-selected={mobileTab === 'operations'} on:click={() => mobileTab = 'operations'}>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Operations
     </button>
-    <button class="mtab-btn" class:mtab-active={mobileTab === 'analytics'} on:click={() => mobileTab = 'analytics'}>
+    <button class="mtab-btn" class:mtab-active={mobileTab === 'analytics'} role="tab" aria-selected={mobileTab === 'analytics'} on:click={() => mobileTab = 'analytics'}>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M23 6l-9.5 9.5-5-5L1 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       Analytics
     </button>
-    <button class="mtab-btn" class:mtab-active={mobileTab === 'events'} on:click={() => mobileTab = 'events'}>
+    <button class="mtab-btn" class:mtab-active={mobileTab === 'events'} role="tab" aria-selected={mobileTab === 'events'} on:click={() => mobileTab = 'events'}>
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       Events
     </button>
@@ -217,20 +227,23 @@
     <div class="dash-grid">
 
       <!-- LEFT COLUMN: Operations -->
-      <div class="left-col" class:mtab-hidden={mobileTab !== 'operations'}>
+      {#if !isMobile || mobileTab === 'operations'}
+      <div class="left-col" in:fly={{ y: isMobile ? 8 : 0, duration: isMobile ? 200 : 0 }}>
         <div class="section-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="section-icon"><path d="M12 2L2 7l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           On-chain Operations
         </div>
         <BurnPanel simulatedBalance={12450} on:openModal={e => openContractModal(e.detail)} />
         <JobCreatorPanel on:openModal={e => openContractModal(e.detail)} />
       </div>
+      {/if}
 
       <!-- RIGHT COLUMN: Analytics + Events -->
       <div class="right-col">
-        <div class:mtab-hidden={mobileTab !== 'analytics'} class="mobile-group">
+        {#if !isMobile || mobileTab === 'analytics'}
+        <div class="mobile-group" in:fly={{ y: isMobile ? 8 : 0, duration: isMobile ? 200 : 0 }}>
           <div class="section-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M23 6l-9.5 9.5-5-5L1 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="section-icon"><path d="M23 6l-9.5 9.5-5-5L1 18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
             Analytics & Flow
           </div>
           <TokenFlowPanel />
@@ -256,8 +269,10 @@
             </div>
           </div>
         </div>
+        {/if}
 
-        <div class:mtab-hidden={mobileTab !== 'events'} class="mobile-group">
+        {#if !isMobile || mobileTab === 'events'}
+        <div class="mobile-group" in:fly={{ y: isMobile ? 8 : 0, duration: isMobile ? 200 : 0 }}>
           <!-- Panel E: Recent Protocol Events -->
           <div class="panel feed-panel" style="--panel-delay: 1">
             <div class="panel-header">
@@ -266,7 +281,7 @@
             </div>
             <div class="feed-list">
               {#each eventFeed as evt, i}
-                <button class="feed-item" style="--feed-delay: {i}" on:click={() => openEventModal(evt)}>
+                <button class="feed-item" style="--feed-delay: {i}; --feed-color: {evt.color}" on:click={() => openEventModal(evt)}>
                   <span class="feed-dot" style="background: {evt.color}"></span>
                   <span class="feed-text">{evt.text}</span>
                   <span class="feed-time">{evt.time}</span>
@@ -275,6 +290,7 @@
             </div>
           </div>
         </div>
+        {/if}
       </div>
 
     </div>
@@ -400,6 +416,7 @@
     margin: 0 auto;
   }
 
+  /* UX-E2: Metric hover scale */
   .metric-item {
     display: flex;
     flex-direction: column;
@@ -407,6 +424,13 @@
     padding: 0 20px;
     gap: 2px;
     animation: fadeInUp var(--dur-entrance, 700ms) var(--ease-out-expo) calc(var(--delay, 0) * 80ms) both;
+    transition: transform 200ms var(--ease-out-expo), background 200ms ease;
+    border-radius: var(--radius-sm, 6px);
+    cursor: default;
+  }
+  .metric-item:hover {
+    transform: scale(1.06);
+    background: var(--page-bg, #FAF9F7);
   }
 
   .metric-value {
@@ -453,6 +477,16 @@
     margin-top: 2px;
   }
   .mau-arc-svg { width: 100%; height: 100%; }
+
+  /* UX-E3: MAU arc pulse when approaching target */
+  .mau-arc-fill { transition: stroke-dasharray 300ms ease; }
+  .mau-pulse .mau-arc-fill {
+    animation: arcPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes arcPulse {
+    0%, 100% { filter: drop-shadow(0 0 0 transparent); opacity: 1; }
+    50% { filter: drop-shadow(0 0 3px var(--accent, #D97757)); opacity: 0.85; }
+  }
 
   /* ====== DASHBOARD GRID ====== */
   .dash-content {
@@ -505,6 +539,7 @@
   .feed-list::-webkit-scrollbar-track { background: transparent; }
   .feed-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
+  /* UX-E4: Feed item with left border flash */
   .feed-item {
     display: flex;
     align-items: flex-start;
@@ -512,14 +547,22 @@
     padding: 8px 10px;
     border: none;
     background: none;
+    border-left: 2px solid transparent;
     border-radius: var(--radius-sm);
     cursor: pointer;
-    transition: background 150ms;
+    transition: background 150ms, border-color 200ms ease;
     text-align: left;
-    animation: fadeInUp 400ms var(--ease-out-expo) calc(var(--feed-delay, 0) * 60ms) both;
+    animation: feedSlideIn 400ms var(--ease-out-expo) calc(var(--feed-delay, 0) * 60ms) both;
     width: 100%;
   }
-  .feed-item:hover { background: var(--page-bg); }
+  .feed-item:hover {
+    background: var(--page-bg);
+    border-left-color: var(--feed-color, var(--accent));
+  }
+  @keyframes feedSlideIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
 
   .feed-dot {
     width: 6px;
@@ -576,6 +619,14 @@
     letter-spacing: 0.08em;
     color: var(--text-muted, #9a9590);
     padding: 0 4px;
+  }
+
+  /* UX-E6: Section icon micro-rotation on hover/visibility */
+  .section-label :global(.section-icon) {
+    transition: transform 300ms var(--ease-out-expo);
+  }
+  .section-label:hover :global(.section-icon) {
+    transform: rotate(12deg) scale(1.1);
   }
 
   /* ====== MOBILE TABS ====== */
@@ -708,8 +759,7 @@
       gap: 12px;
     }
 
-    /* Hide inactive tab content */
-    .mtab-hidden { display: none !important; }
+    /* Tab content managed by {#if} blocks — no .mtab-hidden needed */
 
     /* Feed improvements */
     .feed-list { max-height: 60vh; }
@@ -727,5 +777,13 @@
     .metric-label { font-size: 0.58rem; }
     .metric-value { font-size: 0.85rem; }
     .metric-divider { height: 24px; }
+  }
+
+  /* C-1: prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    .metric-item, .panel, .feed-item { animation: none !important; }
+    .mau-pulse .mau-arc-fill { animation: none !important; }
+    .metric-item { transition: none; }
+    .econ { transition: none; }
   }
 </style>
