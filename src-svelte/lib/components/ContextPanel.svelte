@@ -56,8 +56,6 @@
       {bestMetric}
       {totalExperiments}
       {expandable}
-      on:newresearch
-      on:deploy
       on:retrain
       on:improve
       on:expand
