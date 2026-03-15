@@ -19,11 +19,19 @@
   import TrustGaugePanel from '../components/TrustGaugePanel.svelte';
   import YourJourney from '../components/YourJourney.svelte';
   import { rewardStore, rewardSummary } from '../stores/rewardStore.ts';
+  import { router } from '../stores/router.ts';
 
   let visible = false;
 
-  // ── Mobile tab switching ──
-  let mobileTab: 'operations' | 'analytics' | 'events' | 'rewards' = 'operations';
+  // ── Mobile tab switching (supports deep-link via ?tab=rewards) ──
+  const validTabs = ['operations', 'analytics', 'events', 'rewards'] as const;
+  type MobileTab = typeof validTabs[number];
+  function resolveTab(): MobileTab {
+    let t: MobileTab = 'operations';
+    router.params.subscribe(p => { if (p.tab && validTabs.includes(p.tab as MobileTab)) t = p.tab as MobileTab; })();
+    return t;
+  }
+  let mobileTab: MobileTab = resolveTab();
 
   // ── Reward data ──
   $: rewards = $rewardStore;
