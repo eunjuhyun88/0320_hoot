@@ -10,16 +10,15 @@
   type PixelIconType = "sparkle" | "grid" | "chart" | "globe" | "protocol" | "ontology";
 
   const navItems: { view: AppView; label: string; icon: PixelIconType }[] = [
-    { view: "dashboard", label: "Dashboard", icon: "sparkle" },
-    { view: "research", label: "Magnet Research", icon: "chart" },
-    { view: "ontology", label: "Research Ontology", icon: "ontology" },
+    { view: "studio", label: "Magnet Studio", icon: "sparkle" },
     { view: "models", label: "Models", icon: "grid" },
     { view: "network", label: "Network", icon: "globe" },
     { view: "protocol", label: "Protocol", icon: "protocol" },
   ];
 
   $: currentView = $router;
-  $: visibleNavItems = navItems.filter(item => $unlockedPages.includes(item.view));
+  // studio is always visible; other tabs follow stage gate
+  $: visibleNavItems = navItems.filter(item => item.view === 'studio' || $unlockedPages.includes(item.view));
   $: isAIActive = $jobStore.phase === 'running' || $jobStore.phase === 'setup';
   $: owlMood = (() => {
     const p = $jobStore.phase;
@@ -63,7 +62,7 @@
 
 <header class="navbar" class:menu-open={mobileMenuOpen}>
   <div class="navbar-inner">
-    <button class="logo" on:click={() => navTo('dashboard')}>
+    <button class="logo" on:click={() => navTo('studio')}>
       <span class="logo-icon" class:ai-active={isAIActive}>
         <PixelOwl size={0.28} mood={owlMood} />
         {#if isAIActive}
@@ -82,7 +81,7 @@
       {#each visibleNavItems as item}
         <button
           class="nav-item"
-          class:active={currentView === item.view}
+          class:active={currentView === item.view || (item.view === 'studio' && currentView === 'dashboard')}
           on:click={() => navTo(item.view)}
         >
           <span class="nav-icon">
@@ -98,7 +97,7 @@
 
     <div class="navbar-right">
       {#if isAIActive}
-        <button class="research-indicator" on:click={() => navTo('research')}>
+        <button class="research-indicator" on:click={() => navTo('studio')}>
           <span class="ri-pulse"></span>
           <span class="ri-label">Research</span>
           <span class="ri-bar">
