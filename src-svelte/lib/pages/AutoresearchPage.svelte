@@ -36,6 +36,17 @@
 
   type FocusView = 'convergence' | 'activity' | 'treemap' | 'context' | 'lineage' | 'mesh' | 'scatter' | 'effect';
 
+  const FOCUS_TABS: { id: FocusView; label: string }[] = [
+    { id: 'convergence', label: 'Convergence' },
+    { id: 'activity', label: 'Activity' },
+    { id: 'treemap', label: 'Map' },
+    { id: 'scatter', label: 'Scatter' },
+    { id: 'effect', label: 'Effect' },
+    { id: 'lineage', label: 'Lineage' },
+    { id: 'mesh', label: 'Mesh' },
+    { id: 'context', label: 'Detail' },
+  ];
+
   const FOCUS_META: Record<FocusView, { title: string; hint: string }> = {
     convergence: {
       title: 'Convergence Timeline',
@@ -457,7 +468,15 @@
 </div>
 
 {#if focusMeta}
-  <ResearchFocusModal open={true} title={focusMeta.title} hint={focusMeta.hint} on:close={closeFocus}>
+  <ResearchFocusModal
+    open={true}
+    title={focusMeta.title}
+    hint={focusMeta.hint}
+    tabs={FOCUS_TABS}
+    activeTab={focusView ?? ''}
+    on:close={closeFocus}
+    on:tabchange={(e) => { focusView = e.detail as FocusView; }}
+  >
     {#if focusView === 'convergence'}
       <div class="focus-stage focus-stage--chart">
         <ConvergenceChart

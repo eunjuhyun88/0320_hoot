@@ -4,8 +4,11 @@
   export let open = false;
   export let title = '';
   export let hint = '';
+  /** Optional inline tab bar for switching between focus views */
+  export let tabs: { id: string; label: string }[] = [];
+  export let activeTab = '';
 
-  const dispatch = createEventDispatcher<{ close: void }>();
+  const dispatch = createEventDispatcher<{ close: void; tabchange: string }>();
 
   function handleBackdropClick(event: MouseEvent) {
     if (event.target === event.currentTarget) {
@@ -45,6 +48,18 @@
           </button>
         </div>
       </div>
+
+      {#if tabs.length > 0}
+        <div class="focus-tabs">
+          {#each tabs as tab}
+            <button
+              class="focus-tab"
+              class:active={activeTab === tab.id}
+              on:click={() => dispatch('tabchange', tab.id)}
+            >{tab.label}</button>
+          {/each}
+        </div>
+      {/if}
 
       <div class="focus-body">
         <slot />
@@ -167,6 +182,41 @@
     stroke-width: 1.8;
     fill: none;
     stroke-linecap: round;
+  }
+
+  .focus-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 0 24px;
+    border-bottom: 1px solid rgba(82, 67, 51, 0.08);
+    background: rgba(250, 248, 245, 0.6);
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .focus-tabs::-webkit-scrollbar { display: none; }
+
+  .focus-tab {
+    appearance: none;
+    border: none;
+    background: none;
+    padding: 8px 14px;
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--text-muted, #9a9590);
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 120ms ease;
+    margin-bottom: -1px;
+  }
+  .focus-tab:hover {
+    color: var(--text-primary, #2D2D2D);
+  }
+  .focus-tab.active {
+    color: var(--accent, #D97757);
+    border-bottom-color: var(--accent, #D97757);
   }
 
   .focus-body {

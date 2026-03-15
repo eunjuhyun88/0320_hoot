@@ -17,7 +17,8 @@
 
 <div class="ib">
   <!-- Network section -->
-  <div class="ib-section">
+  <div class="ib-section ib-section--network">
+    <span class="ib-section-label">Network</span>
     <span class="ib-dot"></span>
     <span class="ib-live">Live</span>
     <div class="ib-cell">
@@ -53,7 +54,8 @@
   <span class="ib-divider"></span>
 
   <!-- Protocol section -->
-  <div class="ib-section">
+  <div class="ib-section ib-section--protocol">
+    <span class="ib-section-label">Protocol</span>
     <div class="ib-cell">
       <span class="ib-val ib-accent">{tvl}</span>
       <span class="ib-key">TVL</span>
@@ -155,6 +157,17 @@
     color: var(--text-muted, #9a9590);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+  }
+
+  .ib-section-label {
+    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: var(--text-muted, #9a9590);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+    flex-shrink: 0;
   }
 
   .ib-divider {
