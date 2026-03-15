@@ -56,11 +56,10 @@
     status: i < activeStageIdx ? 'done' : i === activeStageIdx ? 'active' : 'pending',
   }));
 
-  // ── Simulation loop ──
-  let progressInterval: ReturnType<typeof setInterval>;
-  let stageInterval: ReturnType<typeof setInterval>;
-  let logInterval: ReturnType<typeof setInterval>;
+  // ── Single simulation loop (replaces 3 separate setIntervals) ──
+  let simInterval: ReturnType<typeof setInterval>;
   let logIdx = 0;
+  let tickCount = 0; // 800ms per tick
 
   function fmtNow(): string {
     const d = new Date();
@@ -68,47 +67,47 @@
   }
 
   onMount(() => {
-    // Progress ticks
-    progressInterval = setInterval(() => {
+    // Single 800ms interval drives all simulation
+    simInterval = setInterval(() => {
+      tickCount++;
+
+      // Progress tick — every tick (800ms)
       if (progress < 100) {
         progress += Math.random() * 2 + 0.5;
         if (progress > 100) progress = 100;
       }
-    }, 800);
 
-    // Stage advancement
-    stageInterval = setInterval(() => {
-      if (activeStageIdx < STAGE_TEMPLATES.length - 1) {
-        activeStageIdx++;
-        if (activeStageIdx >= STAGE_TEMPLATES.length - 1) {
-          statusText = 'complete';
-          owlMood = 'happy';
-          finding = 'model deployed successfully!';
+      // Stage advancement — every ~5000ms (6 ticks × 800ms ≈ 4800ms)
+      if (tickCount % 6 === 0) {
+        if (activeStageIdx < STAGE_TEMPLATES.length - 1) {
+          activeStageIdx++;
+          if (activeStageIdx >= STAGE_TEMPLATES.length - 1) {
+            statusText = 'complete';
+            owlMood = 'happy';
+            finding = 'model deployed successfully!';
+          }
+        } else {
+          activeStageIdx = 0;
+          progress = 0;
+          statusText = 'running';
+          owlMood = 'research';
+          finding = 'interesting patterns found!';
         }
-      } else {
-        // Reset loop
-        activeStageIdx = 0;
-        progress = 0;
-        statusText = 'running';
-        owlMood = 'research';
-        finding = 'interesting patterns found!';
       }
-    }, 5000);
 
-    // Log additions
-    logInterval = setInterval(() => {
-      logs = [
-        { time: fmtNow(), message: LOG_MESSAGES[logIdx % LOG_MESSAGES.length] },
-        ...logs.slice(0, 5),
-      ];
-      logIdx++;
-    }, 4000);
+      // Log additions — every ~4000ms (5 ticks × 800ms = 4000ms)
+      if (tickCount % 5 === 0) {
+        logs = [
+          { time: fmtNow(), message: LOG_MESSAGES[logIdx % LOG_MESSAGES.length] },
+          ...logs.slice(0, 5),
+        ];
+        logIdx++;
+      }
+    }, 800);
   });
 
   onDestroy(() => {
-    clearInterval(progressInterval);
-    clearInterval(stageInterval);
-    clearInterval(logInterval);
+    clearInterval(simInterval);
   });
 </script>
 
