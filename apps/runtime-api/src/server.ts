@@ -22,6 +22,14 @@ import {
 } from "../../../packages/domain/src/index.ts";
 import { createRuntimeMeshBroker } from "./mesh-broker.ts";
 import { createRuntimePersistence } from "./persistence.ts";
+import { seedModels } from "./seeds/models.ts";
+import {
+  seedBondTiers, seedActiveBonds, seedBurnConversions,
+  seedPpapStages, seedFlowNodes, seedProtocolEvents,
+  SIMULATED_BALANCE, MAU_TARGET, TRUST_SCORE_TARGET,
+} from "./seeds/protocol.ts";
+import { seedRewards, computeRewardSummary } from "./seeds/rewards.ts";
+import { seedDashboardSummary, seedDashboardEvents } from "./seeds/dashboard.ts";
 
 const port = Number(process.env.RUNTIME_API_PORT ?? "8790");
 const defaultRuntimeRoot = process.env.AUTORESEARCH_RUNTIME_ROOT ?? "runtime/autoresearch-loop-live";
@@ -188,6 +196,74 @@ const server = createServer(async (request, response) => {
       job: selectRuntimeJob(state, jobId),
       command,
     });
+  }
+
+  /* ─── Domain API Routes ─── */
+
+  // Models
+  if (method === "GET" && url.pathname === "/api/models") {
+    return json(response, 200, seedModels());
+  }
+
+  const modelMatch = url.pathname.match(/^\/api\/models\/([^/]+)$/);
+  if (method === "GET" && modelMatch) {
+    const modelId = decodeURIComponent(modelMatch[1]);
+    const model = seedModels().find((m) => m.id === modelId);
+    return model
+      ? json(response, 200, model)
+      : json(response, 404, { error: "model not found" });
+  }
+
+  // Protocol
+  if (method === "GET" && url.pathname === "/api/protocol/summary") {
+    return json(response, 200, {
+      bondTiers: seedBondTiers(),
+      activeBonds: seedActiveBonds(),
+      burnConversions: seedBurnConversions(),
+      ppapStages: seedPpapStages(),
+      flowNodes: seedFlowNodes(),
+      balance: SIMULATED_BALANCE,
+      mauTarget: MAU_TARGET,
+      trustScoreTarget: TRUST_SCORE_TARGET,
+    });
+  }
+
+  if (method === "GET" && url.pathname === "/api/protocol/bonds") {
+    return json(response, 200, seedActiveBonds());
+  }
+
+  if (method === "GET" && url.pathname === "/api/protocol/events") {
+    return json(response, 200, seedProtocolEvents());
+  }
+
+  if (method === "GET" && url.pathname === "/api/protocol/flow") {
+    return json(response, 200, seedFlowNodes());
+  }
+
+  if (method === "GET" && url.pathname === "/api/protocol/ppap") {
+    return json(response, 200, seedPpapStages());
+  }
+
+  if (method === "GET" && url.pathname === "/api/protocol/burns") {
+    return json(response, 200, seedBurnConversions());
+  }
+
+  // Rewards
+  if (method === "GET" && url.pathname === "/api/rewards") {
+    return json(response, 200, seedRewards());
+  }
+
+  if (method === "GET" && url.pathname === "/api/rewards/summary") {
+    return json(response, 200, computeRewardSummary(seedRewards()));
+  }
+
+  // Dashboard
+  if (method === "GET" && url.pathname === "/api/dashboard/summary") {
+    return json(response, 200, seedDashboardSummary());
+  }
+
+  if (method === "GET" && url.pathname === "/api/dashboard/events") {
+    return json(response, 200, seedDashboardEvents());
   }
 
   return json(response, 404, { error: "not found" });
