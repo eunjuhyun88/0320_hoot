@@ -20,11 +20,24 @@
   import StudioStep1 from '../components/studio/StudioStep1.svelte';
   import StudioStep2 from '../components/studio/StudioStep2.svelte';
   import ConfirmModal from '../components/ConfirmModal.svelte';
+  import ContractCallModal from '../components/ContractCallModal.svelte';
+  import type { ContractCall } from '../data/protocolData.ts';
+  import { wallet } from '../stores/walletStore.ts';
 
   // ── Confirmation state ──
   let showStopConfirm = false;
   let showStartConfirm = false;
+  let showCreditInsufficient = false;
   let pendingStartEvent: { topic: string; resourceMode: ResourceMode } | null = null;
+
+  // ── ContractCallModal state ──
+  let modalOpen = false;
+  let modalCall: ContractCall | null = null;
+  let modalStep: 'review' | 'pending' | 'confirmed' | 'error' = 'review';
+  let pendingAction: 'start' | 'stop' | null = null;
+
+  $: walletConnected = $wallet.connected;
+  $: walletAddress = $wallet.address;
 
   // Lazy-loaded heavy components
   let OntologySetup: any = null;
@@ -87,17 +100,32 @@
   function confirmStartResearch() {
     showStartConfirm = false;
     if (!pendingStartEvent) return;
-    const { topic, resourceMode } = pendingStartEvent;
-    studioStore.setTopic(topic);
-    studioStore.setResourceMode(resourceMode);
 
-    // Start the job (demo mode for now)
-    const branchCount = 3;
-    const avgIters = 25;
-    jobStore.startJob(topic, branchCount, avgIters);
-    studioStore.startRunning();
-    toastStore.success('연구가 시작되었습니다');
-    pendingStartEvent = null;
+    // Open ContractCallModal for ResearchJobCreated
+    const { topic, resourceMode } = pendingStartEvent;
+    const budget = resourceMode === 'demo' ? '0' : '150';
+
+    modalCall = {
+      title: '연구 시작',
+      contract: '0x4F0a...7E3d  HootJobs.sol',
+      fn: 'createResearchJob',
+      params: [
+        { name: 'topic', type: 'string', value: topic },
+        { name: 'budget', type: 'uint256', value: `${budget} HOOT` },
+        { name: 'tier', type: 'uint8', value: resourceMode === 'network' ? 'T2' : 'T1' },
+        { name: 'config', type: 'bytes', value: '0x...' },
+      ],
+      fee: `${budget} HOOT (에스크로)`,
+      gas: '~120,000',
+      note: 'Budget이 에스크로에 예치됩니다. 연구 완료 또는 취소 시 미사용분이 환불됩니다.',
+      accentColor: 'var(--accent)',
+      paymentEnabled: resourceMode !== 'demo',
+      hootAmount: budget,
+      usdcAmount: String(Math.round(Number(budget) * 1.25)),
+    };
+    modalStep = 'review';
+    modalOpen = true;
+    pendingAction = 'start';
   }
 
   function cancelStartResearch() {
@@ -129,13 +157,70 @@
 
   function confirmStop() {
     showStopConfirm = false;
-    jobStore.set({ ...jobStore, phase: 'idle' } as any);
-    studioStore.reset();
-    toastStore.warning('연구가 중단되었습니다');
+
+    // Open ContractCallModal for ResearchJobCancelled
+    const remaining = Math.round((1 - ($jobStore.progress ?? 0) / 100) * 150);
+    modalCall = {
+      title: '연구 중지',
+      contract: '0x4F0a...7E3d  HootJobs.sol',
+      fn: 'cancelResearchJob',
+      params: [
+        { name: 'jobId', type: 'uint256', value: $jobStore.sessionId || 'JOB-001' },
+      ],
+      fee: `0 HOOT (잔액 ${remaining} HOOT 환불)`,
+      gas: '~68,000',
+      note: '미사용 Budget이 지갑으로 환불됩니다.',
+      accentColor: 'var(--warn)',
+    };
+    modalStep = 'review';
+    modalOpen = true;
+    pendingAction = 'stop';
   }
 
   function cancelStop() {
     showStopConfirm = false;
+  }
+
+  // ── ContractCallModal handlers ──
+  function handleModalConfirm() {
+    modalStep = 'pending';
+    setTimeout(() => {
+      modalStep = 'confirmed';
+      // Execute the actual action after confirmed
+      if (pendingAction === 'start' && pendingStartEvent) {
+        const { topic, resourceMode } = pendingStartEvent;
+        studioStore.setTopic(topic);
+        studioStore.setResourceMode(resourceMode);
+        const branchCount = 3;
+        const avgIters = 25;
+        jobStore.startJob(topic, branchCount, avgIters);
+        studioStore.startRunning();
+        toastStore.success('연구가 시작되었습니다');
+        pendingStartEvent = null;
+      } else if (pendingAction === 'stop') {
+        jobStore.set({ ...jobStore, phase: 'idle' } as any);
+        studioStore.reset();
+        toastStore.warning('연구가 중단되었습니다');
+      }
+    }, 2200);
+  }
+
+  function handleModalClose() {
+    modalOpen = false;
+    modalCall = null;
+    modalStep = 'review';
+    pendingAction = null;
+  }
+
+  function handleCreditBuy() {
+    showCreditInsufficient = false;
+    // Open external DEX link
+    window.open('https://app.uniswap.org', '_blank');
+  }
+
+  function handleCreditBurn() {
+    showCreditInsufficient = false;
+    router.navigate('protocol');
   }
 
   function handleSubmit(e: CustomEvent<{ text: string; parentId: number | null }>) {
@@ -273,6 +358,29 @@
     cancelLabel="취소"
     on:confirm={confirmStartResearch}
     on:cancel={cancelStartResearch}
+  />
+
+  <!-- Credit Insufficient Modal -->
+  <ConfirmModal
+    open={showCreditInsufficient}
+    title="크레딧이 부족합니다"
+    message="연구를 시작하기 위한 HOOT 잔액이 부족합니다."
+    confirmLabel="HOOT 구매"
+    cancelLabel="나중에"
+    on:confirm={handleCreditBuy}
+    on:cancel={() => { showCreditInsufficient = false; }}
+  />
+
+  <!-- ContractCallModal for on-chain transactions -->
+  <ContractCallModal
+    {modalOpen}
+    {modalCall}
+    {modalStep}
+    {walletConnected}
+    {walletAddress}
+    on:close={handleModalClose}
+    on:confirm={handleModalConfirm}
+    on:connectWallet={() => { wallet.connect('MetaMask'); }}
   />
 </div>
 

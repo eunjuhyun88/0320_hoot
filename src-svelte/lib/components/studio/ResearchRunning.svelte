@@ -67,12 +67,21 @@
     viewResults: void;
   }>();
 
-  // Forced cancellation state
+  // Forced cancellation state (ResearchJobCancelledByProtocol AUTO)
   let forceCancelled = false;
+  let forceCancelReason = '';
+  let forceCancelRefund = '0';
 
-  // Detect unexpected completion (force cancel)
+  // Detect unexpected cancellation by protocol
   $: if ($jobStore.phase === 'complete' && !forceCancelled) {
     // Will be handled by parent, but if still mounted → show banner
+  }
+
+  /** Called by parent to trigger force cancel banner */
+  export function showForceCancelBanner(reason: string, refund: string) {
+    forceCancelled = true;
+    forceCancelReason = reason;
+    forceCancelRefund = refund;
   }
 
   // Reactive state from store
@@ -144,8 +153,16 @@
   {#if forceCancelled}
     <div class="cancel-banner" transition:fly={{ y: -12, duration: 250 }}>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="#f38ba8"/></svg>
-      <span>연구가 강제 중단되었습니다. 지금까지의 결과를 확인하세요.</span>
-      <button class="cancel-banner-btn" on:click={() => dispatch('viewResults')}>결과 보기 →</button>
+      <div class="cancel-banner-body">
+        <span class="cancel-banner-title">⚠ 연구가 자동 취소되었습니다</span>
+        {#if forceCancelReason}
+          <span class="cancel-banner-reason">사유: {forceCancelReason}</span>
+        {/if}
+        {#if forceCancelRefund && forceCancelRefund !== '0'}
+          <span class="cancel-banner-refund">미사용 Budget {forceCancelRefund} HOOT 환불 예정</span>
+        {/if}
+      </div>
+      <button class="cancel-banner-btn" on:click={() => { forceCancelled = false; dispatch('viewResults'); }}>확인</button>
     </div>
   {/if}
   <!-- ═══ PROMPT BAR ═══ -->
@@ -456,7 +473,28 @@
     color: #f38ba8;
     font-weight: 500;
   }
-  .cancel-banner span { flex: 1; }
+  .cancel-banner-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .cancel-banner-title {
+    font-weight: 700;
+    font-size: 0.82rem;
+  }
+  .cancel-banner-reason {
+    font-size: 0.7rem;
+    color: var(--text-secondary, #6b6560);
+    font-weight: 500;
+  }
+  .cancel-banner-refund {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    color: var(--text-muted, #9a9590);
+    font-weight: 600;
+  }
   .cancel-banner-btn {
     appearance: none;
     border: 1px solid rgba(243, 139, 168, 0.3);
