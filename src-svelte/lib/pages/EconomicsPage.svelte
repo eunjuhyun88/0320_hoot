@@ -16,6 +16,9 @@
   import TokenFlowPanel from '../components/TokenFlowPanel.svelte';
   import PPAPPipeline from '../components/PPAPPipeline.svelte';
   import YourJourney from '../components/YourJourney.svelte';
+  import MyActivityPanel from '../components/protocol/MyActivityPanel.svelte';
+  import PPAPContributePanel from '../components/protocol/PPAPContributePanel.svelte';
+  import ChallengePanel from '../components/protocol/ChallengePanel.svelte';
   import { rewardSummary } from '../stores/rewardStore.ts';
   import { router } from '../stores/router.ts';
 
@@ -166,6 +169,15 @@
     </div>
   </div>
 
+  <!-- 0.5. MY ACTIVITY (Member only) -->
+  {#if walletConnected}
+  <div class="my-activity-section">
+    <div class="my-activity-inner">
+      <MyActivityPanel />
+    </div>
+  </div>
+  {/if}
+
   <!-- 1. PROTOCOL METRICS STRIP -->
   <div class="metrics-strip">
     <div class="metrics-inner">
@@ -235,6 +247,9 @@
         </div>
         <BurnPanel simulatedBalance={12450} on:openModal={e => openContractModal(e.detail)} />
         <JobCreatorPanel on:openModal={e => openContractModal(e.detail)} />
+        {#if walletConnected}
+          <PPAPContributePanel />
+        {/if}
       </div>
       {/if}
 
@@ -248,6 +263,9 @@
           </div>
           <TokenFlowPanel />
           <PPAPPipeline />
+          {#if walletConnected}
+            <ChallengePanel on:openModal={e => openContractModal(e.detail)} />
+          {/if}
           <!-- Protocol Reward Distribution (aggregate) -->
           <div class="panel" style="--panel-delay: 2">
             <div class="panel-header">
@@ -697,6 +715,16 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--text-muted, #9a9590);
+  }
+
+  /* ====== MY ACTIVITY SECTION ====== */
+  .my-activity-section {
+    padding: 0 24px;
+    margin-top: -8px;
+  }
+  .my-activity-inner {
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
   /* ====== RESPONSIVE ====== */
