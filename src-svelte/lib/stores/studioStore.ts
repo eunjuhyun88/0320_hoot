@@ -3,7 +3,7 @@ import { jobStore } from './jobStore.ts';
 
 // ── Types ──
 
-export type StudioPhase = 'idle' | 'create' | 'setup' | 'running' | 'complete' | 'publish' | 'published';
+export type StudioPhase = 'idle' | 'step1' | 'step2' | 'setup' | 'running' | 'complete' | 'publish' | 'published';
 
 export type ResourceMode = 'demo' | 'local' | 'network' | 'hybrid';
 
@@ -68,11 +68,11 @@ function createStudioStore() {
       update(s => ({ ...s, forkSource: source }));
     },
 
-    /** Transition: IDLE → CREATE */
+    /** Transition: IDLE → STEP1 (topic input) */
     startCreate(topic?: string) {
       update(s => ({
         ...s,
-        phase: 'create',
+        phase: 'step1',
         createTopic: topic ?? '',
         createPreset: null,
         forkSource: null,
@@ -80,12 +80,22 @@ function createStudioStore() {
       }));
     },
 
-    /** Transition: CREATE → SETUP (advanced config) */
+    /** Transition: STEP1 → STEP2 (AI recommendation) */
+    goToStep2(topic?: string) {
+      update(s => ({
+        ...s,
+        phase: 'step2',
+        createTopic: topic ?? s.createTopic,
+        lastActivePhase: s.phase,
+      }));
+    },
+
+    /** Transition: STEP2 → SETUP (advanced config) */
     goToSetup() {
       update(s => ({ ...s, phase: 'setup', lastActivePhase: s.phase }));
     },
 
-    /** Transition: CREATE/SETUP → RUNNING */
+    /** Transition: STEP2/SETUP → RUNNING */
     startRunning() {
       update(s => ({ ...s, phase: 'running', lastActivePhase: s.phase }));
     },
@@ -114,10 +124,12 @@ function createStudioStore() {
     goBack() {
       update(s => {
         switch (s.phase) {
-          case 'create':
+          case 'step1':
             return { ...s, phase: 'idle', lastActivePhase: s.phase };
+          case 'step2':
+            return { ...s, phase: 'step1', lastActivePhase: s.phase };
           case 'setup':
-            return { ...s, phase: 'create', lastActivePhase: s.phase };
+            return { ...s, phase: 'step2', lastActivePhase: s.phase };
           case 'running':
             // Can't go back from running — must stop first
             return s;
