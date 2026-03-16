@@ -609,13 +609,37 @@
         "prompt" "context" "hero" "stats"
         "converge" "branches" "stream" "scatter" "effect"
         "treemap" "lineage" "mesh" "footer";
-      gap: 8px; padding: 0 6px 14px;
+      gap: 8px;
+      padding: 0 6px calc(14px + env(safe-area-inset-bottom, 0px));
+      height: auto; overflow-y: auto;
     }
-    .complete-banner { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .cb-actions { width: 100%; justify-content: stretch; }
-    .cb-btn { flex: 1; text-align: center; justify-content: center; }
-    .branch-list { max-height: 200px; }
+
+    /* Banner — stack vertically */
+    .cb-row { flex-wrap: wrap; gap: 8px; padding: 10px 12px; }
+    .cb-left { width: 100%; }
+    .cb-info { flex: 1; }
+    .cb-title { font-size: 12px; }
+    .cb-sub { font-size: 9px; }
+    .cb-actions {
+      width: 100%; justify-content: stretch;
+      gap: 3px; overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
+    }
+    .cb-btn {
+      flex: 1; text-align: center; justify-content: center;
+      padding: 10px 10px; min-height: 40px; font-size: 10px;
+      white-space: nowrap;
+    }
+    .cb-agent { padding: 6px 12px; }
+    .cb-agent-input { font-size: 12px; }
+    .cb-agent-send { width: 32px; height: 32px; }
+
+    /* Tiles */
     .tile { border-radius: 14px; }
+    .branch-list { max-height: 200px; }
+    .branch-row { padding: 8px 10px; min-height: 40px; }
+    .tile-focus-btn::after { display: none; } /* Hide tooltips on mobile */
   }
 
   @media (prefers-reduced-motion: reduce) {
