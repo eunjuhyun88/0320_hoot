@@ -371,9 +371,7 @@
   .type-pill {
     appearance: none;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     padding: 10px 16px 10px 12px;
     border-radius: 100px;
     cursor: pointer;
@@ -454,9 +452,7 @@
     border-radius: 16px;
     font-size: 1.05rem;
     color: var(--text-primary, #2D2D2D);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     transition: all 280ms cubic-bezier(0.16, 1, 0.3, 1);
     text-align: center;
     letter-spacing: -0.005em;
@@ -511,9 +507,7 @@
   .example-chip {
     appearance: none;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
     padding: 7px 14px;
     border-radius: 100px;
     font-size: 0.74rem;
@@ -540,9 +534,7 @@
     width: 100%;
     border: 1px solid var(--border-subtle, #EDEAE5);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     overflow: hidden;
   }
 

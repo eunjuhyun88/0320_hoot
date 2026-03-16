@@ -245,9 +245,7 @@
   .hero-card {
     appearance: none;
     border: 1px solid color-mix(in srgb, var(--accent, #D97757) 25%, var(--border, #E5E0DA));
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 18px;
     padding: 24px 22px;
     cursor: pointer;
@@ -341,9 +339,7 @@
   .section-card {
     border: 1px solid var(--border-subtle, #EDEAE5);
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     padding: 18px 20px;
     display: flex;
     flex-direction: column;
@@ -580,9 +576,7 @@
   .qs-pill {
     appearance: none;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 12px;
     padding: 12px 10px;
     cursor: pointer;
