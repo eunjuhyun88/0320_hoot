@@ -230,7 +230,7 @@
           <div class="seed-warning">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/></svg>
             <div class="seed-warning-body">
-              <span class="seed-warning-title">⚠ No training_seed — Will be registered as SELF_ATTESTED</span>
+              <span class="seed-warning-title">No training_seed — Will be registered as SELF_ATTESTED</span>
               <span class="seed-warning-desc">Reproducibility not guaranteed. Model trust score may be lower.</span>
             </div>
           </div>
@@ -314,7 +314,7 @@
     <!-- STEP 3: ModelNFT Mint Complete -->
     {:else if step === 3}
       <div class="step-content" style="animation: slideUp 300ms cubic-bezier(0.16, 1, 0.3, 1)">
-        <div class="success-icon">🎉</div>
+        <div class="success-icon"><PixelIcon type="sparkle" size={28} /></div>
         <h3 class="step-title success">Model Published!</h3>
 
         <div class="published-card">

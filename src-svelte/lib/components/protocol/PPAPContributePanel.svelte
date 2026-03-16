@@ -4,6 +4,7 @@
    * Member only (wallet connected).
    */
   import { ppapStore } from '../../stores/ppapStore.ts';
+  import PixelIcon from '../PixelIcon.svelte';
 
   // ── Computed ──
   $: submissions = $ppapStore.submissions;
@@ -17,17 +18,17 @@
     ? Math.max(0, Math.round((pendingBatch.challengeDeadline - Date.now()) / 3600000))
     : 0;
 
-  const STATUS_MAP: Record<string, { label: string; color: string; icon: string }> = {
-    pending: { label: 'Pending', color: '#d4a017', icon: '⏳' },
-    challenged: { label: 'Challenge', color: '#c0392b', icon: '⚠' },
-    confirmed: { label: 'Confirmed', color: 'var(--green, #27864a)', icon: '✓' },
-    rejected: { label: 'Rejected', color: '#c0392b', icon: '✗' },
+  const STATUS_MAP: Record<string, { label: string; color: string; svg: string }> = {
+    pending: { label: 'Pending', color: '#d4a017', svg: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' },
+    challenged: { label: 'Challenge', color: '#c0392b', svg: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+    confirmed: { label: 'Confirmed', color: 'var(--green, #27864a)', svg: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+    rejected: { label: 'Rejected', color: '#c0392b', svg: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' },
   };
 </script>
 
 <div class="ppap-contribute">
   <h3 class="panel-title">
-    <span class="title-icon">📊</span>
+    <span class="title-icon"><PixelIcon type="chart" size={14} /></span>
     My Data Contributions
   </h3>
 
@@ -52,7 +53,7 @@
   <!-- Pending challenge warning -->
   {#if pendingBatch}
     <div class="challenge-alert">
-      <span class="ca-icon">⚠</span>
+      <span class="ca-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       <div class="ca-body">
         <span class="ca-text">In progress: 1 batch (Challenge window {pendingHoursLeft}h remaining)</span>
         <span class="ca-sub">Batch #{pendingBatch.id} — Awaiting verification</span>
@@ -62,7 +63,7 @@
 
   <!-- Hoot Browser deeplink -->
   <div class="browser-hint">
-    <span class="bh-icon">🌐</span>
+    <span class="bh-icon"><PixelIcon type="globe" size={13} /></span>
     <span class="bh-text">Manage contributions via Hoot Browser</span>
   </div>
 
@@ -72,7 +73,7 @@
     {#each recentBatches as batch}
       {@const st = STATUS_MAP[batch.status] ?? STATUS_MAP.pending}
       <div class="rb-row">
-        <span class="rb-icon" style:color={st.color}>{st.icon}</span>
+        <span class="rb-icon" style:color={st.color}>{@html st.svg}</span>
         <span class="rb-id">Batch #{batch.id}</span>
         <span class="rb-status" style:color={st.color}>{st.label}</span>
         {#if batch.reward > 0}

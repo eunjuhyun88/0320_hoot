@@ -6,6 +6,7 @@
   import { createEventDispatcher } from 'svelte';
   import { wallet } from '../../stores/walletStore.ts';
   import { nodeStore } from '../../stores/nodeStore.ts';
+  import PixelIcon from '../PixelIcon.svelte';
 
   const dispatch = createEventDispatcher<{
     openModal: {
@@ -68,7 +69,7 @@
 
 <div class="challenge-panel">
   <h3 class="panel-title">
-    <span class="title-icon">🛡</span>
+    <span class="title-icon"><PixelIcon type="protocol" size={14} /></span>
     Verification Activity
   </h3>
 
@@ -98,7 +99,7 @@
         {#each assignedChallenges as ch}
           <div class="challenge-card">
             <div class="cc-header">
-              <span class="cc-icon">⚠</span>
+              <span class="cc-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="cc-title">Batch #{ch.batchId} — Challenge Filed</span>
             </div>
             <div class="cc-meta">
@@ -119,7 +120,11 @@
       {#each challengeHistory as h}
         <div class="history-row">
           <span class="hr-icon" class:valid={h.outcome === 'valid'} class:invalid={h.outcome === 'invalid'}>
-            {h.outcome === 'valid' ? '✓' : '✗'}
+            {#if h.outcome === 'valid'}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {:else}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            {/if}
           </span>
           <span class="hr-id">#{h.batchId}</span>
           <span class="hr-outcome">{h.outcome === 'valid' ? 'Valid' : 'Invalid'}</span>

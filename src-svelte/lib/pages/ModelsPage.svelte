@@ -5,6 +5,7 @@
   import { modelPublishStore } from "../stores/modelPublishStore.ts";
   import { loadModels } from "../services/modelService.ts";
   import { fmtNumber } from "../utils/format.ts";
+  import PixelIcon from "../components/PixelIcon.svelte";
   import type { ModelRecord } from '../../../packages/contracts/src/index.ts';
 
   let searchQuery = "";
@@ -202,7 +203,7 @@
   {#if myCreatedModels.length > 0}
     <div class="section-block">
       <h2 class="section-title">
-        <span class="section-icon">🧪</span>
+        <span class="section-icon"><PixelIcon type="research" size={14} /></span>
         My Models
         <span class="section-count">{myCreatedModels.length}</span>
       </h2>
@@ -224,7 +225,7 @@
   {#if myUsedModels.length > 0}
     <div class="section-block">
       <h2 class="section-title">
-        <span class="section-icon">📦</span>
+        <span class="section-icon"><PixelIcon type="portfolio" size={14} /></span>
         In Use
         <span class="section-count">{myUsedModels.length}</span>
       </h2>
@@ -251,7 +252,7 @@
   {:else}
     <div class="section-block">
       <h2 class="section-title">
-        <span class="section-icon">🔥</span>
+        <span class="section-icon"><PixelIcon type="sparkle" size={14} /></span>
         Trending
       </h2>
     </div>

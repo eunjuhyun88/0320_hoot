@@ -2,22 +2,24 @@
   import { onMount, onDestroy } from 'svelte';
   import { fly, fade } from 'svelte/transition';
   import PixelOwl from '../components/PixelOwl.svelte';
+  import PixelIcon from '../components/PixelIcon.svelte';
 
   // ── Pipeline stages ──
+  type PxIcon = 'research' | 'sparkle' | 'chart' | 'grid' | 'ontology' | 'arrow';
   interface PipelineStage {
     label: string;
-    emoji: string;
+    pixelIcon: PxIcon;
     detail: string;
     status: 'done' | 'active' | 'pending';
   }
 
   const STAGE_TEMPLATES: Omit<PipelineStage, 'status'>[] = [
-    { label: 'Research',     emoji: '🔍', detail: 'Found 47 relevant papers, extracted 312 features from market data sources' },
-    { label: 'Hypothesis',   emoji: '🧠', detail: 'Identified 3 core patterns in MEV extraction across Solana DEX trades' },
-    { label: 'Experiment',   emoji: '🧪', detail: 'Batch complete — precision: 0.891, recall: 0.847 across 24 configurations' },
-    { label: 'Evaluate',     emoji: '📊', detail: 'Validation accuracy: 0.831 (±0.012) on holdout set, AUC: 0.917' },
-    { label: 'Build Model',  emoji: '🏗', detail: 'Model training complete! F1=0.862, ensemble of 3 gradient boosted trees' },
-    { label: 'Deploy',       emoji: '🚀', detail: '✨ Model deployed! Endpoint: /api/v1/mev-detect, latency: 12ms p99' },
+    { label: 'Research',     pixelIcon: 'research',  detail: 'Found 47 relevant papers, extracted 312 features from market data sources' },
+    { label: 'Hypothesis',   pixelIcon: 'sparkle',   detail: 'Identified 3 core patterns in MEV extraction across Solana DEX trades' },
+    { label: 'Experiment',   pixelIcon: 'chart',     detail: 'Batch complete — precision: 0.891, recall: 0.847 across 24 configurations' },
+    { label: 'Evaluate',     pixelIcon: 'grid',      detail: 'Validation accuracy: 0.831 (±0.012) on holdout set, AUC: 0.917' },
+    { label: 'Build Model',  pixelIcon: 'ontology',  detail: 'Model training complete! F1=0.862, ensemble of 3 gradient boosted trees' },
+    { label: 'Deploy',       pixelIcon: 'arrow',     detail: 'Model deployed! Endpoint: /api/v1/mev-detect, latency: 12ms p99' },
   ];
 
   // ── Simulation state ──
@@ -182,7 +184,7 @@
             </div>
             <div class="stage-content">
               <div class="stage-label-row">
-                <span class="stage-emoji">{stage.emoji}</span>
+                <span class="stage-emoji"><PixelIcon type={stage.pixelIcon} size={14} /></span>
                 <span class="stage-label">{stage.label}</span>
               </div>
             </div>

@@ -294,13 +294,13 @@
     <!-- Guest: Actor Roles -->
     <div class="roles-grid">
       {#each [
-        { icon: '🔬', role: 'Builder', desc: 'Research Design → Model Training → ModelNFT Minting', color: 'var(--accent)' },
-        { icon: '⚡', role: 'Compute Node', desc: 'Connect GPU → Training/Inference → PoAW Rewards', color: 'var(--green)' },
-        { icon: '📊', role: 'Contributor', desc: 'Data Contribution → Provenance (PPAP) → Pool Distribution', color: '#2980b9' },
-        { icon: '🤖', role: 'Buyer', desc: 'Model/Agent Calls → x402 Auto Settlement', color: '#d4a017' },
+        { pixelIcon: 'research', role: 'Builder', desc: 'Research Design → Model Training → ModelNFT Minting', color: 'var(--accent)' },
+        { pixelIcon: 'globe', role: 'Compute Node', desc: 'Connect GPU → Training/Inference → PoAW Rewards', color: 'var(--green)' },
+        { pixelIcon: 'chart', role: 'Contributor', desc: 'Data Contribution → Provenance (PPAP) → Pool Distribution', color: '#2980b9' },
+        { pixelIcon: 'protocol', role: 'Buyer', desc: 'Model/Agent Calls → x402 Auto Settlement', color: '#d4a017' },
       ] as r}
         <div class="role-card">
-          <span class="role-icon">{r.icon}</span>
+          <span class="role-icon" style:color={r.color}><PixelIcon type={r.pixelIcon} size={18} /></span>
           <div class="role-text">
             <span class="role-name" style:color={r.color}>{r.role}</span>
             <span class="role-desc">{r.desc}</span>

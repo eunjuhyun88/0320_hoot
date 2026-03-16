@@ -7,6 +7,7 @@
   import { modelPublishStore } from '../../stores/modelPublishStore.ts';
   import { nodeStore } from '../../stores/nodeStore.ts';
   import { ppapStore } from '../../stores/ppapStore.ts';
+  import PixelIcon from '../PixelIcon.svelte';
 
   // ── Computed data ──
   $: builderEarnings = $modelPublishStore.reduce((sum, m) => sum + m.poolA.creator, 0);
@@ -35,19 +36,19 @@
 
   <div class="role-cards">
     <div class="role-card">
-      <span class="rc-icon">🧪</span>
+      <span class="rc-icon"><PixelIcon type="research" size={16} /></span>
       <span class="rc-label">Builder</span>
       <span class="rc-value" style:color="var(--accent, #D97757)">+{builderEarnings.toFixed(1)} H</span>
       <span class="rc-sub">{builderModels} models active</span>
     </div>
     <div class="role-card">
-      <span class="rc-icon">⚡</span>
+      <span class="rc-icon"><PixelIcon type="sparkle" size={16} /></span>
       <span class="rc-label">Compute</span>
       <span class="rc-value" style:color="var(--green, #27864a)">+{computeEarnings.toFixed(1)} H</span>
       <span class="rc-sub">{computeJobs} jobs done</span>
     </div>
     <div class="role-card">
-      <span class="rc-icon">📊</span>
+      <span class="rc-icon"><PixelIcon type="chart" size={16} /></span>
       <span class="rc-label">Data</span>
       <span class="rc-value" style:color="#2980b9">{dataConfirmed} PPAP</span>
       <span class="rc-sub">confirmed</span>

@@ -16,6 +16,7 @@
   import { nodeStore } from '../../stores/nodeStore.ts';
   import type { ContractCall } from '../../data/protocolData.ts';
   import ContractCallModal from '../ContractCallModal.svelte';
+  import PixelIcon from '../PixelIcon.svelte';
 
   const dispatch = createEventDispatcher<{
     close: void;
@@ -171,7 +172,7 @@
             class:conn-active={connectionType === 'local'}
             on:click={() => { connectionType = 'local'; }}
           >
-            <span class="conn-icon">🖥</span>
+            <span class="conn-icon"><PixelIcon type="grid" size={20} /></span>
             <span class="conn-name">Local</span>
             <span class="conn-desc">Use this computer's GPU</span>
           </button>
@@ -180,7 +181,7 @@
             class:conn-active={connectionType === 'remote'}
             on:click={() => { connectionType = 'remote'; }}
           >
-            <span class="conn-icon">☁️</span>
+            <span class="conn-icon"><PixelIcon type="globe" size={20} /></span>
             <span class="conn-name">Remote</span>
             <span class="conn-desc">Server/Cloud GPU</span>
           </button>
@@ -299,7 +300,7 @@
     <!-- Step 4: Complete -->
     {:else}
       <div class="wiz-body">
-        <div class="success-icon">🎉</div>
+        <div class="success-icon"><PixelIcon type="sparkle" size={28} /></div>
 
         <div class="result-card">
           <div class="rc-row"><span>Node ID</span><strong>seoul-4090</strong></div>
