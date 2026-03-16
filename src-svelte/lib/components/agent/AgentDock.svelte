@@ -6,6 +6,7 @@
   import { wallet } from "../../stores/walletStore.ts";
   import { widgetStore, allWidgets } from "../../stores/widgetStore.ts";
   import { jobStore, jobProgress } from "../../stores/jobStore.ts";
+  import { studioStore } from "../../stores/studioStore.ts";
   import { dockStore, dockContext, dockExpansion } from "../../stores/dockStore.ts";
   import { CATEGORY_COLORS, type WidgetId } from "../../data/widgetDefaults.ts";
   import PixelIcon from "../PixelIcon.svelte";
@@ -73,17 +74,22 @@
     },
   ];
 
-  // ── Send handler — routes /commands to dockStore ──
+  // ── Send handler — routes /commands to dockStore (global terminal) ──
   function handleSubmit() {
     if (!inputValue.trim()) return;
     const input = inputValue.trim();
 
     if (input.startsWith('/')) {
-      // Slash command → dockStore handles
+      // Slash command → dockStore handles globally
       dockStore.handleCommand(input);
       inputValue = '';
+    } else if ($dockContext === 'running') {
+      // During research, navigate to running view on Enter
+      studioStore.syncFromJobStore();
+      router.navigate('studio');
+      inputValue = '';
     } else {
-      // Topic → expand dock launcher
+      // Topic → expand dock launcher (works from any page)
       dockStore.expand(input, 'new');
       inputValue = '';
     }
