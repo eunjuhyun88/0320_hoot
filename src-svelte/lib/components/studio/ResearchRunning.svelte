@@ -700,7 +700,7 @@
   }
   .mtab-btn.mtab-active { color: var(--accent, #D97757); }
 
-  /* ═══ RESPONSIVE ═══ */
+  /* ═══ RESPONSIVE — Tablet ═══ */
   @media (max-width: 1024px) {
     .research-page {
       grid-template-columns: 1fr 1fr;
@@ -719,35 +719,84 @@
       height: auto; overflow-y: auto; gap: 6px; padding: 0 4px 4px;
     }
     .terminal-tile { min-height: 200px; }
+    .tile-focus-btn { width: 36px; height: 36px; }
+    .br-btn { width: 32px; height: 32px; border-radius: 8px; }
   }
 
+  /* ═══ RESPONSIVE — Mobile ═══ */
   @media (max-width: 600px) {
     .research-page {
       grid-template-columns: 1fr;
       grid-template-rows: repeat(14, auto);
       grid-template-areas:
-        "prompt" "context" "hero" "stats" "mtabs"
+        "prompt" "hero" "stats" "mtabs"
         "converge" "branches" "stream" "scatter" "effect"
-        "treemap" "lineage" "mesh" "footer";
-      gap: 8px;
-      padding: 0 6px calc(14px + env(safe-area-inset-bottom, 0px));
+        "treemap" "lineage" "mesh" "context" "footer";
+      gap: 6px;
+      padding: 0 8px calc(80px + env(safe-area-inset-bottom, 0px));
       height: auto; overflow-y: auto;
     }
-    .branch-list { max-height: 200px; }
-    .branch-row { padding: 8px 10px; min-height: 40px; }
-    .br-actions { display: none; }
+    /* Mobile tabs — segmented control */
     .mobile-tabs {
-      display: flex; gap: 4px; padding: 4px 2px; justify-content: center;
+      display: flex; padding: 6px 4px; justify-content: center;
       position: sticky; top: 0; z-index: 3;
-      background: linear-gradient(180deg, rgba(250,249,247,0.96), rgba(250,249,247,0.88));
-      backdrop-filter: blur(10px); border-radius: 12px;
+      background: linear-gradient(180deg, rgba(250,249,247,0.97), rgba(250,249,247,0.92));
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-radius: 14px;
     }
-    .mtab-btn { padding: 10px 12px; min-height: 40px; }
-    .context-tile { min-height: 0; overflow: hidden; }
-    .tile { border-radius: 14px; }
-    .tile-focus-btn::after { display: none; } /* Hide tooltips on mobile */
-    .footer-tile { padding: 8px 12px; }
+    .mtab-btn {
+      padding: 12px 16px;
+      min-height: 44px; /* Apple HIG */
+      font-size: 12px;
+    }
     .mtab-hidden { display: none !important; }
+
+    /* Tiles */
+    .tile { border-radius: 14px; }
+    .tile-focus-btn { width: 40px; height: 40px; border-radius: 10px; }
+    .tile-focus-btn svg { width: 16px; height: 16px; }
+    .tile-focus-btn::after { display: none; }
+
+    /* Branches */
+    .branch-list { max-height: 220px; }
+    .branch-row { padding: 10px 12px; min-height: 44px; gap: 8px; }
+    .br-rank { width: 24px; height: 24px; font-size: 10px; border-radius: 7px; }
+    .br-name { font-size: 12px; }
+    .br-metric { font-size: 12px; }
+    .br-kdc { font-size: 10px; }
+    .br-hit { font-size: 11px; width: 28px; }
+    .br-actions { display: none; }
+
+    /* Ops rows — bigger touch targets */
+    .ops-row { padding: 8px 10px; min-height: 40px; gap: 8px; font-size: 12px; }
+    .ops-id { font-size: 10px; min-width: 28px; }
+    .ops-cat { font-size: 9px; }
+    .ops-mod { font-size: 11px; }
+
+    /* Context & terminal */
+    .context-tile { min-height: 0; overflow: hidden; }
+    .terminal-tile { min-height: 160px; }
+
+    /* Footer */
+    .footer-tile { padding: 10px 12px; }
+    .footer-dist { flex-wrap: wrap; gap: 8px; }
+    .fd-item { gap: 3px; }
+    .fd-val { font-size: 11px; }
+    .fd-lbl { font-size: 8px; }
+    .fd-zoom-btn { padding: 8px 12px; min-height: 36px; font-size: 10px; }
+    .fd-sep { display: none; }
+  }
+
+  /* ═══ RESPONSIVE — Small phone ═══ */
+  @media (max-width: 380px) {
+    .research-page { padding: 0 4px calc(80px + env(safe-area-inset-bottom, 0px)); }
+    .tile-header { padding: 6px 8px 4px; }
+    .tile-title { font-size: 9px; }
+    .section-head { font-size: 9px; padding: 4px 8px 6px; }
+    .branch-row { padding: 8px 8px; }
+    .br-kdc { display: none; }
+    .footer-dist { gap: 6px; }
+    .fd-lbl { display: none; }
   }
 
   @media (prefers-reduced-motion: reduce) {
