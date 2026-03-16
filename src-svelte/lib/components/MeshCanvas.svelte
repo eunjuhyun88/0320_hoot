@@ -82,7 +82,13 @@
   const R_RATIO = 0.38;
   const DOT_DENSITY = 6000;
 
-  // Performance: cache measureText results
+  // Performance: cache gradients and measureText results
+  let cachedGlobeGradient: CanvasGradient | null = null;
+  let cachedAtmoGradient: CanvasGradient | null = null;
+  let cachedGradientR = 0;
+  let cachedGradientCx = 0;
+  let cachedGradientCy = 0;
+
   const textWidthCache = new Map<string, number>();
   function cachedMeasureText(ctx: CanvasRenderingContext2D, text: string, font: string): number {
     const key = font + '|' + text;
@@ -238,14 +244,24 @@
     }
     t += 0.016;
 
-    // ── Globe background ──
-    const grd = ctx.createRadialGradient(cx - R * 0.25, cy - R * 0.25, 0, cx, cy, R);
-    grd.addColorStop(0, 'rgba(240, 237, 232, 0.2)');
-    grd.addColorStop(0.7, 'rgba(228, 224, 218, 0.08)');
-    grd.addColorStop(1, 'rgba(218, 214, 208, 0.02)');
+    // ── Globe background (gradient cached) ──
+    if (!cachedGlobeGradient || cachedGradientR !== R || cachedGradientCx !== cx || cachedGradientCy !== cy) {
+      cachedGlobeGradient = ctx.createRadialGradient(cx - R * 0.25, cy - R * 0.25, 0, cx, cy, R);
+      cachedGlobeGradient.addColorStop(0, 'rgba(240, 237, 232, 0.2)');
+      cachedGlobeGradient.addColorStop(0.7, 'rgba(228, 224, 218, 0.08)');
+      cachedGlobeGradient.addColorStop(1, 'rgba(218, 214, 208, 0.02)');
+      cachedAtmoGradient = ctx.createRadialGradient(cx, cy, R * 0.93, cx, cy, R * 1.08);
+      cachedAtmoGradient.addColorStop(0, 'transparent');
+      cachedAtmoGradient.addColorStop(0.4, 'rgba(180, 200, 220, 0.03)');
+      cachedAtmoGradient.addColorStop(0.7, 'rgba(100, 170, 255, 0.015)');
+      cachedAtmoGradient.addColorStop(1, 'transparent');
+      cachedGradientR = R;
+      cachedGradientCx = cx;
+      cachedGradientCy = cy;
+    }
     ctx.beginPath();
     ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
+    ctx.fillStyle = cachedGlobeGradient;
     ctx.fill();
 
     // Globe outline
@@ -526,26 +542,29 @@
       ctx.fillText(countStr, cardX + 10, cardY + fs + fsSmall + 8);
     }
 
-    // ── Atmosphere rim ──
-    const atmo = ctx.createRadialGradient(cx, cy, R * 0.93, cx, cy, R * 1.08);
-    atmo.addColorStop(0, 'transparent');
-    atmo.addColorStop(0.4, 'rgba(180, 200, 220, 0.03)');
-    atmo.addColorStop(0.7, 'rgba(100, 170, 255, 0.015)');
-    atmo.addColorStop(1, 'transparent');
-    ctx.beginPath();
-    ctx.arc(cx, cy, R * 1.08, 0, Math.PI * 2);
-    ctx.fillStyle = atmo;
-    ctx.fill();
+    // ── Atmosphere rim (gradient cached above) ──
+    if (cachedAtmoGradient) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, R * 1.08, 0, Math.PI * 2);
+      ctx.fillStyle = cachedAtmoGradient;
+      ctx.fill();
+    }
 
     ctx.restore();
   }
 
-  // ─── Loop (pauses when off-screen) ───
+  // ─── Loop (stops entirely when off-screen) ───
   function animate() {
-    if (isVisible && canvas) {
+    if (!isVisible) return; // Stop RAF chain when not visible
+    if (canvas) {
       const ctx = canvas.getContext('2d');
       if (ctx) draw(ctx);
     }
+    animFrame = requestAnimationFrame(animate);
+  }
+
+  function startAnimation() {
+    if (animFrame !== null) cancelAnimationFrame(animFrame);
     animFrame = requestAnimationFrame(animate);
   }
 
@@ -583,13 +602,17 @@
     resize();
     buildDots();
     buildPins();
-    // Pre-build owl bitmap for "my GPU" pin
+    // Pre-build owl bitmap for "my GPU" pin (cached once)
     buildOwlBitmap(2).then(bmp => { owlImageCache = bmp; });
-    animate();
+    startAnimation();
     const ro = new ResizeObserver(resize);
     if (canvas.parentElement) ro.observe(canvas.parentElement);
-    // Pause animation when scrolled off-screen
-    const io = new IntersectionObserver(([e]) => { isVisible = e.isIntersecting; }, { threshold: 0.01 });
+    // Stop/restart RAF entirely when scrolled off-screen
+    const io = new IntersectionObserver(([e]) => {
+      const wasVisible = isVisible;
+      isVisible = e.isIntersecting;
+      if (isVisible && !wasVisible) startAnimation(); // restart RAF chain
+    }, { threshold: 0.01 });
     if (canvas.parentElement) io.observe(canvas.parentElement);
     return () => { ro.disconnect(); io.disconnect(); if (animFrame !== null) cancelAnimationFrame(animFrame); };
   });
