@@ -1,25 +1,46 @@
 <script lang="ts">
   /**
-   * DockExpansionBody — Context-aware expansion area inside AgentDock
+   * DockExpansionBody — Universal AI terminal expansion
    *
-   * Three views based on research lifecycle:
-   *   idle:     suggestion chips + preset cards + stats + launch button
-   *   running:  topic + progress bar + stats + action chips
-   *   complete: topic + result summary + action chips
+   * Three modes:
+   *   ask:       chat Q&A with inline messages + quick question chips
+   *   research:  preset cards + stats + launch button (original)
+   *   inference:  model picker + inline playground
+   *
+   * Research lifecycle overlays (running/complete) appear regardless of mode.
    */
-  import { createEventDispatcher } from 'svelte';
+  import { tick } from 'svelte';
   import { jobStore, jobProgress } from '../../stores/jobStore.ts';
-  import { dockStore, dockContext, dockPresetId, dockTopic, dockIntent } from '../../stores/dockStore.ts';
+  import { dockStore, dockContext, dockPresetId, dockTopic, dockIntent, dockMode, dockInferenceModelId } from '../../stores/dockStore.ts';
+  import { agentStore, agentMessages, agentLoading } from '../../stores/agentStore.ts';
   import { studioStore } from '../../stores/studioStore.ts';
+  import { wallet } from '../../stores/walletStore.ts';
   import { router } from '../../stores/router.ts';
-  import { IDLE_CHIPS, RUNNING_CHIPS, COMPLETE_CHIPS } from '../../data/dockSuggestions.ts';
+  import { ASK_CHIPS, IDLE_CHIPS, RUNNING_CHIPS, COMPLETE_CHIPS, INFERENCE_CHIPS } from '../../data/dockSuggestions.ts';
+  import PixelIcon from '../PixelIcon.svelte';
   import {
     createOntologyFromPreset,
     getEnabledBranches,
     getTotalExperiments,
   } from '../../data/ontologyData.ts';
+  import type { DockMode } from '../../stores/dockStore.ts';
 
-  const dispatch = createEventDispatcher();
+  // ── Mode tabs ──
+  const MODES: { id: DockMode; label: string; icon: string }[] = [
+    { id: 'ask', label: 'Ask', icon: '💬' },
+    { id: 'research', label: 'Research', icon: '🔬' },
+    { id: 'inference', label: 'Inference', icon: '⚡' },
+  ];
+
+  // ── Chat scroll ref ──
+  let chatScrollEl: HTMLDivElement;
+
+  // ── Auto-scroll chat ──
+  $: if ($agentMessages.length && chatScrollEl) {
+    tick().then(() => {
+      if (chatScrollEl) chatScrollEl.scrollTop = chatScrollEl.scrollHeight;
+    });
+  }
 
   // ── Preset data (same as StudioIdle) ──
   const PRESETS = [
@@ -28,6 +49,20 @@
     { id: 'fraud_detection', title: 'Fraud Detection', desc: 'Identify suspicious wallet patterns' },
     { id: 'time_series', title: 'Time Series Forecasting', desc: 'Multi-variate financial forecasting' },
   ];
+
+  // ── Models for inference ──
+  const MODELS = [
+    { id: 'model-crypto-24h-v3', name: 'Crypto 24h v3', accuracy: '89.1%', calls: '12.4K', cost: '0.001 HOOT' },
+    { id: 'model-defi-risk-v1', name: 'DeFi Risk v1', accuracy: '93.1%', calls: '3.2K', cost: '0.001 HOOT' },
+    { id: 'model-eth-gas-v2', name: 'ETH Gas v2', accuracy: '83.4%', calls: '890', cost: '0.001 HOOT' },
+    { id: 'model-nlp-sentiment-v1', name: 'NLP Sentiment v1', accuracy: '92.2%', calls: '—', cost: '0.001 HOOT' },
+  ];
+
+  // ── Inference state ──
+  let infInput = '{\n  "symbol": "ETH",\n  "timeframe": "24h"\n}';
+  let infResult = '';
+  let infLoading = false;
+  let infTimeout: ReturnType<typeof setTimeout> | null = null;
 
   // ── Reactive stats from selected preset ──
   $: ontology = $dockPresetId
@@ -50,11 +85,20 @@
     return `~${Math.max(remaining, 1)}m`;
   })();
 
+  // ── Selected inference model ──
+  $: selectedModel = MODELS.find(m => m.id === $dockInferenceModelId) ?? null;
+
   // ── Handlers ──
+  function handleModeSwitch(mode: DockMode) {
+    dockStore.setMode(mode);
+  }
+
   function handleChipClick(chip: any) {
     if (chip.presetId) {
       const preset = PRESETS.find(p => p.id === chip.presetId);
       dockStore.selectPreset(chip.presetId, preset?.title ?? chip.label);
+    } else if (chip.modelId) {
+      dockStore.setInferenceModel(chip.modelId);
     } else if (chip.action) {
       handleAction(chip.action);
     }
@@ -64,7 +108,33 @@
     dockStore.selectPreset(preset.id, preset.title);
   }
 
+  function handleModelSelect(model: typeof MODELS[0]) {
+    dockStore.setInferenceModel(model.id);
+    infResult = '';
+  }
+
   function handleAction(action: string) {
+    // Ask mode actions
+    if (action.startsWith('ask:')) {
+      const q = action.replace('ask:', '');
+      switch (q) {
+        case 'capabilities':
+          agentStore.send('What can I do here?');
+          break;
+        case 'myModels':
+          agentStore.send('Show my models');
+          break;
+        case 'networkStatus':
+          agentStore.send('Network status');
+          break;
+        case 'howHoot':
+          agentStore.send('How does HOOT work?');
+          break;
+      }
+      return;
+    }
+
+    // Research/general actions
     switch (action) {
       case 'viewRunning':
         dockStore.collapse();
@@ -95,6 +165,23 @@
     dockStore.launch();
   }
 
+  function runInference() {
+    if (!selectedModel || infLoading) return;
+    infLoading = true;
+    infResult = '';
+    if (infTimeout) clearTimeout(infTimeout);
+    infTimeout = setTimeout(() => {
+      infLoading = false;
+      infResult = JSON.stringify({
+        prediction: +(Math.random() * 0.4 + 0.6).toFixed(3),
+        confidence: +(Math.random() * 0.2 + 0.78).toFixed(3),
+        direction: Math.random() > 0.5 ? 'up' : 'down',
+        model: selectedModel?.id ?? '',
+        latency_ms: Math.round(30 + Math.random() * 30),
+      }, null, 2);
+    }, 900 + Math.random() * 600);
+  }
+
   // ── Intent labels ──
   $: intentTitle = (() => {
     switch ($dockIntent) {
@@ -106,52 +193,24 @@
 </script>
 
 <div class="expansion-body">
+  <!-- ═══ MODE TABS ═══ -->
   {#if $dockContext === 'idle'}
-    <!-- ═══ IDLE VIEW ═══ -->
-    <div class="exp-section">
-      <div class="suggestion-chips">
-        {#each IDLE_CHIPS as chip}
-          <button
-            class="chip"
-            class:chip-active={chip.presetId === $dockPresetId}
-            on:click={() => handleChipClick(chip)}
-          >
-            {chip.label}
-          </button>
-        {/each}
-      </div>
-    </div>
-
-    <div class="preset-list">
-      {#each PRESETS as preset (preset.id)}
+    <div class="mode-tabs">
+      {#each MODES as mode}
         <button
-          class="preset-row"
-          class:preset-selected={preset.id === $dockPresetId}
-          on:click={() => handlePresetClick(preset)}
+          class="mode-tab"
+          class:mode-active={$dockMode === mode.id}
+          on:click={() => handleModeSwitch(mode.id)}
         >
-          <span class="preset-title">{preset.title}</span>
-          <span class="preset-desc">{preset.desc}</span>
+          <span class="mode-icon">{mode.icon}</span>
+          <span class="mode-label">{mode.label}</span>
         </button>
       {/each}
     </div>
+  {/if}
 
-    <div class="stats-strip">
-      <div class="stat"><span class="stat-val">{branchCount}</span><span class="stat-label">BRANCHES</span></div>
-      <div class="stat"><span class="stat-val">{itersPerBranch}</span><span class="stat-label">ITERS/BRANCH</span></div>
-      <div class="stat"><span class="stat-val">{totalExp}</span><span class="stat-label">TOTAL EXP</span></div>
-      <div class="stat"><span class="stat-val">{eta}</span><span class="stat-label">ETA</span></div>
-    </div>
-
-    <button class="launch-btn" on:click={handleLaunch} disabled={!$dockTopic.trim()}>
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M4 2l10 6-10 6z"/>
-      </svg>
-      Launch Autoresearch
-      <span class="launch-shortcut">⌘↵</span>
-    </button>
-
-  {:else if $dockContext === 'running'}
-    <!-- ═══ RUNNING VIEW ═══ -->
+  <!-- ═══ RUNNING OVERLAY ═══ -->
+  {#if $dockContext === 'running'}
     <div class="running-view">
       <div class="running-header">
         <span class="running-dot"></span>
@@ -181,7 +240,7 @@
     </div>
 
   {:else if $dockContext === 'complete'}
-    <!-- ═══ COMPLETE VIEW ═══ -->
+    <!-- ═══ COMPLETE OVERLAY ═══ -->
     <div class="complete-view">
       <div class="complete-header">
         <span class="complete-check">✓</span>
@@ -202,6 +261,170 @@
         {/each}
       </div>
     </div>
+
+  {:else}
+    <!-- ═══ IDLE: MODE VIEWS ═══ -->
+
+    {#if $dockMode === 'ask'}
+      <!-- ═══ ASK MODE ═══ -->
+      <div class="ask-view">
+        {#if $agentMessages.length === 0}
+          <div class="ask-empty">
+            <PixelIcon type="sparkle" size={20} />
+            <span class="ask-empty-text">Ask anything about models, research, or the network</span>
+          </div>
+        {:else}
+          <div class="ask-messages" bind:this={chatScrollEl}>
+            {#each $agentMessages as msg (msg.id)}
+              <div class="ask-msg" class:ask-msg-user={msg.role === 'user'} class:ask-msg-agent={msg.role === 'agent'}>
+                {#if msg.role === 'agent'}
+                  <span class="ask-avatar"><PixelIcon type="sparkle" size={12} /></span>
+                {/if}
+                <div class="ask-bubble">
+                  <span class="ask-content">{msg.content}</span>
+                  {#if msg.actions && msg.actions.length > 0}
+                    <div class="ask-actions">
+                      {#each msg.actions as action}
+                        <button class="ask-action-btn" on:click={action.handler}>
+                          {action.label}
+                        </button>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              </div>
+            {/each}
+            {#if $agentLoading}
+              <div class="ask-msg ask-msg-agent">
+                <span class="ask-avatar"><PixelIcon type="sparkle" size={12} /></span>
+                <div class="ask-bubble ask-loading">
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                  <span class="typing-dot"></span>
+                </div>
+              </div>
+            {/if}
+          </div>
+        {/if}
+        <div class="suggestion-chips">
+          {#each ASK_CHIPS as chip}
+            <button class="chip" on:click={() => handleChipClick(chip)}>
+              {chip.label}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+    {:else if $dockMode === 'research'}
+      <!-- ═══ RESEARCH MODE ═══ -->
+      <div class="exp-section">
+        <div class="suggestion-chips">
+          {#each IDLE_CHIPS as chip}
+            <button
+              class="chip"
+              class:chip-active={chip.presetId === $dockPresetId}
+              on:click={() => handleChipClick(chip)}
+            >
+              {chip.label}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <div class="preset-list">
+        {#each PRESETS as preset (preset.id)}
+          <button
+            class="preset-row"
+            class:preset-selected={preset.id === $dockPresetId}
+            on:click={() => handlePresetClick(preset)}
+          >
+            <span class="preset-title">{preset.title}</span>
+            <span class="preset-desc">{preset.desc}</span>
+          </button>
+        {/each}
+      </div>
+
+      <div class="stats-strip">
+        <div class="stat"><span class="stat-val">{branchCount}</span><span class="stat-label">BRANCHES</span></div>
+        <div class="stat"><span class="stat-val">{itersPerBranch}</span><span class="stat-label">ITERS/BRANCH</span></div>
+        <div class="stat"><span class="stat-val">{totalExp}</span><span class="stat-label">TOTAL EXP</span></div>
+        <div class="stat"><span class="stat-val">{eta}</span><span class="stat-label">ETA</span></div>
+      </div>
+
+      <button class="launch-btn" on:click={handleLaunch} disabled={!$dockTopic.trim()}>
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4 2l10 6-10 6z"/>
+        </svg>
+        Launch Autoresearch
+        <span class="launch-shortcut">⌘↵</span>
+      </button>
+
+    {:else if $dockMode === 'inference'}
+      <!-- ═══ INFERENCE MODE ═══ -->
+      <div class="inf-view">
+        <!-- Model picker chips -->
+        <div class="suggestion-chips">
+          {#each INFERENCE_CHIPS as chip}
+            <button
+              class="chip"
+              class:chip-active={chip.modelId === $dockInferenceModelId}
+              on:click={() => handleChipClick(chip)}
+            >
+              {chip.label}
+            </button>
+          {/each}
+        </div>
+
+        {#if selectedModel}
+          <!-- Model info strip -->
+          <div class="inf-model-info">
+            <span class="inf-model-name">{selectedModel.name}</span>
+            <div class="inf-model-stats">
+              <span class="inf-stat">{selectedModel.accuracy} acc</span>
+              <span class="inf-sep">·</span>
+              <span class="inf-stat">{selectedModel.calls} calls</span>
+              <span class="inf-sep">·</span>
+              <span class="inf-stat">{selectedModel.cost}</span>
+            </div>
+          </div>
+
+          <!-- Inline playground -->
+          <div class="inf-playground">
+            <div class="inf-col">
+              <textarea class="inf-input" bind:value={infInput} rows="4" placeholder="JSON input..."></textarea>
+            </div>
+            <div class="inf-col">
+              <pre class="inf-output" class:inf-empty={!infResult}>{infResult || 'Results appear here...'}</pre>
+            </div>
+          </div>
+
+          <!-- Run button -->
+          <button class="launch-btn inf-run-btn" on:click={runInference} disabled={infLoading || !$wallet.connected}>
+            {#if infLoading}
+              <span class="spin-sm"></span> Running...
+            {:else}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
+              </svg>
+              Run Inference
+              <span class="launch-shortcut">0.001 HOOT</span>
+            {/if}
+          </button>
+
+          {#if !$wallet.connected}
+            <div class="inf-wallet-warn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" fill="currentColor"/></svg>
+              Connect wallet to run inference
+            </div>
+          {/if}
+        {:else}
+          <div class="inf-empty-state">
+            <span class="inf-empty-icon">⚡</span>
+            <span class="inf-empty-text">Select a model above to run inference</span>
+          </div>
+        {/if}
+      </div>
+    {/if}
   {/if}
 </div>
 
@@ -215,6 +438,262 @@
     overflow-x: hidden;
     padding: 2px 0;
   }
+
+  /* ═══ MODE TABS ═══ */
+  .mode-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 2px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 10px;
+    margin-bottom: 4px;
+  }
+  .mode-tab {
+    flex: 1;
+    appearance: none;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    padding: 7px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.64rem;
+    font-weight: 600;
+    color: var(--text-muted, #9a9590);
+  }
+  .mode-tab:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-secondary, #6b6560);
+  }
+  .mode-active {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--accent, #D97757);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  }
+  .mode-active:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--accent, #D97757);
+  }
+  .mode-icon {
+    font-size: 0.72rem;
+    line-height: 1;
+  }
+  .mode-label {
+    letter-spacing: 0.02em;
+  }
+
+  /* ═══ ASK MODE ═══ */
+  .ask-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ask-empty {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 12px;
+    color: var(--text-muted, #9a9590);
+  }
+  .ask-empty-text {
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+  .ask-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 4px 0;
+    scroll-behavior: smooth;
+  }
+  .ask-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    animation: msgIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .ask-msg-user { justify-content: flex-end; }
+  .ask-msg-agent { justify-content: flex-start; }
+  .ask-avatar {
+    flex-shrink: 0;
+    width: 20px; height: 20px;
+    border-radius: 6px;
+    background: rgba(217, 119, 87, 0.1);
+    color: var(--accent, #D97757);
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px;
+  }
+  .ask-bubble {
+    max-width: 85%;
+    padding: 7px 11px;
+    border-radius: 10px;
+    font-size: 0.7rem;
+    line-height: 1.5;
+  }
+  .ask-msg-user .ask-bubble {
+    background: var(--accent, #D97757);
+    color: white;
+    border-bottom-right-radius: 3px;
+  }
+  .ask-msg-agent .ask-bubble {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary, #2D2D2D);
+    border-bottom-left-radius: 3px;
+  }
+  .ask-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .ask-actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .ask-action-btn {
+    appearance: none;
+    border: 1px solid rgba(217, 119, 87, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.58rem;
+    font-weight: 600;
+    color: var(--accent, #D97757);
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 100ms;
+  }
+  .ask-action-btn:hover {
+    background: rgba(217, 119, 87, 0.08);
+    border-color: var(--accent, #D97757);
+  }
+  .ask-loading {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 12px;
+  }
+  .typing-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text-muted, #9a9590);
+    animation: typingBounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-3px); }
+  }
+
+  /* ═══ INFERENCE MODE ═══ */
+  .inf-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .inf-model-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: rgba(217, 119, 87, 0.04);
+    border: 1px solid rgba(217, 119, 87, 0.12);
+    border-radius: 10px;
+  }
+  .inf-model-name {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-primary, #2D2D2D);
+  }
+  .inf-model-stats {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.58rem;
+    color: var(--text-muted, #9a9590);
+  }
+  .inf-sep { color: var(--border, #E5E0DA); }
+  .inf-stat { font-weight: 500; }
+  .inf-playground {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .inf-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border, #E5E0DA);
+    border-radius: 8px;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    color: var(--text-primary, #2D2D2D);
+    background: var(--surface, #fff);
+    resize: none;
+    outline: none;
+  }
+  .inf-input:focus { border-color: var(--accent, #D97757); }
+  .inf-output {
+    margin: 0;
+    padding: 8px 10px;
+    border: 1px solid var(--border, #E5E0DA);
+    border-radius: 8px;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.66rem;
+    color: var(--text-primary, #2D2D2D);
+    background: #fafaf9;
+    min-height: 80px;
+    white-space: pre-wrap;
+    overflow: auto;
+  }
+  .inf-empty { color: var(--text-muted, #9a9590); }
+  .inf-run-btn {
+    background: linear-gradient(135deg, var(--accent, #D97757), #e08a5c);
+  }
+  .inf-wallet-warn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(249, 226, 175, 0.12);
+    border: 1px solid rgba(249, 226, 175, 0.25);
+    font-size: 0.6rem;
+    color: #d4a017;
+    font-weight: 500;
+  }
+  .inf-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 24px 12px;
+    color: var(--text-muted, #9a9590);
+  }
+  .inf-empty-icon { font-size: 1.5rem; opacity: 0.5; }
+  .inf-empty-text { font-size: 0.72rem; font-weight: 500; }
+  .spin-sm {
+    width: 12px; height: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ═══ SUGGESTION CHIPS ═══ */
   .suggestion-chips {
@@ -471,7 +950,10 @@
     .stats-strip {
       grid-template-columns: repeat(2, 1fr);
     }
+    .mode-tab { padding: 6px 8px; font-size: 0.58rem; }
     .preset-title { font-size: 0.68rem; }
     .chip { padding: 4px 10px; font-size: 0.56rem; }
+    .inf-playground { grid-template-columns: 1fr; }
+    .ask-messages { max-height: 180px; }
   }
 </style>
