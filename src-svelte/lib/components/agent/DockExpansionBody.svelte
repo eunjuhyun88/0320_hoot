@@ -71,7 +71,7 @@
         router.navigate('studio');
         break;
       case 'stop':
-        dockStore.handleCommand('/중단');
+        dockStore.handleCommand('/stop');
         dockStore.collapse();
         break;
       case 'viewResults':
@@ -79,13 +79,13 @@
         router.navigate('studio');
         break;
       case 'improve':
-        dockStore.handleCommand('/개선');
+        dockStore.handleCommand('/improve');
         break;
       case 'retry':
-        dockStore.handleCommand('/재실행');
+        dockStore.handleCommand('/retry');
         break;
       case 'deploy':
-        dockStore.handleCommand('/배포');
+        dockStore.handleCommand('/deploy');
         dockStore.collapse();
         break;
     }
@@ -185,7 +185,7 @@
     <div class="complete-view">
       <div class="complete-header">
         <span class="complete-check">✓</span>
-        <span class="complete-topic">{runTopic || $studioStore.createTopic} — 완료</span>
+        <span class="complete-topic">{runTopic || $studioStore.createTopic} — Complete</span>
       </div>
       <div class="complete-meta">
         Best: {$jobStore.bestMetric?.toFixed(3) ?? '—'} AUC · {runTotalExp} experiments
@@ -224,16 +224,16 @@
   }
   .chip {
     appearance: none;
-    border: 1px solid var(--border-subtle, #EDEAE5);
+    border: 1px solid rgba(229, 224, 218, 0.7);
     background: rgba(0, 0, 0, 0.02);
-    border-radius: 8px;
-    padding: 5px 12px;
+    border-radius: 100px;
+    padding: 6px 14px;
     font-family: var(--font-mono, monospace);
-    font-size: 0.6rem;
+    font-size: 0.62rem;
     font-weight: 500;
     color: var(--text-secondary, #6b6560);
     cursor: pointer;
-    transition: all 150ms;
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
   }
   .chip:hover {
@@ -260,17 +260,19 @@
     border-color: var(--accent, #D97757);
     background: var(--accent, #D97757);
     color: #fff;
+    box-shadow: 0 2px 6px rgba(217, 119, 87, 0.2);
   }
   .chip-primary:hover {
     background: color-mix(in srgb, var(--accent, #D97757) 88%, black);
+    box-shadow: 0 2px 10px rgba(217, 119, 87, 0.3);
   }
 
   /* ═══ PRESET LIST ═══ */
   .preset-list {
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--border-subtle, #EDEAE5);
-    border-radius: 10px;
+    border: 1px solid rgba(229, 224, 218, 0.6);
+    border-radius: 12px;
     overflow: hidden;
   }
   .preset-row {
@@ -282,15 +284,15 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    border-bottom: 1px solid var(--border-subtle, #EDEAE5);
-    transition: background 100ms;
+    gap: 3px;
+    border-bottom: 1px solid rgba(229, 224, 218, 0.4);
+    transition: all 160ms ease;
   }
   .preset-row:last-child { border-bottom: none; }
-  .preset-row:hover { background: rgba(0, 0, 0, 0.02); }
+  .preset-row:hover { background: rgba(0, 0, 0, 0.025); }
   .preset-selected {
-    background: rgba(217, 119, 87, 0.04);
-    border-left: 2px solid var(--accent, #D97757);
+    background: rgba(217, 119, 87, 0.05);
+    border-left: 3px solid var(--accent, #D97757);
   }
   .preset-title {
     font-family: var(--font-mono, monospace);
@@ -338,8 +340,8 @@
     border: none;
     background: var(--accent, #D97757);
     color: #fff;
-    border-radius: 10px;
-    padding: 10px 20px;
+    border-radius: 100px;
+    padding: 11px 24px;
     font-family: var(--font-mono, monospace);
     font-size: 0.76rem;
     font-weight: 700;
@@ -348,13 +350,14 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
     width: 100%;
+    box-shadow: 0 2px 8px rgba(217, 119, 87, 0.15);
   }
   .launch-btn:hover:not(:disabled) {
     background: color-mix(in srgb, var(--accent, #D97757) 88%, black);
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(217, 119, 87, 0.2);
+    box-shadow: 0 4px 20px rgba(217, 119, 87, 0.3);
   }
   .launch-btn:active:not(:disabled) {
     transform: scale(0.98);

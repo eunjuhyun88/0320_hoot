@@ -32,7 +32,7 @@
     right: 0;
     height: 2px;
     background: rgba(0, 0, 0, 0.04);
-    border-radius: 18px 18px 0 0;
+    border-radius: 20px 20px 0 0;
     overflow: hidden;
     z-index: 2;
   }
