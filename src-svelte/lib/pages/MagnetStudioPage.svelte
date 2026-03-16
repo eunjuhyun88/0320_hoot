@@ -57,6 +57,20 @@
   onMount(() => {
     studioStore.syncFromJobStore();
 
+    // Eagerly pre-load components based on current job state so they're
+    // ready immediately when navigating back to Studio during research.
+    const job = $jobStore;
+    if ((job.phase === 'running' || job.phase === 'setup') && !ResearchRunning) {
+      import('../components/studio/ResearchRunning.svelte').then(m => { ResearchRunning = m.default; });
+    }
+    if (job.phase === 'complete' && !ResearchComplete) {
+      import('../components/studio/ResearchComplete.svelte').then(m => { ResearchComplete = m.default; });
+    }
+    // Also pre-load the next likely component (running → complete)
+    if (job.phase === 'running' && !ResearchComplete) {
+      import('../components/studio/ResearchComplete.svelte').then(m => { ResearchComplete = m.default; });
+    }
+
     // Watch for job completion
     const unsub = jobStore.subscribe(($job) => {
       if ($job.phase === 'complete' && $studioPhase === 'running') {
@@ -80,7 +94,7 @@
     if (syncInterval) clearInterval(syncInterval);
   });
 
-  // Lazy load components when needed
+  // Lazy load components when needed (fallback for phase transitions)
   $: if ($studioPhase === 'setup' && !OntologySetup) {
     import('../components/studio/OntologySetup.svelte').then(m => { OntologySetup = m.default; });
   }
