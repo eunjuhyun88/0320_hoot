@@ -64,11 +64,15 @@ function createRouter() {
   const view = writable<AppView>(getViewFromHash());
   const params = writable<RouteParams>(getParamsFromHash());
 
+  // Track hashchange handler for proper cleanup
+  let hashHandler: (() => void) | null = null;
+
   if (typeof window !== 'undefined') {
-    window.addEventListener('hashchange', () => {
+    hashHandler = () => {
       view.set(getViewFromHash());
       params.set(getParamsFromHash());
-    });
+    };
+    window.addEventListener('hashchange', hashHandler);
   }
 
   function navigate(target: AppView, p?: RouteParams) {
@@ -87,10 +91,18 @@ function createRouter() {
     if (p) params.set(p);
   }
 
+  function destroy() {
+    if (hashHandler && typeof window !== 'undefined') {
+      window.removeEventListener('hashchange', hashHandler);
+      hashHandler = null;
+    }
+  }
+
   return {
     subscribe: view.subscribe,
     navigate,
     params: { subscribe: params.subscribe },
+    destroy,
   };
 }
 
