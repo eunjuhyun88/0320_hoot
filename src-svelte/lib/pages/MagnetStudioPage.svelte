@@ -251,8 +251,14 @@
       {#if $studioPhase === 'idle'}
         <StudioDashboard
           on:newResearch={() => studioStore.startCreate()}
+          on:quickStart={(e) => {
+            // Pre-select type so Step1 skips type grid → straight to topic input
+            studioStore.startCreate();
+            studioStore.setResearchType(e.detail.typeId);
+          }}
           on:resumeJob={() => studioStore.syncFromJobStore()}
           on:openModel={(e) => router.navigate('model-detail', { modelId: e.detail.modelId })}
+          on:viewModels={() => router.navigate('models')}
         />
 
       {:else if $studioPhase === 'step1' || $studioPhase === 'step1-topic'}
