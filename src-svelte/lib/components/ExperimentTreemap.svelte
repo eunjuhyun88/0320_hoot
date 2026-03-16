@@ -528,13 +528,12 @@
   .tm-tooltip {
     position: absolute;
     z-index: var(--z-sticky, 10);
-    background: rgba(24, 24, 24, 0.92);
+    background: rgba(24, 24, 24, 0.95);
     border-radius: 8px;
     padding: 8px 10px;
     min-width: 120px;
     max-width: 200px;
     pointer-events: none;
-    backdrop-filter: blur(8px);
   }
   .tm-tip-title {
     font: 600 10px/1.3 'Inter', -apple-system, sans-serif;

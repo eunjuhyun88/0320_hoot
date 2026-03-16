@@ -567,9 +567,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.35);
     padding: 0;
     cursor: pointer;
     z-index: calc(var(--z-nav, 100) - 1);
@@ -583,9 +581,7 @@
     right: 0;
     width: 280px;
     max-height: calc(100vh - 52px);
-    background: var(--glass-bg, rgba(255, 255, 255, 0.92));
-    backdrop-filter: blur(var(--glass-blur, 24px));
-    -webkit-backdrop-filter: blur(var(--glass-blur, 24px));
+    background: rgba(255, 255, 255, 0.98);
     border-left: 1px solid var(--border, #E5E0DA);
     border-bottom: 1px solid var(--border, #E5E0DA);
     border-radius: 0 0 0 var(--radius-lg, 16px);

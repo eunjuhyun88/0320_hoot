@@ -868,16 +868,14 @@
     position: fixed;
     inset: 0;
     z-index: var(--z-modal, 100);
-    background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(6px);
+    background: rgba(0,0,0,0.4);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
   }
   .bundle-modal {
-    background: rgba(255,255,255,0.92);
-    backdrop-filter: blur(24px);
+    background: rgba(255,255,255,0.98);
     border: 1px solid var(--border, #E5E0DA);
     border-radius: 20px;
     padding: 28px;

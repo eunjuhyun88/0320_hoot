@@ -238,9 +238,7 @@
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -255,9 +253,7 @@
 
   /* ═══ CARD — glass-morphic with accent glow ═══ */
   .modal-card {
-    background: rgba(255,255,255,0.88);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255,255,255,0.97);
     border: 1px solid rgba(217,119,87,0.15);
     border-radius: 20px;
     padding: 28px;
@@ -459,7 +455,6 @@
     border: 1.5px solid var(--border, #E5E0DA);
     border-radius: 12px;
     background: rgba(255,255,255,0.72);
-    backdrop-filter: blur(8px);
     padding: 12px 14px;
     display: flex;
     align-items: center;

@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import { fly, fade } from "svelte/transition";
   import { agentStore, agentMessages, agentSheetOpen, agentLoading } from "../../stores/agentStore.ts";
   import PixelIcon from "../PixelIcon.svelte";
 
   let sheetEl: HTMLDivElement;
+  let scrollRaf: number | null = null;
 
   // Keyboard handler — Esc closes sheet
   function handleKeyDown(e: KeyboardEvent) {
@@ -12,12 +14,18 @@
     }
   }
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive (RAF tracked)
   $: if ($agentMessages.length && sheetEl) {
-    requestAnimationFrame(() => {
+    if (scrollRaf !== null) cancelAnimationFrame(scrollRaf);
+    scrollRaf = requestAnimationFrame(() => {
       if (sheetEl) sheetEl.scrollTop = sheetEl.scrollHeight;
+      scrollRaf = null;
     });
   }
+
+  onDestroy(() => {
+    if (scrollRaf !== null) cancelAnimationFrame(scrollRaf);
+  });
 
   function handleClose() {
     agentStore.closeSheet();
@@ -135,12 +143,10 @@
     overflow-y: auto;
     overflow-x: hidden;
     z-index: calc(var(--z-splash, 9999) - 1);
-    background: var(--glass-bg, rgba(255, 255, 255, 0.97));
+    background: rgba(255, 255, 255, 0.97);
     border: 1px solid var(--border, #E5E0DA);
     border-radius: 16px 16px 0 0;
     border-bottom: none;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
     display: flex;
     flex-direction: column;
