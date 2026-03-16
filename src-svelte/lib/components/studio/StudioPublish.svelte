@@ -104,7 +104,13 @@
   function handleBack() {
     if (step === 1) {
       dispatch('back');
+    } else if (step === 3) {
+      // From success → back to step 1 (review)
+      step = 1;
+      publishedModelId = null;
+      vtrSteps = vtrSteps.map(vs => ({ ...vs, done: false, active: false }));
     }
+    // step 2 is auto-progressing — no back allowed
   }
 
   function handleNextToVTR() {
@@ -163,7 +169,7 @@
 <div class="studio-publish">
   <!-- Header -->
   <div class="publish-header">
-    {#if step === 1}
+    {#if step !== 2}
       <button class="back-btn" on:click={handleBack} aria-label="Back">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -782,9 +788,25 @@
   .primary-btn:hover { background: var(--accent-hover, #C4644A); box-shadow: 0 4px 16px rgba(217, 119, 87, 0.3); transform: translateY(-1px); }
 
   @media (max-width: 640px) {
+    .studio-publish { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+    .publish-header { padding: 10px 16px; }
     .publish-body { padding: 16px; }
     .step-title { font-size: 1.05rem; }
     .step-actions { flex-direction: column; }
-    .pub-stats { gap: 16px; }
+    .primary-btn, .secondary-btn { min-height: 48px; font-size: 0.84rem; }
+    .back-btn { padding: 10px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+    .pub-stats { gap: 16px; flex-wrap: wrap; justify-content: center; }
+    .toggle-label { min-height: 44px; }
+    .copy-btn { padding: 10px; min-width: 44px; min-height: 44px; }
+    .model-card { padding: 14px; }
+    .mc-row { flex-direction: column; gap: 4px; align-items: flex-start; }
+    .mc-label { width: auto; }
+    .endpoint-url { font-size: 0.6rem; }
+  }
+  @media (max-width: 380px) {
+    .publish-body { padding: 12px 10px; }
+    .pool-legend { gap: 8px; }
+    .pub-stats { gap: 12px; }
+    .ps-value { font-size: 0.72rem; }
   }
 </style>
