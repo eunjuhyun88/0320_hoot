@@ -145,7 +145,7 @@
     <!-- ── Ecosystem Tagline ── -->
     <p class="tagline">
       AI Research Design · Distributed GPU Training · Model Deployment · Data Provenance<br/>
-      <span class="tagline-chain">Every step recorded on HOOT L1 chain</span>
+      <span class="tagline-chain">Every contribution verified and recorded on-chain</span>
     </p>
 
     <!-- ── Live Network Pulse ── -->
@@ -280,7 +280,7 @@
 
     <p class="tagline">
       AI Research Design · Distributed GPU Training · Model Deployment · Data Provenance<br/>
-      <span class="tagline-chain">Every step recorded on HOOT L1 chain</span>
+      <span class="tagline-chain">Every contribution verified and recorded on-chain</span>
     </p>
 
     <div class="guest-search">
