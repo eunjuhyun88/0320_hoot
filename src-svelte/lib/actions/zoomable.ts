@@ -61,10 +61,10 @@ export function zoomable(node: HTMLElement, opts?: { min?: number; max?: number;
       indicator = document.createElement('div');
       Object.assign(indicator.style, {
         position: 'absolute', bottom: '6px', right: '6px', zIndex: '10',
-        background: 'rgba(24,24,24,0.75)', color: '#fff',
+        background: 'rgba(24,24,24,0.85)', color: '#fff',
         fontSize: '9px', fontWeight: '700', fontFamily: "'Inter', sans-serif",
         padding: '2px 6px', borderRadius: '4px', pointerEvents: 'none',
-        backdropFilter: 'blur(4px)', transition: 'opacity 200ms',
+        transition: 'opacity 200ms',
         letterSpacing: '0.02em',
       });
       // Ensure parent is positioned

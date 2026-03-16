@@ -69,9 +69,7 @@
     align-items: center;
     gap: 10px;
     padding: 12px 14px;
-    background: rgba(30, 30, 46, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(30, 30, 46, 0.96);
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-left: 3px solid var(--accent);
     border-radius: 8px;

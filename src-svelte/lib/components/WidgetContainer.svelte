@@ -129,11 +129,9 @@
 <style>
   .wc {
     position: absolute;
-    background: var(--glass-bg, rgba(255, 255, 255, 0.82));
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid var(--border, #E5E0DA);
     border-radius: var(--radius-lg, 16px);
-    backdrop-filter: blur(var(--glass-blur, 24px));
-    -webkit-backdrop-filter: blur(var(--glass-blur, 24px));
     box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08));
     overflow: hidden;
     pointer-events: auto;
@@ -156,8 +154,7 @@
     background: transparent;
     border: none;
     box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    /* no backdrop-filter — editor wraps HeroSection */
   }
   .wc-editor:hover {
     box-shadow: none;
