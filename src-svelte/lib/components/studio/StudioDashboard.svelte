@@ -635,12 +635,51 @@
   }
 
   @media (max-width: 640px) {
-    .dashboard { padding: 20px 16px 80px; gap: 16px; }
+    .dashboard {
+      padding: 20px 16px calc(80px + env(safe-area-inset-bottom, 0px));
+      gap: 14px;
+    }
     .dash-title { font-size: 1.3rem; }
-    .hero-card { padding: 18px 16px; gap: 12px; flex-wrap: wrap; }
-    .hero-action { width: 100%; justify-content: center; margin-top: 4px; }
+    .dash-sub { font-size: 0.72rem; }
+
+    /* Hero card — full-width CTA */
+    .hero-card {
+      padding: 18px 16px; gap: 12px;
+      flex-wrap: wrap; border-radius: 14px;
+    }
+    .hero-icon { width: 44px; height: 44px; border-radius: 12px; }
+    .hero-action {
+      width: 100%; justify-content: center;
+      margin-top: 4px; padding: 10px 18px;
+    }
+
+    /* Section cards — tighter */
+    .section-card { padding: 14px 16px; border-radius: 14px; gap: 10px; }
+    .sc-btn { padding: 10px 16px; font-size: 0.72rem; min-height: 36px; }
+
+    /* Session rows — larger touch targets */
+    .session-row { padding: 14px 14px; border-radius: 10px; min-height: 44px; }
+    .sr-topic { font-size: 0.78rem; }
+    .sr-meta { font-size: 0.58rem; }
+
+    /* Models grid */
+    .model-chip { padding: 12px 14px; min-height: 44px; }
+
+    /* Quick start — 3-col with larger touch targets */
     .qs-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-    .qs-pill { padding: 10px 8px; }
+    .qs-pill { padding: 12px 8px; border-radius: 10px; min-height: 44px; }
     .qs-name { font-size: 0.62rem; }
+    .qs-icon { width: 26px; height: 26px; border-radius: 7px; }
+
+    /* Stats footer */
+    .stats-footer { font-size: 0.58rem; padding-top: 4px; }
+  }
+
+  @media (max-width: 360px) {
+    .dashboard { padding: 16px 12px calc(80px + env(safe-area-inset-bottom, 0px)); }
+    .dash-title { font-size: 1.15rem; }
+    .hero-body .hero-title { font-size: 0.84rem; }
+    .hero-body .hero-desc { font-size: 0.66rem; }
+    .qs-grid { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
