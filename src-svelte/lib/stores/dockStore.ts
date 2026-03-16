@@ -109,34 +109,30 @@ function createDockStore() {
       studioStore.launchFromDock(topic, state.selectedPresetId ?? undefined);
       toastStore.success('Research started');
 
+      // Navigate to studio if on another page
+      router.navigate('studio');
+
       // Collapse dock
       update(s => ({ ...s, expansion: 'collapsed' }));
     },
 
-    /** Handle slash commands */
+    /** Handle slash commands — global terminal interface */
     handleCommand(input: string) {
-      const cmd = input.slice(1).split(' ')[0].toLowerCase();
+      const parts = input.slice(1).split(' ');
+      const cmd = parts[0].toLowerCase();
+      const arg = parts.slice(1).join(' ').trim();
       const job = get(jobStore);
 
       switch (cmd) {
+        // ── Research lifecycle ──
         case 'improve': {
-          const topic = job.topic || get(studioStore).createTopic;
-          update(s => ({
-            ...s,
-            expansion: 'expanded',
-            launcherTopic: topic,
-            intent: 'improve',
-          }));
+          const topic = arg || job.topic || get(studioStore).createTopic;
+          update(s => ({ ...s, expansion: 'expanded', launcherTopic: topic, intent: 'improve' }));
           break;
         }
         case 'retry': {
-          const topic = job.topic || get(studioStore).createTopic;
-          update(s => ({
-            ...s,
-            expansion: 'expanded',
-            launcherTopic: topic,
-            intent: 'retry',
-          }));
+          const topic = arg || job.topic || get(studioStore).createTopic;
+          update(s => ({ ...s, expansion: 'expanded', launcherTopic: topic, intent: 'retry' }));
           break;
         }
         case 'stop': {
@@ -144,28 +140,73 @@ function createDockStore() {
             jobStore.stopJob();
             studioStore.reset();
             toastStore.warning('Research stopped');
+          } else {
+            toastStore.info('No research currently running');
           }
           break;
         }
         case 'status': {
-          // Navigate to running research or show toast
-          if (job.phase === 'running') {
+          if (job.phase === 'running' || job.phase === 'setup') {
+            studioStore.syncFromJobStore();
+            router.navigate('studio');
+          } else if (job.phase === 'complete') {
+            studioStore.syncFromJobStore();
             router.navigate('studio');
           } else {
-            toastStore.info('No research currently in progress');
+            toastStore.info('No active research. Type a topic to start.');
           }
           break;
         }
-        case 'deploy': {
+        case 'deploy':
+        case 'publish': {
           if (job.phase === 'complete' || get(studioStore).phase === 'complete') {
             studioStore.goToPublish();
             router.navigate('studio');
+          } else {
+            toastStore.info('Complete a research first before deploying');
           }
           break;
         }
+
+        // ── Navigation ──
+        case 'home':
+          router.navigate('home');
+          break;
+        case 'studio':
+        case 'research':
+          studioStore.syncFromJobStore();
+          router.navigate('studio');
+          break;
+        case 'models':
+          router.navigate('models');
+          break;
+        case 'network':
+        case 'nodes':
+          router.navigate('network');
+          break;
+        case 'protocol':
+        case 'economics':
+          router.navigate('protocol');
+          break;
+        case 'new': {
+          const topic = arg || '';
+          studioStore.startCreate(topic || undefined);
+          router.navigate('studio');
+          break;
+        }
+
+        // ── Help ──
+        case 'help':
+          toastStore.info(
+            'Commands: /status /stop /improve /retry /deploy /new · Navigation: /studio /models /network /protocol /home'
+          );
+          break;
+
         default:
-          toastStore.info(`Unknown command: /${cmd}. Type /help for available commands.`);
+          toastStore.info(`Unknown: /${cmd} — type /help for commands`);
       }
+      // Collapse after command
+      update(s => ({ ...s, expansion: 'collapsed' }));
     },
 
     /** Reset to initial state */
