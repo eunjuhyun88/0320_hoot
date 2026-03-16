@@ -760,18 +760,51 @@
   /* ═══ RESPONSIVE ═══ */
   @media (max-width: 640px) {
     .creator-body {
-      padding: 8px 16px 40px;
-      gap: 22px;
+      padding: 8px 16px calc(40px + env(safe-area-inset-bottom, 0px));
+      gap: 20px;
     }
-    .creator-title { font-size: 1.3rem; }
-    .type-pills { justify-content: flex-start; flex-wrap: nowrap; }
-    .type-pill { padding: 8px 12px 8px 10px; }
+    .creator-title { font-size: 1.25rem; }
+
+    /* Type pills — wrap for full access, larger touch targets */
+    .type-pills {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .type-pill {
+      padding: 10px 14px 10px 12px;
+      min-height: 40px;
+    }
     .pill-label { font-size: 0.72rem; }
-    .topic-input { font-size: 0.95rem; padding: 14px 18px; }
-    .example-chip { padding: 6px 12px; font-size: 0.7rem; }
+
+    /* Topic input — comfortable size */
+    .topic-input { font-size: 0.95rem; padding: 14px 16px; border-radius: 12px; }
+
+    /* Example chips — wrap with touch targets */
+    .example-chip {
+      padding: 8px 14px; font-size: 0.7rem;
+      min-height: 36px; display: inline-flex; align-items: center;
+    }
+
+    /* Plan card — stack stats */
     .plan-stats { flex-wrap: wrap; gap: 8px; }
     .plan-stat-sep { display: none; }
     .plan-stat { min-width: 40%; }
-    .start-btn { padding: 14px 24px; }
+
+    /* Start CTA — full width, larger */
+    .start-btn { padding: 16px 24px; font-size: 0.88rem; border-radius: 14px; }
+
+    /* Back button — bigger touch target */
+    .back-btn { padding: 8px 12px 8px 8px; min-height: 36px; }
+
+    /* Advanced link */
+    .advanced-link { padding: 10px 16px; font-size: 0.72rem; }
+  }
+
+  @media (max-width: 360px) {
+    .creator-body { padding: 8px 12px calc(40px + env(safe-area-inset-bottom, 0px)); }
+    .creator-title { font-size: 1.1rem; }
+    .type-pill { padding: 8px 10px; font-size: 0.68rem; }
+    .topic-input { font-size: 0.88rem; padding: 12px 14px; }
   }
 </style>
