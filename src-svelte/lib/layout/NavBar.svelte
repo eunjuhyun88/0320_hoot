@@ -214,9 +214,7 @@
     position: sticky;
     top: 0;
     z-index: var(--z-nav, 100);
-    background: var(--glass-bg, rgba(255, 255, 255, 0.72));
-    backdrop-filter: blur(var(--glass-blur, 24px));
-    -webkit-backdrop-filter: blur(var(--glass-blur, 24px));
+    background: rgba(255, 255, 255, 0.95);
     border-bottom: 1px solid var(--border, #E5E0DA);
     transition: background var(--dur-normal, 300ms) var(--ease-smooth);
   }

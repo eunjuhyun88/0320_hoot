@@ -320,11 +320,9 @@
     left: 50%;
     transform: translateX(-50%);
     width: min(740px, calc(100vw - 28px));
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(229, 224, 218, 0.7);
     border-radius: 20px;
-    backdrop-filter: blur(28px) saturate(1.6);
-    -webkit-backdrop-filter: blur(28px) saturate(1.6);
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.04),
       0 8px 32px rgba(0, 0, 0, 0.08),
@@ -559,11 +557,9 @@
     bottom: calc(100% + 14px);
     right: -8px;
     min-width: 200px;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     border: 1px solid rgba(229, 224, 218, 0.7);
     border-radius: 14px;
-    backdrop-filter: blur(28px) saturate(1.6);
-    -webkit-backdrop-filter: blur(28px) saturate(1.6);
     box-shadow:
       0 4px 12px rgba(0, 0, 0, 0.06),
       0 12px 36px rgba(0, 0, 0, 0.1),

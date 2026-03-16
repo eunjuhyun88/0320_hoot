@@ -53,12 +53,6 @@ export function runSetupPhase(topic: string, deps: SimulationDeps, onComplete: (
 /* ─── Main Simulation Loop ─── */
 
 export function runSimulationLoop(deps: SimulationDeps): void {
-  // Elapsed-time clock (ticks every 1s, increments by 3s simulated time)
-  const clock = setInterval(() => {
-    deps.update(s => ({ ...s, elapsedSeconds: s.elapsedSeconds + 3 }));
-  }, 1000);
-  deps.addTimer(clock);
-
   let nextId = 1;
   let trainingId: number | null = null;
 
@@ -67,8 +61,10 @@ export function runSimulationLoop(deps: SimulationDeps): void {
   trainingId = firstExp.id;
   deps.update(s => ({ ...s, experiments: [firstExp] }));
 
-  // Combined progress + verification tick (400ms interval)
+  // Single merged tick: clock + progress + verification (1000ms)
   const combinedTick = setInterval(() => {
+    // Clock: increment elapsed time
+    deps.update(s => ({ ...s, elapsedSeconds: s.elapsedSeconds + 3 }));
     deps.update(s => {
       let changed = false;
       const now = Date.now();
@@ -118,7 +114,7 @@ export function runSimulationLoop(deps: SimulationDeps): void {
         ? keeps[keeps.length - 1].metric : s.baselineMetric;
       return { ...s, experiments: capped, bestMetric: best === Infinity ? s.bestMetric : best, baselineMetric: newBaseline };
     });
-  }, 400);
+  }, 1000);
   deps.addTimer(combinedTick);
 
   // Experiment scheduling loop

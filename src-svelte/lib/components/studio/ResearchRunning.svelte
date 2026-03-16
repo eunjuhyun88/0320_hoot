@@ -547,9 +547,7 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--glass-bg, rgba(255, 255, 255, 0.92));
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: var(--glass-bg, rgba(255, 255, 255, 0.96));
   }
   .context-tile { background: transparent; border: none; box-shadow: none; padding: 0; }
   .terminal-tile { background: transparent; border: none; box-shadow: none; padding: 0; }
@@ -742,7 +740,7 @@
       display: flex; padding: 6px 4px; justify-content: center;
       position: sticky; top: 0; z-index: 3;
       background: linear-gradient(180deg, rgba(250,249,247,0.97), rgba(250,249,247,0.92));
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      /* backdrop-filter removed for perf */
       border-radius: 14px;
     }
     .mtab-btn {
