@@ -7,7 +7,7 @@
   import { widgetStore, allWidgets } from "../../stores/widgetStore.ts";
   import { jobStore, jobProgress } from "../../stores/jobStore.ts";
   import { studioStore } from "../../stores/studioStore.ts";
-  import { dockStore, dockContext, dockExpansion } from "../../stores/dockStore.ts";
+  import { dockStore, dockContext, dockExpansion, dockMode, detectIntent } from "../../stores/dockStore.ts";
   import { CATEGORY_COLORS, type WidgetId } from "../../data/widgetDefaults.ts";
   import PixelIcon from "../PixelIcon.svelte";
   import AgentSheet from "./AgentSheet.svelte";
@@ -26,6 +26,9 @@
   $: contextPlaceholder = (() => {
     if ($dockContext === 'running') return `${$jobStore.topic || 'Research'} — ${$jobProgress}% in progress`;
     if ($dockContext === 'complete') return 'Enter instructions or type /help';
+    // Mode-aware placeholder
+    if ($dockMode === 'ask') return 'Ask anything...  ⌘K';
+    if ($dockMode === 'inference') return 'Run model or select above...  ⌘K';
     return 'Enter a research topic...  ⌘K';
   })();
 
@@ -74,7 +77,7 @@
     },
   ];
 
-  // ── Send handler — routes /commands to dockStore (global terminal) ──
+  // ── Send handler — smart intent routing ──
   function handleSubmit() {
     if (!inputValue.trim()) return;
     const input = inputValue.trim();
@@ -83,15 +86,47 @@
       // Slash command → dockStore handles globally
       dockStore.handleCommand(input);
       inputValue = '';
-    } else if ($dockContext === 'running') {
+      return;
+    }
+
+    if ($dockContext === 'running') {
       // During research, navigate to running view on Enter
       studioStore.syncFromJobStore();
       router.navigate('studio');
       inputValue = '';
+      return;
+    }
+
+    // ── Smart intent routing ──
+    if (isExpanded) {
+      // Already expanded — route based on current mode
+      if ($dockMode === 'ask') {
+        agentStore.send(input);
+        inputValue = '';
+      } else if ($dockMode === 'inference') {
+        // Inference mode — treat as JSON input or model command
+        agentStore.send(input);
+        inputValue = '';
+      } else {
+        // Research mode — update topic
+        dockStore.setTopic(input);
+        inputValue = '';
+      }
     } else {
-      // Topic → expand dock launcher (works from any page)
-      dockStore.expand(input, 'new');
-      inputValue = '';
+      // Not expanded — detect intent and expand
+      const intent = detectIntent(input);
+      if (intent === 'ask') {
+        dockStore.expandWithMode('ask', input);
+        agentStore.send(input);
+        inputValue = '';
+      } else if (intent === 'inference') {
+        dockStore.expandWithMode('inference', input);
+        inputValue = '';
+      } else {
+        // Research mode (default)
+        dockStore.expand(input, 'new');
+        inputValue = '';
+      }
     }
   }
 

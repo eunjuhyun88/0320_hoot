@@ -1,8 +1,8 @@
 /**
- * dockStore.ts — Spotlight-style dock expansion state
+ * dockStore.ts — Universal AI terminal dock state
  *
- * Orchestrates the dock's expansion body and bridges
- * user input to studioStore/jobStore for research lifecycle.
+ * Three modes: ask (chat), research (autoresearch launcher), inference (model execution).
+ * Smart intent detection routes user input to the correct mode.
  *
  * Does NOT own research lifecycle — reads from jobStore/studioStore,
  * dispatches actions to them.
@@ -24,12 +24,36 @@ import {
 export type DockExpansion = 'collapsed' | 'expanded';
 export type LauncherIntent = 'new' | 'improve' | 'retry';
 export type DockContextPhase = 'idle' | 'running' | 'complete';
+export type DockMode = 'ask' | 'research' | 'inference';
 
 interface DockState {
   expansion: DockExpansion;
   launcherTopic: string;
   selectedPresetId: string | null;
   intent: LauncherIntent;
+  mode: DockMode;
+  inferenceModelId: string | null;
+}
+
+// ── Intent detection ──
+
+const ASK_PATTERNS = /^(what|how|why|when|where|who|is |are |can |does |do |show|tell|explain|help|list|find|search|check|get |describe|compare|which|should)/i;
+const INFERENCE_PATTERNS = /^(run |test |predict |inference|execute|try |deploy )/i;
+const MODEL_REF_PATTERN = /(model[-\s]?\w+|crypto[-\s]?24h|defi[-\s]?risk|eth[-\s]?gas|nlp[-\s]?sentiment)/i;
+
+export function detectIntent(input: string): DockMode {
+  const trimmed = input.trim();
+  if (!trimmed) return 'ask';
+  // Explicit inference trigger
+  if (INFERENCE_PATTERNS.test(trimmed)) return 'inference';
+  // Model reference without question word → inference
+  if (MODEL_REF_PATTERN.test(trimmed) && !ASK_PATTERNS.test(trimmed)) return 'inference';
+  // Question patterns → ask
+  if (ASK_PATTERNS.test(trimmed)) return 'ask';
+  // Ends with ? → ask
+  if (trimmed.endsWith('?')) return 'ask';
+  // Default: research
+  return 'research';
 }
 
 // ── Initial State ──
@@ -39,6 +63,8 @@ const initialState: DockState = {
   launcherTopic: '',
   selectedPresetId: null,
   intent: 'new',
+  mode: 'ask',
+  inferenceModelId: null,
 };
 
 // ── Store ──
@@ -56,9 +82,28 @@ function createDockStore() {
         expansion: 'expanded',
         launcherTopic: topic ?? s.launcherTopic,
         intent,
-        // For improve/retry, keep existing preset; for new, clear
         selectedPresetId: intent === 'new' ? s.selectedPresetId : s.selectedPresetId,
       }));
+    },
+
+    /** Expand dock in a specific mode */
+    expandWithMode(mode: DockMode, topic?: string) {
+      update(s => ({
+        ...s,
+        expansion: 'expanded',
+        mode,
+        launcherTopic: topic ?? s.launcherTopic,
+      }));
+    },
+
+    /** Switch mode (stays expanded) */
+    setMode(mode: DockMode) {
+      update(s => ({ ...s, mode }));
+    },
+
+    /** Set inference model target */
+    setInferenceModel(modelId: string) {
+      update(s => ({ ...s, inferenceModelId: modelId, mode: 'inference' }));
     },
 
     /** Collapse dock */
@@ -241,3 +286,9 @@ export const dockPresetId = derived(dockStore, $s => $s.selectedPresetId);
 
 /** Launcher intent */
 export const dockIntent = derived(dockStore, $s => $s.intent);
+
+/** Current dock mode */
+export const dockMode = derived(dockStore, $s => $s.mode);
+
+/** Inference model target */
+export const dockInferenceModelId = derived(dockStore, $s => $s.inferenceModelId);
