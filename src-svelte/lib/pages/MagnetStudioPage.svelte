@@ -205,8 +205,10 @@
         toastStore.success('Research started');
         pendingStartEvent = null;
       } else if (pendingAction === 'stop') {
-        jobStore.set({ ...jobStore, phase: 'idle' } as any);
-        studioStore.reset();
+        // Remove the stopped session and reset
+        jobSessionStore.syncActiveSession();
+        jobStore.stopJob();
+        studioStore.setPhase('idle');
         toastStore.warning('Research stopped');
       }
     }, 2200);
