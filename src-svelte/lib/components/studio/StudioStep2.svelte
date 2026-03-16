@@ -387,9 +387,7 @@
   .option-card {
     appearance: none;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 14px;
     padding: 14px 16px;
     display: flex;
@@ -479,9 +477,7 @@
     padding: 18px;
     border: 1px solid var(--border-subtle, #EDEAE5);
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -544,9 +540,7 @@
     padding: 16px 18px;
     border: 1px solid var(--border-subtle, #EDEAE5);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -593,14 +587,12 @@
     padding: 12px 14px;
     border-radius: 12px;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
     cursor: pointer;
     transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
   }
   .resource-option:hover {
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 1);
     border-color: color-mix(in srgb, var(--accent, #D97757) 30%, transparent);
   }
   .resource-option.selected {
@@ -670,9 +662,7 @@
     padding: 13px 20px;
     border-radius: 100px;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--text-secondary, #6b6560);

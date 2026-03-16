@@ -56,18 +56,14 @@
     position: fixed;
     inset: 0;
     z-index: 9000;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   .cm-card {
-    background: rgba(30, 30, 46, 0.95);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(30, 30, 46, 0.98);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 28px 28px 22px;

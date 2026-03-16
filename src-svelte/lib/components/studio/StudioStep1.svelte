@@ -270,9 +270,7 @@
   .type-card {
     appearance: none;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 16px;
     padding: 18px 20px;
     text-align: left;
@@ -462,9 +460,7 @@
     border-radius: 16px;
     font-size: 1.05rem;
     color: var(--text-primary, #2D2D2D);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.95);
     transition: all 280ms cubic-bezier(0.16, 1, 0.3, 1);
     text-align: center;
     letter-spacing: -0.005em;
@@ -519,9 +515,7 @@
   .example-chip {
     appearance: none;
     border: 1px solid var(--border, #E5E0DA);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
     padding: 8px 16px;
     border-radius: 100px;
     font-size: 0.76rem;
