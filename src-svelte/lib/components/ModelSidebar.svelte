@@ -29,16 +29,24 @@
     </div>
   </div>
 
-  <!-- Quick Inference -->
-  <div class="sb-card">
-    <span class="sb-label">Quick Inference</span>
-    <p class="sb-hint">Test this model with a sample input</p>
-    <button class="sb-infer-btn" on:click={() => dispatch('switchTab', 'playground')}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-        <polygon points="5 3 19 12 5 21 5 3" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-      </svg>
-      Open Playground
-    </button>
+  <!-- Quick Inference Hint -->
+  <div class="sb-card sb-try-card">
+    <span class="sb-label">Try this model</span>
+    <p class="sb-hint">Use the playground above to test inference with your own input. 0.001 HOOT per call.</p>
+    <div class="sb-try-info">
+      <div class="sb-try-row">
+        <span class="sb-try-key">Cost</span>
+        <span class="sb-try-val">0.001 HOOT</span>
+      </div>
+      <div class="sb-try-row">
+        <span class="sb-try-key">Latency</span>
+        <span class="sb-try-val">~42ms</span>
+      </div>
+      <div class="sb-try-row">
+        <span class="sb-try-key">Protocol</span>
+        <span class="sb-try-val">x402 payment</span>
+      </div>
+    </div>
   </div>
 
   <!-- Tags -->
@@ -150,18 +158,18 @@
     to { opacity: 1; }
   }
 
-  /* Inference */
-  .sb-infer-btn {
-    appearance: none; border: none; width: 100%;
-    background: var(--accent, #D97757); color: #fff;
-    font-weight: 600; font-size: 0.82rem;
-    padding: 10px 0;
-    border-radius: var(--radius-sm, 6px);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    transition: background 150ms;
+  /* Try card */
+  .sb-try-card { }
+  .sb-try-info { display: flex; flex-direction: column; gap: 0; }
+  .sb-try-row {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border-subtle, #EDEAE5);
+    font-size: 0.72rem;
   }
-  .sb-infer-btn:hover { background: var(--accent-hover, #C4644A); box-shadow: 0 0 16px rgba(217, 119, 87, 0.25); }
+  .sb-try-row:last-child { border-bottom: none; }
+  .sb-try-key { color: var(--text-muted, #9a9590); font-family: var(--font-mono, 'JetBrains Mono', monospace); }
+  .sb-try-val { color: var(--text-primary, #2D2D2D); font-weight: 600; font-family: var(--font-mono, 'JetBrains Mono', monospace); }
 
   /* Tags */
   .sb-tag-group { margin-bottom: var(--space-3, 12px); }
