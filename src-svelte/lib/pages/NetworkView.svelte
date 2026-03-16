@@ -1102,7 +1102,6 @@
       z-index: 0;
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
-      will-change: transform;
     }
     .side-panel {
       position: relative;
