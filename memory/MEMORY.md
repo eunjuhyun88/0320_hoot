@@ -45,6 +45,13 @@
   - use a **compact icon rail + collapsible companion panel** on desktop
   - keep **mobile as top bar + drawer**
   - remove arbitrary sidebar-width controls; use simple collapse/expand behavior instead
+- **Visual tone alignment updated (2026-03-20)**:
+  - keep the new **Comet-style shell structure**
+  - align the overall visual language back toward the `localhost:5175` branch:
+    - warm editorial palette
+    - serif-led landing typography
+    - mission-control hero composition on `HomePage`
+  - avoid drifting into a cold neon/cyber shell if the reference lane is the active benchmark
 - **Browser CTA stays in navigation**:
   - `Download Hoot Browser` remains part of the nav shell
   - current external destination is still `https://x.com/HootBrowser` until a canonical download URL exists

@@ -1,5 +1,35 @@
 # Session Log
 
+## 2026-03-20: 5175 tone alignment for the comet shell branch
+
+### Context
+사용자 요청: `http://localhost:5175`에서 보이는 디자인 컨셉처럼 현재 `http://localhost:5177/` 브랜치도 톤을 맞추고 최적화
+
+### Completed
+- **Home landing experience realigned to the 5175 reference lane**:
+  - `src-svelte/lib/pages/HomePage.svelte`
+  - replaced the temporary compact/home layout with the warmer **mission-control hero + stage panel + mission cards** composition from the 5175 branch
+  - restored the stronger narrative structure for guest/member entry states
+- **Global visual tokens shifted back to the warm editorial system**:
+  - `src-svelte/lib/tokens.css`
+  - restored the terracotta / cream / muted-blue palette
+  - restored the Inter + Playfair + JetBrains Mono typography stack
+- **App shell kept the new comet layout but adopted the 5175 tone**:
+  - `src-svelte/App.svelte`
+  - desktop rail + content shell remains
+  - global theme switched back to light editorial styling with softer warm backdrop treatment
+
+### Verification
+- `npm run build` ✓
+  - build passes
+  - existing repo-wide Svelte a11y / unused-export warnings remain
+- attempted local browser automation snapshot for `http://127.0.0.1:5177/`
+  - no usable snapshot output returned from the sandboxed Playwright CLI run, so final verification remained build-based
+
+### Notes
+- design target was treated as the live reference worktree at `/Users/ej/mesh-autoresearch-visualizer` (`codex/loox-tone-memento`)
+- this pass intentionally preserved the current comet navigation shell instead of reverting to the older top-nav structure
+
 ## 2026-03-20: Comet-style desktop navigation shell
 
 ### Context

@@ -52,14 +52,14 @@
   <title>HOOT Protocol — Autonomous Research Mesh</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Oxanium:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
 </svelte:head>
 
 {#if showSplash}
   <SplashScreen onDone={() => showSplash = false} />
 {/if}
 
-<div class="app-shell" data-theme="dark">
+<div class="app-shell" data-theme="light">
   <div class="app-shell-backdrop" aria-hidden="true">
     <span class="backdrop-grid"></span>
     <span class="backdrop-orb orb-a"></span>
@@ -127,11 +127,11 @@
   }
 
   :global(body) {
-    font-family: var(--font-body, 'Space Grotesk', sans-serif);
+    font-family: var(--font-body, 'Inter', -apple-system, sans-serif);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: var(--shell-gradient, var(--page-bg, #030912));
-    color: var(--text-primary, #eef7ff);
+    background: var(--shell-gradient, var(--page-bg, #FAF9F7));
+    color: var(--text-primary, #2D2D2D);
   }
 
   :global(*) {
@@ -139,8 +139,8 @@
   }
 
   :global(::selection) {
-    background: rgba(114, 246, 255, 0.26);
-    color: var(--text-primary, #eef7ff);
+    background: rgba(217, 119, 87, 0.18);
+    color: var(--text-primary, #2D2D2D);
   }
 
   .app-shell {
@@ -173,11 +173,11 @@
 
   .backdrop-grid {
     background:
-      linear-gradient(var(--grid-line, rgba(114, 246, 255, 0.08)) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line, rgba(114, 246, 255, 0.08)) 1px, transparent 1px);
-    background-size: 84px 84px;
-    mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), transparent 76%);
-    opacity: 0.42;
+      linear-gradient(var(--grid-line, rgba(217, 119, 87, 0.06)) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line, rgba(217, 119, 87, 0.06)) 1px, transparent 1px);
+    background-size: 88px 88px;
+    mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.85), transparent 78%);
+    opacity: 0.28;
   }
 
   .backdrop-orb {
@@ -192,7 +192,7 @@
     height: 36vw;
     max-width: 520px;
     max-height: 520px;
-    background: radial-gradient(circle, rgba(114, 246, 255, 0.18), transparent 68%);
+    background: radial-gradient(circle, rgba(217, 119, 87, 0.14), transparent 70%);
   }
 
   .orb-b {
@@ -201,7 +201,7 @@
     height: 40vw;
     max-width: 620px;
     max-height: 620px;
-    background: radial-gradient(circle, rgba(157, 140, 255, 0.16), transparent 70%);
+    background: radial-gradient(circle, rgba(212, 160, 23, 0.12), transparent 72%);
     animation-delay: -6s;
   }
 
@@ -211,7 +211,7 @@
     height: 22vw;
     max-width: 300px;
     max-height: 300px;
-    background: radial-gradient(circle, rgba(255, 179, 92, 0.14), transparent 70%);
+    background: radial-gradient(circle, rgba(45, 108, 162, 0.1), transparent 72%);
     animation-delay: -11s;
   }
 
@@ -248,22 +248,22 @@
   .page-error {
     padding: 60px 24px;
     text-align: center;
-    color: var(--text-muted, rgba(169, 193, 220, 0.54));
+    color: var(--text-muted, #9a9590);
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
   }
-  .page-error-icon { color: var(--border, rgba(114, 246, 255, 0.16)); margin-bottom: 4px; }
+  .page-error-icon { color: var(--border, #E5E0DA); margin-bottom: 4px; }
   .page-error-title {
     font-size: 0.88rem;
     font-weight: 600;
-    color: var(--text-secondary, rgba(226, 240, 255, 0.78));
+    color: var(--text-secondary, #6b6560);
     margin: 0;
   }
   .page-error-hint {
     font-size: 0.74rem;
-    color: var(--text-muted, rgba(169, 193, 220, 0.54));
+    color: var(--text-muted, #9a9590);
     margin: 0 0 8px;
   }
   .page-error-actions {
@@ -274,9 +274,9 @@
     padding: 10px 20px;
     border: none;
     border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent-secondary, #ffb35c), var(--accent, #72f6ff));
-    color: #05111e;
-    font: 700 0.78rem/1 var(--font-body, 'Space Grotesk', sans-serif);
+    background: var(--accent, #D97757);
+    color: #fff;
+    font: 600 0.78rem/1 var(--font-body, 'Inter', sans-serif);
     cursor: pointer;
     transition: all 150ms;
     min-height: 44px;
@@ -285,12 +285,12 @@
   }
   .page-error-btn:hover { opacity: 0.92; transform: translateY(-1px); box-shadow: var(--glow-accent); }
   .page-error-btn.secondary {
-    background: var(--surface-elevated, rgba(13, 28, 49, 0.86));
-    color: var(--text-secondary, rgba(40, 49, 60, 0.8));
-    border: 1px solid var(--border, rgba(114, 246, 255, 0.16));
+    background: var(--surface-elevated, #fff);
+    color: var(--text-secondary, #6b6560);
+    border: 1px solid var(--border, #E5E0DA);
     backdrop-filter: blur(18px);
   }
-  .page-error-btn.secondary:hover { border-color: var(--accent, #72f6ff); color: var(--accent, #72f6ff); }
+  .page-error-btn.secondary:hover { border-color: var(--accent, #D97757); color: var(--accent, #D97757); }
 
   @keyframes drift {
     0%, 100% { transform: translate3d(0, 0, 0) scale(1); }

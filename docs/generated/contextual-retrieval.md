@@ -11,7 +11,7 @@ This generated artifact summarizes the query-time retrieval index for canonical 
 ## Index Stats
 
 - Source docs indexed: `37`
-- Chunks indexed: `525`
+- Chunks indexed: `529`
 - Chunk size (words): `120`
 - Overlap size (words): `30`
 - Default top-k: `5`
@@ -20,7 +20,7 @@ This generated artifact summarizes the query-time retrieval index for canonical 
 
 | Path | Chunk Count |
 | --- | --- |
-| `memory/session-log.md` | 131 |
+| `memory/session-log.md` | 135 |
 | `memory/page-redesign-spec.md` | 59 |
 | `memory/magnet-studio-ux-v2.md` | 56 |
 | `memory/architecture.md` | 33 |

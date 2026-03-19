@@ -22,7 +22,7 @@
     "count": 3
   },
   "retrieval": {
-    "chunkCount": 525,
+    "chunkCount": 529,
     "sourceCount": 37
   },
   "telemetry": {
@@ -49,7 +49,7 @@
     {
       "label": "Ambiguity has a retrieval escape hatch",
       "pass": true,
-      "evidence": "525 retrieval chunks across 37 sources"
+      "evidence": "529 retrieval chunks across 37 sources"
     },
     {
       "label": "Time-saved evidence exists",
