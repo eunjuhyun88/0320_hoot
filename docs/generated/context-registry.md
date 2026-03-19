@@ -76,6 +76,7 @@ This generated manifest is the portable index for open-source discovery, local A
 | `eval:ab:refresh` | eval | `node scripts/dev/refresh-context-ab-report.mjs` |
 | `eval:globe` | eval | `node --experimental-strip-types eval/run_eval.ts` |
 | `eval:globe:json` | eval | `node --experimental-strip-types eval/run_eval.ts --json` |
+| `eval:refactor` | eval | `node --experimental-strip-types scripts/eval_refactor_runtime.ts` |
 | `gate:context` | gate | `npm run docs:check && npm run ctx:check -- --strict && npm run coord:check && npm run sandbox:check` |
 | `harness:all` | harness | `bash scripts/dev/run-full-context-harness.sh` |
 | `harness:benchmark` | harness | `node scripts/dev/run-context-benchmark.mjs` |
@@ -87,8 +88,10 @@ This generated manifest is the portable index for open-source discovery, local A
 | `registry:serve` | registry | `node scripts/dev/serve-context-registry.mjs` |
 | `retrieve:query` | retrieve | `node scripts/dev/query-context-retrieval.mjs` |
 | `retrieve:refresh` | retrieve | `node scripts/dev/refresh-context-retrieval.mjs` |
+| `safe:cleanup` | safe | `bash scripts/dev/cleanup-stale.sh` |
 | `safe:git-config` | safe | `bash scripts/dev/bootstrap-git-config.sh` |
 | `safe:hooks` | safe | `bash scripts/dev/install-git-hooks.sh` |
+| `safe:merge` | safe | `bash scripts/dev/auto-merge.sh` |
 | `safe:status` | safe | `bash scripts/dev/safe-status.sh` |
 | `safe:sync` | safe | `bash scripts/dev/sync-branch.sh` |
 | `safe:sync:gate` | safe | `bash scripts/dev/sync-branch.sh --gate` |
@@ -116,8 +119,8 @@ This generated manifest is the portable index for open-source discovery, local A
 ## Retrieval
 
 - Retrieval enabled: `yes`
-- Indexed sources: `34`
-- Indexed chunks: `310`
+- Indexed sources: `37`
+- Indexed chunks: `525`
 
 ## Telemetry
 

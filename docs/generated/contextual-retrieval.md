@@ -10,8 +10,8 @@ This generated artifact summarizes the query-time retrieval index for canonical 
 
 ## Index Stats
 
-- Source docs indexed: `34`
-- Chunks indexed: `310`
+- Source docs indexed: `37`
+- Chunks indexed: `525`
 - Chunk size (words): `120`
 - Overlap size (words): `30`
 - Default top-k: `5`
@@ -20,21 +20,21 @@ This generated artifact summarizes the query-time retrieval index for canonical 
 
 | Path | Chunk Count |
 | --- | --- |
-| `memory/session-log.md` | 73 |
+| `memory/session-log.md` | 131 |
+| `memory/page-redesign-spec.md` | 59 |
+| `memory/magnet-studio-ux-v2.md` | 56 |
 | `memory/architecture.md` | 33 |
+| `docs/design-docs/research-semantic-zoom.md` | 27 |
+| `memory/MEMORY.md` | 25 |
 | `docs/CONTEXT_EVALUATION.md` | 22 |
-| `README.md` | 19 |
+| `README.md` | 20 |
 | `docs/CONTEXT_ENGINEERING.md` | 18 |
-| `memory/MEMORY.md` | 13 |
-| `AGENTS.md` | 9 |
+| `AGENTS.md` | 10 |
 | `docs/CONTEXT_PLATFORM.md` | 9 |
 | `docs/MULTI_AGENT_COORDINATION.md` | 9 |
 | `docs/AGENT_FACTORY.md` | 8 |
 | `docs/ENGINEERING.md` | 8 |
 | `docs/AGENT_OBSERVABILITY.md` | 7 |
-| `docs/product-specs/protocol.md` | 7 |
-| `docs/product-specs/runtime-api.md` | 7 |
-| `docs/product-specs/web.md` | 7 |
 
 ## Commands
 

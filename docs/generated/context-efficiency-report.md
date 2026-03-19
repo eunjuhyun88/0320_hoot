@@ -6,36 +6,36 @@ This report estimates how much context the routing system saves before the agent
 
 | Bundle | Files | Lines | Approx Tokens | Reduction vs canonical | Reduction vs all docs |
 | --- | --- | --- | --- | --- | --- |
-| small map | 10 | 1091 | 8926 | 44.7% | 95.0% |
-| canonical | 29 | 2079 | 16133 | 0.0% | 91.0% |
-| all docs | 319 | 22254 | 178514 | -1006.5% | 0.0% |
+| small map | 10 | 1103 | 9189 | 51.1% | 75.2% |
+| canonical | 30 | 2417 | 18786 | 0.0% | 49.2% |
+| all docs | 72 | 4379 | 37014 | -97.0% | 0.0% |
 
 ## Estimated Savings
 
-- Small map saves approximately `7207` tokens vs the canonical bundle.
-- Small map saves approximately `169588` tokens vs the all-doc bundle.
-- Surface `web` saves approximately `168709` tokens vs the all-doc bundle.
-- Surface `runtime-api` saves approximately `168704` tokens vs the all-doc bundle.
-- Surface `protocol` saves approximately `168724` tokens vs the all-doc bundle.
+- Small map saves approximately `9597` tokens vs the canonical bundle.
+- Small map saves approximately `27825` tokens vs the all-doc bundle.
+- Surface `web` saves approximately `26536` tokens vs the all-doc bundle.
+- Surface `runtime-api` saves approximately `26532` tokens vs the all-doc bundle.
+- Surface `protocol` saves approximately `26552` tokens vs the all-doc bundle.
 
 ## Surface Bundles
 
 | Bundle | Files | Lines | Approx Tokens | Reduction vs canonical | Reduction vs all docs |
 | --- | --- | --- | --- | --- | --- |
-| web | 14 | 1207 | 9805 | 39.2% | 94.5% |
-| runtime-api | 14 | 1207 | 9810 | 39.2% | 94.5% |
-| protocol | 14 | 1201 | 9790 | 39.3% | 94.5% |
+| web | 14 | 1251 | 10478 | 44.2% | 71.7% |
+| runtime-api | 14 | 1250 | 10482 | 44.2% | 71.7% |
+| protocol | 14 | 1244 | 10462 | 44.3% | 71.7% |
 
 ## Structural Scorecard
 
 | Check | Actual | Target | Result |
 | --- | --- | --- | --- |
-| Small-map reduction vs canonical | 44.7% | >= 40% | PASS |
-| Small-map reduction vs all docs | 95.0% | >= 55% | PASS |
-| Worst surface reduction vs all docs | 94.5% | >= 50% | PASS |
-| Small-map approx tokens | 8926 | <= 3800 | FAIL |
+| Small-map reduction vs canonical | 51.1% | >= 40% | PASS |
+| Small-map reduction vs all docs | 75.2% | >= 55% | PASS |
+| Worst surface reduction vs all docs | 71.7% | >= 50% | PASS |
+| Small-map approx tokens | 9189 | <= 3800 | FAIL |
 | Small-map file count | 10 | <= 6 | FAIL |
-| Canonical approx tokens | 16133 | <= 12000 | FAIL |
+| Canonical approx tokens | 18786 | <= 12000 | FAIL |
 
 ## Structural Readiness
 

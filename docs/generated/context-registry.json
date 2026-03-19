@@ -351,6 +351,11 @@
       "category": "eval"
     },
     {
+      "name": "eval:refactor",
+      "script": "node --experimental-strip-types scripts/eval_refactor_runtime.ts",
+      "category": "eval"
+    },
+    {
       "name": "gate:context",
       "script": "npm run docs:check && npm run ctx:check -- --strict && npm run coord:check && npm run sandbox:check",
       "category": "gate"
@@ -406,6 +411,11 @@
       "category": "retrieve"
     },
     {
+      "name": "safe:cleanup",
+      "script": "bash scripts/dev/cleanup-stale.sh",
+      "category": "safe"
+    },
+    {
       "name": "safe:git-config",
       "script": "bash scripts/dev/bootstrap-git-config.sh",
       "category": "safe"
@@ -413,6 +423,11 @@
     {
       "name": "safe:hooks",
       "script": "bash scripts/dev/install-git-hooks.sh",
+      "category": "safe"
+    },
+    {
+      "name": "safe:merge",
+      "script": "bash scripts/dev/auto-merge.sh",
       "category": "safe"
     },
     {
@@ -663,8 +678,8 @@
   "retrieval": {
     "enabled": true,
     "indexPath": "docs/generated/contextual-retrieval-index.json",
-    "chunkCount": 310,
-    "sourceCount": 34,
+    "chunkCount": 525,
+    "sourceCount": 37,
     "sources": [
       {
         "path": "AGENTS.md",
@@ -723,6 +738,11 @@
       },
       {
         "path": "docs/design-docs/index.md",
+        "role": "design-doc",
+        "authority": "canonical"
+      },
+      {
+        "path": "docs/design-docs/research-semantic-zoom.md",
         "role": "design-doc",
         "authority": "canonical"
       },
@@ -808,11 +828,6 @@
       },
       {
         "path": "memory/architecture.md",
-        "role": "doc",
-        "authority": "tracked"
-      },
-      {
-        "path": "memory/CLAUDE.md",
         "role": "doc",
         "authority": "tracked"
       }

@@ -29,6 +29,10 @@
     justify-content: center;
     pointer-events: none;
     transition: opacity 0.5s ease;
+    background:
+      radial-gradient(circle at center, rgba(114, 246, 255, 0.12), transparent 34%),
+      linear-gradient(180deg, rgba(4, 10, 18, 0.84), rgba(2, 6, 12, 0.96));
+    backdrop-filter: blur(12px);
   }
   .splash.exit {
     opacity: 0;
@@ -38,7 +42,7 @@
     opacity: 0;
     transform: translateY(12px) scale(0.9);
     transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 0 22px rgba(114, 246, 255, 0.18));
   }
   .splash-owl.entered {
     opacity: 1;

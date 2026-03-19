@@ -34,7 +34,7 @@
         <span class="footer-brand-name">PROTOCOL</span>
       </a>
       <p class="footer-copy">
-        Autonomous research mesh for live experiment orchestration, model benchmarking, and network-native compute workflows.
+        Autonomous research mesh for live mission control, model benchmarking, and network-native compute routing.
       </p>
     </div>
 
@@ -91,17 +91,19 @@
 <style>
   .site-footer {
     margin-top: auto;
-    border-top: 1px solid rgba(217, 119, 87, 0.15);
+    border-top: 1px solid var(--border, rgba(114, 246, 255, 0.16));
     background:
-      radial-gradient(circle at top left, rgba(217, 119, 87, 0.1), transparent 40%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 249, 247, 0.98));
-    color: var(--text-primary, #2D2D2D);
+      radial-gradient(circle at top left, rgba(114, 246, 255, 0.14), transparent 36%),
+      radial-gradient(circle at top right, rgba(157, 140, 255, 0.16), transparent 34%),
+      linear-gradient(180deg, rgba(4, 12, 24, 0.92), rgba(2, 7, 14, 0.98));
+    color: var(--text-primary, #eef7ff);
+    backdrop-filter: blur(18px);
   }
 
   .site-footer-inner {
-    max-width: 1280px;
+    max-width: 1360px;
     margin: 0 auto;
-    padding: 28px 24px 20px;
+    padding: 32px 24px 22px;
     display: grid;
     grid-template-columns: minmax(220px, 1.2fr) 2fr;
     gap: 28px;
@@ -133,19 +135,21 @@
   }
 
   .footer-brand-mark {
-    font-family: var(--font-display, "Playfair Display", serif);
+    font-family: var(--font-display, "Oxanium", sans-serif);
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-primary, #2D2D2D);
-    letter-spacing: 0.04em;
+    color: var(--text-primary, #eef7ff);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
 
   .footer-brand-name {
-    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-family: var(--font-mono, "IBM Plex Mono", monospace);
     font-size: 0.74rem;
     font-weight: 700;
-    color: var(--accent, #D97757);
-    letter-spacing: 0.16em;
+    color: var(--accent-secondary, #ffb35c);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
 
   .footer-copy {
@@ -153,7 +157,7 @@
     max-width: 420px;
     font-size: 0.82rem;
     line-height: 1.6;
-    color: var(--text-secondary, #6b6560);
+    color: var(--text-secondary, rgba(226, 240, 255, 0.78));
   }
 
   .footer-links-grid {
@@ -170,12 +174,12 @@
 
   .footer-group-title {
     margin: 0;
-    font-family: var(--font-mono, "JetBrains Mono", monospace);
-    font-size: 0.58rem;
+    font-family: var(--font-mono, "IBM Plex Mono", monospace);
+    font-size: 0.62rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--accent, #D97757);
+    color: var(--accent, #72f6ff);
   }
 
   .footer-link-list {
@@ -185,7 +189,7 @@
   }
 
   .footer-link {
-    color: var(--text-secondary, #6b6560);
+    color: var(--text-secondary, rgba(226, 240, 255, 0.78));
     text-decoration: none;
     font-size: 0.82rem;
     transition: color 160ms ease, transform 160ms ease;
@@ -193,23 +197,24 @@
   }
 
   .footer-link:hover {
-    color: var(--accent, #D97757);
+    color: var(--accent, #72f6ff);
     transform: translateX(2px);
   }
 
   .site-footer-meta {
-    max-width: 1280px;
+    max-width: 1360px;
     margin: 0 auto;
     padding: 0 24px 18px;
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    border-top: 1px solid rgba(217, 119, 87, 0.12);
+    border-top: 1px solid rgba(114, 246, 255, 0.08);
     padding-top: 12px;
-    font-family: var(--font-mono, "JetBrains Mono", monospace);
+    font-family: var(--font-mono, "IBM Plex Mono", monospace);
     font-size: 0.62rem;
-    color: var(--accent, #D97757);
-    letter-spacing: 0.06em;
+    color: var(--text-muted, rgba(169, 193, 220, 0.54));
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   /* ── Tablet ── */

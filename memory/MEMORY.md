@@ -40,6 +40,14 @@
   - `karpathy/nanochat@6ed7d1d82cee16c2e26f45d559ad3338447a6c1b`
 
 ## Key Decisions (confirmed by user)
+- **Desktop navigation direction updated (2026-03-20)**:
+  - replace the old top header feel with a **Comet-style desktop shell**
+  - use a **compact icon rail + collapsible companion panel** on desktop
+  - keep **mobile as top bar + drawer**
+  - remove arbitrary sidebar-width controls; use simple collapse/expand behavior instead
+- **Browser CTA stays in navigation**:
+  - `Download Hoot Browser` remains part of the nav shell
+  - current external destination is still `https://x.com/HootBrowser` until a canonical download URL exists
 - Economics tab → renamed **Protocol**
 - Research tab → renamed **Magnet** (NavBar) / "Model Magnet Research" (full name)
 - **Magnet Research label must remain unchanged**; the mobile fix is to surface the research input/content, not rename the tab

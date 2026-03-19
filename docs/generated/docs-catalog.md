@@ -37,6 +37,8 @@
 | `docs/archive/README.md` | `archive-router` | `tracked-only` | Archive interpretation policy. |
 | `docs/design-docs/core-beliefs.md` | `design-doc` | `canonical` | Structured design document. |
 | `docs/design-docs/index.md` | `design-doc` | `canonical` | Structured design document. |
+| `docs/design-docs/research-semantic-zoom.md` | `design-doc` | `canonical` | Structured design document. |
+| `docs/design/ontology-integration.md` | `unclassified` | `unknown` | Needs promotion or archive placement. |
 | `docs/exec-plans/active/README.md` | `active-plan` | `canonical` | Active execution plan. |
 | `docs/exec-plans/active/context-system-rollout.md` | `active-plan` | `canonical` | Active execution plan. |
 | `docs/exec-plans/active/continuous-autoresearch-refactor.md` | `active-plan` | `canonical` | Active execution plan. |

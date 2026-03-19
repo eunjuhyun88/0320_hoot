@@ -8,6 +8,12 @@
 | --- | --- | --- | --- |
 | `/api/autoresearch_loop_controller` | discovered | `scripts/autoresearch_loop_controller.ts` | none |
 
+### autoresearch_repo_refactor_supervisor
+
+| API | Source | File | Surfaces |
+| --- | --- | --- | --- |
+| `/api/autoresearch_repo_refactor_supervisor` | discovered | `scripts/autoresearch_repo_refactor_supervisor.ts` | none |
+
 ### autoresearch_swarm_supervisor
 
 | API | Source | File | Surfaces |
@@ -26,11 +32,23 @@
 | --- | --- | --- | --- |
 | `/api/bootstrap_karpathy_stack` | discovered | `scripts/bootstrap_karpathy_stack.ts` | none |
 
+### eval_refactor_runtime
+
+| API | Source | File | Surfaces |
+| --- | --- | --- | --- |
+| `/api/eval_refactor_runtime` | discovered | `scripts/eval_refactor_runtime.ts` | none |
+
 ### mock_telemetry_server
 
 | API | Source | File | Surfaces |
 | --- | --- | --- | --- |
 | `/api/mock_telemetry_server` | discovered | `scripts/mock_telemetry_server.ts` | none |
+
+### prepare_repo_refactor_runtime
+
+| API | Source | File | Surfaces |
+| --- | --- | --- | --- |
+| `/api/prepare_repo_refactor_runtime` | discovered | `scripts/prepare_repo_refactor_runtime.ts` | none |
 
 ### prepare_svelte_migration
 

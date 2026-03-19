@@ -16,6 +16,7 @@
 | `web` | route | `/#/models` | ok |
 | `web` | route | `/#/network` | ok |
 | `web` | route | `/#/protocol` | ok |
+| `web` | route | `/#/research-lab` | missing |
 | `web` | route | `/#/research` | ok |
 | `web` | store | `jobStore` | ok |
 | `web` | store | `router` | ok |

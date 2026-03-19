@@ -1,5 +1,38 @@
 # Session Log
 
+## 2026-03-20: Comet-style desktop navigation shell
+
+### Context
+사용자 요청: 제공한 Comet / Perplexity 브라우저 스크린샷 방향으로 좌측 네비를 다시 설계하고, 기존 헤더형 구조보다 메뉴가 더 잘 보이도록 개선
+
+### Completed
+- **Desktop nav shell rebuilt**:
+  - `src-svelte/lib/layout/NavBar.svelte`
+  - old header-style nav replaced with a **left icon rail + collapsible companion panel**
+  - desktop panel now includes:
+    - primary action (`Start new research` / `Open active research`)
+    - clearer workspace navigation
+    - recent section
+    - live/demo status
+    - wallet actions
+    - `Download Hoot Browser` CTA
+- **App shell layout adjusted**:
+  - `src-svelte/App.svelte`
+  - desktop layout is now `nav column + content column`
+  - mobile keeps the top bar + drawer pattern
+- **InfoBar restyled to fit the new shell**:
+  - `src-svelte/lib/components/InfoBar.svelte`
+  - moved from thin strip feel to rounded status tray that visually matches the new navigation chrome
+
+### Verification
+- `npm run build` ✓
+  - build passes
+  - existing repo-wide Svelte a11y / unused-export warnings remain
+  - no new build failure introduced by this navigation refactor
+
+### Notes
+- The current repo root worktree was already dirty before this pass (`App.svelte`, `InfoBar.svelte`, `NavBar.svelte`, etc.), so this work intentionally built on top of the active UI WIP instead of reverting it.
+
 ## 2026-03-15: jobStore 피드백 루프 + 5-Zone UI 리팩토링
 
 ### Context
